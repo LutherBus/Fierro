@@ -38,7 +38,7 @@
 dynamic_options:
     time_final: 10.0
     dt_min: 1.e-8
-    dt_max: 1.0
+    dt_max: 1.e-2
     dt_start: 1.e-5
     cycle_stop: 100000
 
@@ -61,7 +61,7 @@ mesh_options:
 output_options:
     timer_output_level: thorough
     output_file_format: viz
-    graphics_time_step: 1.0
+    graphics_time_step: 0.1
     #graphics_iteration_step: 5
     elem_field_outputs:
         - den
@@ -223,7 +223,7 @@ materials:
         tabular_model:
             type: temperature_dependent
             file_format: Abaqus_jmatpro
-            tabular_data: /home/jacobmoore/Desktop/repos/Fierro/apps/multiphysics/example_inputs/Abaqus_inputs/1018_thermal_jmatpro.inp
+            tabular_data: /var/tmp/repos/Fierro/apps/multiphysics/example_inputs/Abaqus_inputs/1018_thermal_jmatpro.inp
             fields:
                 - density
                 - thermal_conductivity

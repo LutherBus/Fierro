@@ -101,12 +101,17 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     auto time_1 = std::chrono::high_resolution_clock::now();    
 
     // ---- Initialize the tool path information ---- //
-    int number_of_points = 4;
+    int number_of_points = 9;
     ToolPathInfo path(number_of_points);
-    path.set_data_point(0, 0.0,  100.0, 150.0, 15.0, 3000000.0);
-    path.set_data_point(1, 5.0,  200.0, 150.0, 15.0, 4000000.0);
-    path.set_data_point(2, 5.0,  100.0, 150.0, 30.0, 4000000.0);
-    path.set_data_point(3, 10.0, 200.0, 150.0, 30.0, 3000000.0);
+    path.set_data_point(0, 0.0,  150.0, 225.0, 30.0, 3000000.0);
+    path.set_data_point(1, 1.25,  203.0, 203.0, 30.0, 3000000.0);
+    path.set_data_point(2, 2.5,  225.0, 150.0, 30.0, 3000000.0);
+    path.set_data_point(3, 3.75,  203.0, 97.0, 30.0, 3000000.0);
+    path.set_data_point(4, 5.0,  150.0, 75.0, 30.0, 3000000.0);
+    path.set_data_point(5, 6.25,  97.0, 97.0, 30.0, 3000000.0);
+    path.set_data_point(6, 7.5,  75.0, 150.0, 30.0, 3000000.0);
+    path.set_data_point(7, 8.75,  97.0, 203.0, 30.0, 3000000.0);
+    path.set_data_point(8, 10.0, 150.0, 225.0, 30.0, 3000000.0);
 
     path.tool_path_table.print_table();
 

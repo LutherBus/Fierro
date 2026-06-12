@@ -8,12 +8,12 @@ import glob
 import argparse
 
 # Builds being tested
-builds = ["serial"]
+builds = ["openmp"]
 
 # Name(s) of the solver being used
 solvers = ["Fierro"]
 
-solver_path = "../build/app/Fierro"
+solver_path = "../build_openmp/app/Fierro"
 
 # Add names of each test
 tests = ["stl_to_volfrac", "TaylorAnvil", "TaylorAnvil_rz", "Compaction",  \
