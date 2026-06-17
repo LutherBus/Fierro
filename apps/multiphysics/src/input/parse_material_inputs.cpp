@@ -879,6 +879,38 @@ void parse_materials(Yaml::Node& root, Material_t& Materials, const size_t num_d
                             Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature = &TabularMaterialModel::get_specific_heat_from_temperature;
                         });
                     }
+                    else if(field_name.compare("density_solidified") == 0){
+
+                        // Read the data from the Abaqus JMatPro file
+                        AbaqusReader::read_tabular_jmatpro_file(file_path, field_name,  Materials.density_table_solidified);
+                        // Copy the table to the device
+                        Materials.density_table_solidified.update_device();
+
+                        RUN({
+                            Materials.MaterialFunctions(mat_id).get_density_from_temperature_solidified = &TabularMaterialModel::get_density_from_temperature_solidified;
+                        });
+                    }
+                    else if(field_name.compare("thermal_conductivity_solidified") == 0){
+                        // Read the data from the Abaqus JMatPro file
+                        AbaqusReader::read_tabular_jmatpro_file(file_path, field_name, Materials.thermal_conductivity_table_solidified);
+
+                        Materials.thermal_conductivity_table_solidified.update_device();
+
+                        RUN({
+                            Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature_solidified = &TabularMaterialModel::get_thermal_conductivity_from_temperature_solidified;
+                        });
+
+                    }
+                    else if(field_name.compare("specific_heat_solidified") == 0){
+                        // Read the data from the Abaqus JMatPro file
+                        AbaqusReader::read_tabular_jmatpro_file(file_path, field_name, Materials.specific_heat_table_solidified);
+
+                        Materials.specific_heat_table_solidified.update_device();
+
+                        RUN({
+                            Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature_solidified = &TabularMaterialModel::get_specific_heat_from_temperature_solidified;
+                        });
+                    }
                     else{
                         std::cout << "ERROR: invalid tabular field name: " << field_name << std::endl;
                         std::cout << "Valid options are: " << std::endl;

@@ -101,17 +101,24 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     auto time_1 = std::chrono::high_resolution_clock::now();    
 
     // ---- Initialize the tool path information ---- //
-    int number_of_points = 9;
+    int number_of_points = 11;
     ToolPathInfo path(number_of_points);
-    path.set_data_point(0, 0.0,  150.0, 225.0, 30.0, 3000000.0);
-    path.set_data_point(1, 1.25,  203.0, 203.0, 30.0, 3000000.0);
-    path.set_data_point(2, 2.5,  225.0, 150.0, 30.0, 3000000.0);
-    path.set_data_point(3, 3.75,  203.0, 97.0, 30.0, 3000000.0);
-    path.set_data_point(4, 5.0,  150.0, 75.0, 30.0, 3000000.0);
-    path.set_data_point(5, 6.25,  97.0, 97.0, 30.0, 3000000.0);
-    path.set_data_point(6, 7.5,  75.0, 150.0, 30.0, 3000000.0);
-    path.set_data_point(7, 8.75,  97.0, 203.0, 30.0, 3000000.0);
-    path.set_data_point(8, 10.0, 150.0, 225.0, 30.0, 3000000.0);
+
+path.set_data_point(0, 0.0, 225.0, 225.000000, 30.0, 3000000.0);
+path.set_data_point(1, 1.0, 222.5, 222.756794, 30.0, 3000000.0);
+path.set_data_point(2, 2.0, 220.0, 220.494434, 30.0, 3000000.0);
+path.set_data_point(3, 3.0, 215.0, 215.193843, 30.0, 3000000.0);
+path.set_data_point(4, 4.0, 210.0, 210.836099, 30.0, 3000000.0);
+path.set_data_point(5, 5.0, 200.0, 200.402508, 30.0, 3000000.0);
+path.set_data_point(6, 6.0, 190.0, 190.0, 30.0, 3000000.0);
+path.set_data_point(7, 7.0, 180.0, 180.0, 30.0, 3000000.0);
+path.set_data_point(8, 8.0, 170.0, 170.0, 30.0, 3000000.0);
+path.set_data_point(9, 9.0, 160.0, 160.0, 30.0, 3000000.0);
+path.set_data_point(10, 10.0, 150.0, 150.0, 30.0, 3000000.0);
+
+
+
+
 
     path.tool_path_table.print_table();
 
@@ -129,7 +136,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         if (log) Materials.specific_heat_table.print_table();
         if (log) log->flush();
     } // end for mat_id
-
+ 
     // ---- Write initial state at t=0 ---- 
     if (log) log->info("Writing outputs to file at %f \n", graphics_time);
     mesh_writer.write_mesh(
@@ -171,7 +178,8 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                 State.node.temp, 
                 State.MaterialPoints.den, 
                 State.MaterialPoints.conductivity, 
-                State.MaterialPoints.specific_heat, 
+                State.MaterialPoints.specific_heat,
+                State.MaterialPoints.eroded, 
                 State.MaterialToMeshMaps.elem_in_mat_elem, 
                 State.MaterialToMeshMaps.num_mat_elems.host(mat_id), 
                 mat_id);
@@ -231,13 +239,23 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
             }
         }
 
+        // Global minimum dt across MPI ranks (each rank's CFL limit is local to its partition).
+        {
+            int init = 0;
+            if (MPI_Initialized(&init) == MPI_SUCCESS && init) {
+                MPI_Allreduce(MPI_IN_PLACE, &dt, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+            }
+        }
+
         // ---- Print the initial time step and time value ---- //
         if (cycle == 0) {
+            if (log) log->info("cycle = %lu, time = %f, time step = %f \n", cycle, time_value, dt);
             if (log) log->info("cycle = %lu, time = %f, time step = %f \n", cycle, time_value, dt);
         }
         
         // ---- Print time step every 10 cycles ---- // 
         else if (cycle % 20 == 0) {
+            if (log) log->info("cycle = %lu, time = %f, time step = %f \n", cycle, time_value, dt);
             if (log) log->info("cycle = %lu, time = %f, time step = %f \n", cycle, time_value, dt);
         } // end if
 
@@ -332,6 +350,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                                State.node.coords, 
                                time_value);
 
+
             // ---- Update nodal temperature ---- //
             update_temperature(
                 mesh,
@@ -347,6 +366,9 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
             // ---- apply temperature boundary conditions to the boundary patches----
             boundary_temperature(mesh, BoundaryConditions, State.node.temp, time_value);
+
+            State.node.temp.communicate();
+            State.node.temp_n0.communicate();
 
             State.node.temp.communicate();
             State.node.temp_n0.communicate();
@@ -406,6 +428,9 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
             if (log) log->info("Writing outputs to file at %f \n", graphics_time);
             if (log) log->info("cycle = %lu, time = %f, time step = %f \n", cycle, time_value, dt);
             if (log) log->flush();
+            if (log) log->info("Writing outputs to file at %f \n", graphics_time);
+            if (log) log->info("cycle = %lu, time = %f, time step = %f \n", cycle, time_value, dt);
+            if (log) log->flush();
             mesh_writer.write_mesh(mesh,
                                    State,
                                    SimulationParamaters,
@@ -430,6 +455,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
     auto time_2    = std::chrono::high_resolution_clock::now();
     auto calc_time = std::chrono::duration_cast<std::chrono::nanoseconds>(time_2 - time_1).count();
+    if (log) log->info("\nCalculation time in seconds: %f \n", calc_time * 1e-9);
     if (log) log->info("\nCalculation time in seconds: %f \n", calc_time * 1e-9);
 
 } // end of SGH execute
