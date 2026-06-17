@@ -67,6 +67,7 @@ void SGTM3D::update_properties(
     const DRaggedRightArrayKokkos<double>& MaterialPoints_den,
     const DRaggedRightArrayKokkos<double>& MaterialPoints_conductivity,
     const DRaggedRightArrayKokkos<double>& MaterialPoints_specific_heat,
+    const DRaggedRightArrayKokkos<bool>&   MaterialPoints_eroded,
     const DRaggedRightArrayKokkos<size_t>& elem_in_mat_elem,
     const size_t num_material_elems,
     const size_t mat_id) const
@@ -77,6 +78,10 @@ void SGTM3D::update_properties(
     auto density_table = Materials.density_table;
     auto thermal_conductivity_table = Materials.thermal_conductivity_table;
     auto specific_heat_table = Materials.specific_heat_table;
+
+    auto density_table_solidified = Materials.density_table_solidified;
+    auto thermal_conductivity_table_solidified = Materials.thermal_conductivity_table_solidified;
+    auto specific_heat_table_solidified = Materials.specific_heat_table_solidified;
 
     // Compute the element temperature by averaging the node temperatures
     FOR_ALL(mat_elem_sid, 0, num_material_elems, {
@@ -91,6 +96,11 @@ void SGTM3D::update_properties(
         }
 
         // Use that temperature to update the element state using the tabular properties
+        if (MaterialPoints_eroded(mat_id, mat_elem_sid)) {
+            MaterialPoints_den(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_density_from_temperature_solidified(density_table_solidified, avg_temp);
+            MaterialPoints_conductivity(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature_solidified(thermal_conductivity_table_solidified, avg_temp);
+            MaterialPoints_specific_heat(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature_solidified(specific_heat_table_solidified, avg_temp);
+        }
         MaterialPoints_den(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_density_from_temperature(density_table, avg_temp);
         MaterialPoints_conductivity(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature(thermal_conductivity_table, avg_temp);
         MaterialPoints_specific_heat(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature(specific_heat_table, avg_temp);

@@ -128,7 +128,7 @@ void SGTM3D::get_heat_flux(
 
 
         // ---- Change element state if above some melting temperature ---- //
-        if(avg_temp >= 900){
+        if(avg_temp >= 300){
             // printf("Melted!");
             MaterialPoints_eroded(mat_id, mat_elem_sid) = true;
         } 
