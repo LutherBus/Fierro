@@ -100,11 +100,11 @@ void SGTM3D::update_properties(
             MaterialPoints_den(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_density_from_temperature_solidified(density_table_solidified, avg_temp);
             MaterialPoints_conductivity(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature_solidified(thermal_conductivity_table_solidified, avg_temp);
             MaterialPoints_specific_heat(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature_solidified(specific_heat_table_solidified, avg_temp);
-        }
-        MaterialPoints_den(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_density_from_temperature(density_table, avg_temp);
-        MaterialPoints_conductivity(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature(thermal_conductivity_table, avg_temp);
-        MaterialPoints_specific_heat(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature(specific_heat_table, avg_temp);
-
+        } else {
+            MaterialPoints_den(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_density_from_temperature(density_table, avg_temp);
+            MaterialPoints_conductivity(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature(thermal_conductivity_table, avg_temp);
+            MaterialPoints_specific_heat(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature(specific_heat_table, avg_temp);
+        } // end if statement
     });
 
 

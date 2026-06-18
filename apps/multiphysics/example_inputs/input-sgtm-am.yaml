@@ -229,6 +229,9 @@ materials:
                 - density
                 - thermal_conductivity
                 - specific_heat
+                - density_solidified
+                - thermal_conductivity_solidified
+                - specific_heat_solidified
         # `tabular_model.fields` selects which quantities are interpolated
         # from the temperature-dependent table. In this example it provides:
         # - density (used for masses/thermal capacity)

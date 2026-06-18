@@ -353,6 +353,7 @@ public:
         const DRaggedRightArrayKokkos<double>& MaterialPoints_den,
         const DRaggedRightArrayKokkos<double>& MaterialPoints_conductivity,
         const DRaggedRightArrayKokkos<double>& MaterialPoints_specific_heat,
+        const mtr::DRaggedRightArrayKokkos<bool>& eroded,
         const DRaggedRightArrayKokkos<size_t>& elem_in_mat_elem,
         const size_t num_material_elems,
         const size_t mat_id) const;

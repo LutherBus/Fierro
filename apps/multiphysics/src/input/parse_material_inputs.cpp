@@ -1016,7 +1016,7 @@ void parse_materials(Yaml::Node& root, Material_t& Materials, const size_t num_d
                             "ERROR: \n"
                             "Dissipation parameters were given, but the 'no_dissipation' model was specified.\n " 
                             "A dissipation model must be specified. \n"
-                            "********************************************************************************************\n");
+                            "*******************a_word*************************************************************************\n");
         }
         if (Materials.num_dissipation_global_vars(mat_id)==0 && Materials.MaterialFunctions(mat_id).calc_dissipation != NULL) {
 

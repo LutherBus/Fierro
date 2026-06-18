@@ -56,8 +56,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                      Material_t& Materials, 
                      BoundaryCondition_t& BoundaryConditions, 
                      swage::Mesh& mesh, 
-                     State_t& State)
-{
+                     State_t& State) {
 
     double fuzz  = SimulationParamaters.DynamicOptions.fuzz;
     double tiny  = SimulationParamaters.DynamicOptions.tiny;
@@ -262,10 +261,9 @@ path.set_data_point(10, 10.0, 150.0, 150.0, 30.0, 3000000.0);
 
 
         // ---- Initialize the state for the RK integration scheme ---- //
-        for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
-
-            // save the values at t = n
-            rk_init(State.node.coords,
+            for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
+                // save the values at t = n
+                rk_init(State.node.coords,
                     State.node.coords_n0,
                     State.node.vel,
                     State.node.vel_n0,
@@ -277,7 +275,8 @@ path.set_data_point(10, 10.0, 150.0, 150.0, 30.0, 3000000.0);
                     mesh.num_elems,
                     mesh.num_nodes,
                     State.MaterialPoints.num_material_points.host(mat_id));
-        } // end for mat_id
+            } // end for mat_id
+            
 
         // ---- Integrate the solution forward to t(n+1) via Runge Kutta (RK) method ---- //
         for (size_t rk_stage = 0; rk_stage < rk_num_stages; rk_stage++) {
@@ -332,6 +331,18 @@ path.set_data_point(10, 10.0, 150.0, 150.0, 30.0, 3000000.0);
                         dt, 
                         rk_alpha
                         );
+                    
+                    update_properties(
+                        Materials, 
+                        mesh, 
+                        State.node.temp, 
+                        State.MaterialPoints.den, 
+                        State.MaterialPoints.conductivity, 
+                        State.MaterialPoints.specific_heat,
+                        State.MaterialPoints.eroded, 
+                        State.MaterialToMeshMaps.elem_in_mat_elem, 
+                        State.MaterialToMeshMaps.num_mat_elems.host(mat_id), 
+                        mat_id);
                 }
 
             } // end for mat_id
