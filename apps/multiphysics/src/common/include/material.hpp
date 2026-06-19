@@ -438,18 +438,25 @@ struct MaterialFunctions_t
 
 
     // -- tabular --
-    // Tabular density as a function of temperature
-    double (*get_density_from_temperature)(const Table_t& data_table, const double temperature) = NULL;
+    // Tabular density as a function of temperature (solid)
+    double (*get_density_from_temperature_solid)(const Table_t& data_table, const double temperature) = NULL;
     // Tabular thermal conductivity as a function of temperature
-    double (*get_thermal_conductivity_from_temperature)(const Table_t& data_table, const double temperature) = NULL;
+    double (*get_thermal_conductivity_from_temperature_solid)(const Table_t& data_table, const double temperature) = NULL;
     // Tabular specific heat as a function of temperature
-    double (*get_specific_heat_from_temperature)(const Table_t& data_table, const double temperature) = NULL;
+    double (*get_specific_heat_from_temperature_solid)(const Table_t& data_table, const double temperature) = NULL;
+    // Tabular density as a function of temperature (powder)
+    double (*get_density_from_temperature_powder)(const Table_t& data_table, const double temperature) = NULL;
+    // Tabular thermal conductivity as a function of temperature
+    double (*get_thermal_conductivity_from_temperature_powder)(const Table_t& data_table, const double temperature) = NULL;
+    // Tabular specific heat as a function of temperature
+    double (*get_specific_heat_from_temperature_powder)(const Table_t& data_table, const double temperature) = NULL;
+    // Tabular density as a function of temperature (liquid)
+    double (*get_density_from_temperature_liquid)(const Table_t& data_table, const double temperature) = NULL;
+    // Tabular thermal conductivity as a function of temperature (liquid)
+    double (*get_thermal_conductivity_from_temperature_liquid)(const Table_t& data_table, const double temperature) = NULL;
+    // Tabular specific heat as a function of temperature (liquid)
+    double (*get_specific_heat_from_temperature_liquid)(const Table_t& data_table, const double temperature) = NULL;
 
-    double (*get_density_from_temperature_solidified)(const Table_t& data_table, const double temperature) = NULL;
-    // Tabular thermal conductivity as a function of temperature
-    double (*get_thermal_conductivity_from_temperature_solidified)(const Table_t& data_table, const double temperature) = NULL;
-    // Tabular specific heat as a function of temperature
-    double (*get_specific_heat_from_temperature_solidified)(const Table_t& data_table, const double temperature) = NULL;
 
 }; // end MaterialFunctions_t
 

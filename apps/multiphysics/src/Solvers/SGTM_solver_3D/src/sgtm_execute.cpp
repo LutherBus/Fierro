@@ -104,7 +104,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     ToolPathInfo path(number_of_points);
     // This toolpath is set to 700 mm/s, a typical scan speed
     // The laser power is set to 150 watts with an absorbtivity of around 0.7
-    path.set_data_point(0, 0.0, 0.3, 0.25, 0.05, 100000.0); 
+    path.set_data_point(0, 0.0, 0.3, 0.25, 0.05, 100000.0);
     path.set_data_point(1, 0.001, 1.0, 0.25, 0.05, 100000.0);
     path.set_data_point(2, 0.00101, 1.0, 0.25, 0.05, 0.0);
 

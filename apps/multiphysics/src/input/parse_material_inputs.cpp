@@ -847,68 +847,100 @@ void parse_materials(Yaml::Node& root, Material_t& Materials, const size_t num_d
                     std::string field_name = root["materials"][m_id]["material"]["tabular_model"]["fields"][field_id].As<std::string>();
 
 
-                    if(field_name.compare("density") == 0){
+                    if(field_name.compare("density_solid") == 0){
 
                         // Read the data from the Abaqus JMatPro file
-                        AbaqusReader::read_tabular_jmatpro_file(file_path, field_name,  Materials.density_table);
+                        AbaqusReader::read_tabular_jmatpro_file(file_path, field_name,  Materials.density_table_solid);
                         // Copy the table to the device
-                        Materials.density_table.update_device();
+                        Materials.density_table_solid.update_device();
 
                         RUN({
-                            Materials.MaterialFunctions(mat_id).get_density_from_temperature = &TabularMaterialModel::get_density_from_temperature;
+                            Materials.MaterialFunctions(mat_id).get_density_from_temperature_solid = &TabularMaterialModel::get_density_from_temperature_solid;
                         });
                     }
-                    else if(field_name.compare("thermal_conductivity") == 0){
+                    else if(field_name.compare("thermal_conductivity_solid") == 0){
                         // Read the data from the Abaqus JMatPro file
-                        AbaqusReader::read_tabular_jmatpro_file(file_path, field_name, Materials.thermal_conductivity_table);
+                        AbaqusReader::read_tabular_jmatpro_file(file_path, field_name, Materials.thermal_conductivity_table_solid);
 
-                        Materials.thermal_conductivity_table.update_device();
+                        Materials.thermal_conductivity_table_solid.update_device();
 
                         RUN({
-                            Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature = &TabularMaterialModel::get_thermal_conductivity_from_temperature;
+                            Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature_solid = &TabularMaterialModel::get_thermal_conductivity_from_temperature_solid;
                         });
 
                     }
-                    else if(field_name.compare("specific_heat") == 0){
+                    else if(field_name.compare("specific_heat_solid") == 0){
                         // Read the data from the Abaqus JMatPro file
-                        AbaqusReader::read_tabular_jmatpro_file(file_path, field_name, Materials.specific_heat_table);
+                        AbaqusReader::read_tabular_jmatpro_file(file_path, field_name, Materials.specific_heat_table_solid);
 
-                        Materials.specific_heat_table.update_device();
+                        Materials.specific_heat_table_solid.update_device();
 
                         RUN({
-                            Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature = &TabularMaterialModel::get_specific_heat_from_temperature;
+                            Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature_solid = &TabularMaterialModel::get_specific_heat_from_temperature_solid;
                         });
                     }
-                    else if(field_name.compare("density_solidified") == 0){
+                    else if(field_name.compare("density_powder") == 0){
 
                         // Read the data from the Abaqus JMatPro file
-                        AbaqusReader::read_tabular_jmatpro_file(file_path, field_name,  Materials.density_table_solidified);
+                        AbaqusReader::read_tabular_jmatpro_file(file_path, field_name,  Materials.density_table_powder);
                         // Copy the table to the device
-                        Materials.density_table_solidified.update_device();
+                        Materials.density_table_powder.update_device();
 
                         RUN({
-                            Materials.MaterialFunctions(mat_id).get_density_from_temperature_solidified = &TabularMaterialModel::get_density_from_temperature_solidified;
+                            Materials.MaterialFunctions(mat_id).get_density_from_temperature_powder = &TabularMaterialModel::get_density_from_temperature_powder;
                         });
                     }
-                    else if(field_name.compare("thermal_conductivity_solidified") == 0){
+                    else if(field_name.compare("thermal_conductivity_powder") == 0){
                         // Read the data from the Abaqus JMatPro file
-                        AbaqusReader::read_tabular_jmatpro_file(file_path, field_name, Materials.thermal_conductivity_table_solidified);
+                        AbaqusReader::read_tabular_jmatpro_file(file_path, field_name, Materials.thermal_conductivity_table_powder);
 
-                        Materials.thermal_conductivity_table_solidified.update_device();
+                        Materials.thermal_conductivity_table_powder.update_device();
 
                         RUN({
-                            Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature_solidified = &TabularMaterialModel::get_thermal_conductivity_from_temperature_solidified;
+                            Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature_powder = &TabularMaterialModel::get_thermal_conductivity_from_temperature_powder;
                         });
 
                     }
-                    else if(field_name.compare("specific_heat_solidified") == 0){
+                    else if(field_name.compare("specific_heat_powder") == 0){
                         // Read the data from the Abaqus JMatPro file
-                        AbaqusReader::read_tabular_jmatpro_file(file_path, field_name, Materials.specific_heat_table_solidified);
+                        AbaqusReader::read_tabular_jmatpro_file(file_path, field_name, Materials.specific_heat_table_powder);
 
-                        Materials.specific_heat_table_solidified.update_device();
+                        Materials.specific_heat_table_powder.update_device();
 
                         RUN({
-                            Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature_solidified = &TabularMaterialModel::get_specific_heat_from_temperature_solidified;
+                            Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature_powder = &TabularMaterialModel::get_specific_heat_from_temperature_powder;
+                        });
+                    }
+                    else if(field_name.compare("density_liquid") == 0){
+
+                        // Read the data from the Abaqus JMatPro file
+                        AbaqusReader::read_tabular_jmatpro_file(file_path, field_name,  Materials.density_table_liquid);
+                        // Copy the table to the device
+                        Materials.density_table_liquid.update_device();
+
+                        RUN({
+                            Materials.MaterialFunctions(mat_id).get_density_from_temperature_liquid = &TabularMaterialModel::get_density_from_temperature_liquid;
+                        });
+                    }
+                    else if(field_name.compare("thermal_conductivity_liquid") == 0){
+                        // Read the data from the Abaqus JMatPro file
+                        AbaqusReader::read_tabular_jmatpro_file(file_path, field_name, Materials.thermal_conductivity_table_liquid);
+
+                        Materials.thermal_conductivity_table_liquid.update_device();
+
+                        RUN({
+                            Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature_liquid = &TabularMaterialModel::get_thermal_conductivity_from_temperature_liquid;
+                        });
+
+                    }
+                    else if(field_name.compare("specific_heat_liquid") == 0){
+                        // Read the data from the Abaqus JMatPro file
+                        AbaqusReader::read_tabular_jmatpro_file(file_path, field_name, Materials.specific_heat_table_liquid);
+
+                        Materials.specific_heat_table_liquid.update_device();
+
+                        RUN({
+                            Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature_liquid = &TabularMaterialModel::get_specific_heat_from_temperature_liquid;
                         });
                     }
                     else{
