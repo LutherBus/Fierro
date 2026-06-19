@@ -36,9 +36,9 @@
 # Time integration / stepping control
 # ---------------------------------------------------------------------------
 dynamic_options:
-    time_final: 10.0
+    time_final: 0.004
     dt_min: 1.e-8
-    dt_max: 5.e-2
+    dt_max: 1.e-5
     dt_start: 1.e-5
     cycle_stop: 100000
 
@@ -51,8 +51,8 @@ mesh_options:
     num_dims: 3
     type: box
     origin: [0.0, 0.0, 0.0]
-    length: [300.0, 300.0, 30.0]
-    num_elems: [100, 100, 10]
+    length: [1.2, 0.5, 0.05]
+    num_elems: [120, 50, 5]
 
 
 # ---------------------------------------------------------------------------
@@ -61,7 +61,7 @@ mesh_options:
 output_options:
     timer_output_level: thorough
     output_file_format: viz
-    graphics_time_step: 0.1
+    graphics_time_step: 5.e-5
     #graphics_iteration_step: 5
     elem_field_outputs:
         - den
@@ -101,7 +101,10 @@ boundary_conditions:
             plane_position: 0.0
         temperature_model: constant
         temperature_bc_global_vars:
-            - 293.15   # constantly held at room temperature (20°C)
+            - 473.15   # constantly held at preheat temperature (200°C)
+
+   
+
 
     # Convection on the z=1 plane (heat loss/gain via h*(T-T_ref))
     #
@@ -274,7 +277,7 @@ initial_conditions:
         density: 
             # Initial density (tonne/mm^3 for this example’s scaling).
             type: uniform
-            value: 7.8236E-09 # (tonne/mm^3)
+            value: 5.111790E-09 # (tonne/mm^3)
         specific_internal_energy: 
             # Initial specific internal energy / thermal reference energy.
             type: uniform
@@ -287,14 +290,14 @@ initial_conditions:
         thermal_conductivity: 
             # Initial thermal conductivity (mW/(mm.K)).
             type: uniform
-            value: 59.09142 # mW/(mm.K)
+            value: 0.362397 # mW/(mm.K)
         specific_heat: 
             # Initial specific heat (mJ/(tonne.K)).
             type: uniform
-            value: 458960000 # mJ/(tonne.K)
+            value: 518924000 # mJ/(tonne.K)
         temperature: 
             # Initial nodal temperature (K).
             type: uniform
-            value: 273.15 #K 
+            value: 473.15 #K 
 
 

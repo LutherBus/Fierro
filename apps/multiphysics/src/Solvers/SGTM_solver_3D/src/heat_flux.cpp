@@ -128,7 +128,7 @@ void SGTM3D::get_heat_flux(
 
 
         // ---- Change element state if above some melting temperature ---- //
-        if(avg_temp >= 300){
+        if(avg_temp >= 1600){
             // printf("Melted!");
             MaterialPoints_eroded(mat_id, mat_elem_sid) = true;
         } 
@@ -242,7 +242,7 @@ void SGTM3D::moving_flux(
         size_t elem_gid = elem_in_mat_elem(mat_id, mat_elem_sid); 
 
         // check if element center is within the sphere
-        double radius = 8.0;
+        double radius = 0.035; // Typical spot size for LPBF
         double radius_squared = radius * radius;
         double volume = (4.0/3) * 3.14159 * radius_squared * radius;
         

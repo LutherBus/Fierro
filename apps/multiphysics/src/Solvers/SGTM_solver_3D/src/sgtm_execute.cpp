@@ -100,20 +100,13 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     auto time_1 = std::chrono::high_resolution_clock::now();    
 
     // ---- Initialize the tool path information ---- //
-    int number_of_points = 11;
+    int number_of_points = 3;
     ToolPathInfo path(number_of_points);
-
-path.set_data_point(0, 0.0, 225.0, 225.000000, 30.0, 3000000.0);
-path.set_data_point(1, 1.0, 222.5, 222.756794, 30.0, 3000000.0);
-path.set_data_point(2, 2.0, 220.0, 220.494434, 30.0, 3000000.0);
-path.set_data_point(3, 3.0, 215.0, 215.193843, 30.0, 3000000.0);
-path.set_data_point(4, 4.0, 210.0, 210.836099, 30.0, 3000000.0);
-path.set_data_point(5, 5.0, 200.0, 200.402508, 30.0, 3000000.0);
-path.set_data_point(6, 6.0, 190.0, 190.0, 30.0, 3000000.0);
-path.set_data_point(7, 7.0, 180.0, 180.0, 30.0, 3000000.0);
-path.set_data_point(8, 8.0, 170.0, 170.0, 30.0, 3000000.0);
-path.set_data_point(9, 9.0, 160.0, 160.0, 30.0, 3000000.0);
-path.set_data_point(10, 10.0, 150.0, 150.0, 30.0, 3000000.0);
+    // This toolpath is set to 700 mm/s, a typical scan speed
+    // The laser power is set to 150 watts with an absorbtivity of around 0.7
+    path.set_data_point(0, 0.0, 0.3, 0.25, 0.05, 100000.0); 
+    path.set_data_point(1, 0.001, 1.0, 0.25, 0.05, 100000.0);
+    path.set_data_point(2, 0.00101, 1.0, 0.25, 0.05, 0.0);
 
 
 
