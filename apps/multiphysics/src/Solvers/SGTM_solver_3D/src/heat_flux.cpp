@@ -37,7 +37,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //#include "mesh.hpp""
 #include "state.hpp"
 #include "geometry_new.hpp"
-
+#include "additive_data.hpp"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -223,16 +223,16 @@ void SGTM3D::moving_flux(
     const DCArrayKokkos<double>& GaussPoints_vol,
     const MPICArrayKokkos<double>& node_coords,
     const DCArrayKokkos<double>& corner_q_flux,
-    const DCArrayKokkos<double>& sphere_position,
     const corners_in_mat_t corners_in_mat_elem,
     const DRaggedRightArrayKokkos<size_t>& elem_in_mat_elem,
     const size_t num_mat_elems,
-    const double power,
     const size_t mat_id,
     const double fuzz,
     const double small,
     const double dt,
-    const double rk_alpha) const
+    const double rk_alpha,
+    const double time_value,
+    const ToolPathInfo& path) const
 {
 
     // ---- Apply heat flux from a moving heat source ---- //
@@ -240,12 +240,7 @@ void SGTM3D::moving_flux(
         
         // get elem gid
         size_t elem_gid = elem_in_mat_elem(mat_id, mat_elem_sid); 
-
-        // check if element center is within the sphere
-        double radius = 0.035; // Typical spot size for LPBF
-        double radius_squared = radius * radius;
-        double volume = (4.0/3) * 3.14159 * radius_squared * radius;
-        
+    
         // calculate the coordinates and radius of the element
         double elem_coords_1D[3]; // note:initialization with a list won't work
         ViewCArrayKokkos<double> elem_coords(&elem_coords_1D[0], 3);
@@ -262,16 +257,81 @@ void SGTM3D::moving_flux(
         elem_coords(0) = (elem_coords(0) / mesh.num_nodes_in_elem);
         elem_coords(1) = (elem_coords(1) / mesh.num_nodes_in_elem);
         elem_coords(2) = (elem_coords(2) / mesh.num_nodes_in_elem);
+        
+        // Gaussian semi-elipsoid heat source model from (Goldak, 1984)
 
-        double dist_squared = 0.0;
-        for(int dim = 0; dim < mesh.num_dims; dim++){
-            dist_squared +=  (sphere_position(dim) - elem_coords(dim))*(sphere_position(dim) - elem_coords(dim));
+        // Q(x,y,z) = 10.39230 * f_f * n * power / (a * b * c_f * 5.568328) 
+        //              * exp[-3 * (d_x * d_x) / (a_f * a_f) + (d_y * d_y) / (b * b) + (dz * dz) / (c * c)] for d_x >= 0
+        
+        // Q(x,y,z) = 10.39230 * f_r * n * power / (a * b * c_r * 5.568328)
+        //               * exp[-3 * (d_x * d_x) / (a * a) + (d_y * d_y) / (b * b) + (dz * dz) / (c * c)] for d_x <= 0
+
+        double power = path.get_power(time_value);
+        double n = 0.67; // Absorbtivity of powder bed
+        double a_f = 0.02; // Semi-axis along travel direction, front (mm)
+        double a_r = 0.06; // Semi-axis along travel direction, rear (mm)
+        double b = 0.04; // Transverse semi_axis (mm)
+        double c = 0.08; // Depth (mm) 
+        double f_f = 2.0 * a_f / (a_f + a_r);  // Heat fraction, front
+        double f_r = 2.0 * a_r / (a_f + a_r);  // Heat fraction, rear
+
+        // Calculate the velocity of the heat source
+        
+        // Get future heat source position
+        double x1 = 0.0;
+        double y1 = 0.0;
+        double z1 = 0.0;
+        path.get_position(time_value + dt, x1, y1, z1);
+
+
+        // Get previous heat source position 
+        double x_hs = 0.0;
+        double y_hs = 0.0;
+        double z_hs = 0.0;
+        
+        // Get current heat source position
+        double x0 = 0.0;
+        double y0 = 0.0;
+        double z0 = 0.0;
+
+        path.get_position(time_value, x_hs, y_hs, z_hs);
+
+        // Check if it is the first timestep
+        if (time_value - dt < 0) {
+            x0 = x_hs;
+            y0 = y_hs;
+            z0 = z_hs;
+        } else {
+            path.get_position(time_value - dt, x0, y0, z0);
+        } // end if/else for previous heat source position
+        
+        double L = Kokkos::sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0));
+        double xi;
+        double eta;
+        double dz = elem_coords(2) - z_hs;
+
+        // Check if heat source has moved
+        if (L < 1e-12) {
+            // No movement detected, default to global x/y
+            xi  = elem_coords(0) - x_hs;
+            eta = elem_coords(1) - y_hs;
+        } else {
+            // Rotate heat source using central differencing scheme 
+            xi  =  (elem_coords(0) - x_hs) * (x1 - x0) / L
+                + (elem_coords(1) - y_hs) * (y1 - y0) / L;
+            eta = -(elem_coords(0) - x_hs) * (y1 - y0) / L
+                + (elem_coords(1) - y_hs) * (x1 - x0) / L;
         }
 
-        if(dist_squared <= radius_squared){
+        // Ellipsoid cutoff to reduce the number of elements that are impacted by the heat source
+        double a_max = (xi >= 0.0) ? a_f : a_r;
+        double ellipsoid_dist = (xi * xi) / (a_max * a_max)
+                      + (eta * eta) / (b * b)
+                      + (dz * dz)  / (c * c);
 
+        // Compute volumetric heat flux for elements within the heat source
+        if (ellipsoid_dist <= 9.0) {
             for (size_t node_lid = 0; node_lid < mesh.num_nodes_in_elem; node_lid++) {
-
                 size_t node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
 
                 // the local corner id is the local node id
@@ -280,20 +340,26 @@ void SGTM3D::moving_flux(
                 // Get corner gid
                 size_t corner_gid = mesh.corners_in_elem(elem_gid, corner_lid);
 
-                // Compute the volumetric heat flux
-                double q_dot = power / volume;
+                // Calculate the volumetric heat flux depending on the direction in which the heat source is moving
+                double q_dot = 0.0;
+                if (xi >= 0) {
+                    q_dot = 10.39230 * f_f * n * power / (a_f * b * c * 5.568328) 
+                            * Kokkos::exp(-3 * ((xi * xi) / (a_f * a_f) + (eta * eta) / (b * b) + (dz * dz) / (c * c)));
                 // std::cout << "q_dot = " << q_dot << std::endl;
-
+                } else {
+                    q_dot = 10.39230 * f_r * n * power / (a_r * b * c * 5.568328)
+                            * Kokkos::exp(-3 * ((xi * xi) / (a_r * a_r) + (eta * eta) / (b * b) + (dz * dz) / (c * c)));
+                } // end if/else for computing the volumetric heat flux
 
                 // Note: this will be 1/8th the volumetric flux times the volume
                 corner_q_flux(corner_gid) += q_dot * 0.125 * GaussPoints_vol(elem_gid);
 
-
                 // std::cout << "corner_q_flux = " << corner_q_flux(corner_gid) << std::endl;
                 //std::cout << "flux delta = " << q_dot * 0.125 * GaussPoints_vol(elem_gid) * 1000000.0 << std::endl;
 
-            }
-        }
+            } // end for loop
+            
+        } // end loop over elements within the heat source boundary
 
     }); // end parallel for loop over elements
 

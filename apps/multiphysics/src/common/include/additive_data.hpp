@@ -104,7 +104,7 @@ public:
     // Compute current power of tool at time t, assuming linear interpolation between path points.
     // Returns the power at the time t
     KOKKOS_INLINE_FUNCTION
-    double get_power(double& t) const {
+    double get_power(const double& t) const {
         return tool_path_table.linear_interpolation(t, Fields::power, Fields::time);
     } // end function
 };

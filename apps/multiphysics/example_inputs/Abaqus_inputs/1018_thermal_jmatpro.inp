@@ -6,6 +6,9 @@
             and Chaudry et. al. (2022): https://link.springer.com/article/10.1007/s40964-022-00282-x? 
 
             Liquid composition obtained from the National Institute of Standards and Technology, Pichler et. al. (2019): https://link.springer.com/article/10.1007/s10853-019-04261-6
+***Solid values are valid from 300K - 1600K
+***Powder values are valid up to 1700K
+***Liquid values are valid from 1700K - 2900K 
 ***Method: JMatPro
 ***Compiled by: Luther Busching
 *********************Mat_MetaData***************************************

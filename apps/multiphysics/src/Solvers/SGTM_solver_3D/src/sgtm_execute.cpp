@@ -103,9 +103,9 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     int number_of_points = 3;
     ToolPathInfo path(number_of_points);
     // This toolpath is set to 700 mm/s, a typical scan speed
-    // The laser power is set to 150 watts with an absorbtivity of around 0.7
-    path.set_data_point(0, 0.0, 0.3, 0.25, 0.05, 100000.0);
-    path.set_data_point(1, 0.001, 1.0, 0.25, 0.05, 100000.0);
+    // The laser power is set to 150 watts
+    path.set_data_point(0, 0.0, 0.3, 0.25, 0.05, 150000.0);
+    path.set_data_point(1, 0.001, 1.0, 0.25, 0.05, 150000.0);
     path.set_data_point(2, 0.00101, 1.0, 0.25, 0.05, 0.0);
 
 
@@ -161,12 +161,12 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
 
     // ---- Set up sphere to act as a moving heat source ---- //
-    DCArrayKokkos<double> sphere_position(3, "sphere_position");
+    DCArrayKokkos<double> heat_source_position(3, "heat_source_position");
 
-    sphere_position.host(0) = 0.0;
-    sphere_position.host(1) = 0.0;
-    sphere_position.host(2) = 0.0;
-    sphere_position.update_device();
+    heat_source_position.host(0) = 0.0;
+    heat_source_position.host(1) = 0.0;
+    heat_source_position.host(2) = 0.0;
+    heat_source_position.update_device();
 
 
     FOR_ALL(node_gid, 0, mesh.num_nodes, {
@@ -318,24 +318,22 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
                 // ---- Calculate the corner heat flux from moving volumetric heat source ----
                 if (SimulationParamaters.solver_inputs[this->solver_id].use_moving_heat_source) {
-                    double power = path.get_power(time_value);
                     moving_flux(
                         Materials,
                         mesh,
                         State.GaussPoints.vol,
                         State.node.coords,
                         State.corner.q_transfer,
-                        sphere_position,
                         State.corners_in_mat_elem,
                         State.MaterialToMeshMaps.elem_in_mat_elem,
                         State.MaterialToMeshMaps.num_mat_elems.host(mat_id),
-                        power,
                         mat_id,
                         fuzz,
                         small,
                         dt, 
-                        rk_alpha
-                        );
+                        rk_alpha,
+                        time_value,
+                        path);
                     
                     update_properties(
                         Materials, 
@@ -415,9 +413,9 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                 double y = 0.0;
                 double z = 0.0;
                 path.get_position(time_value, x, y, z);
-                sphere_position(0) = x;
-                sphere_position(1) = y;
-                sphere_position(2) = z;
+                heat_source_position(0) = x;
+                heat_source_position(1) = y;
+                heat_source_position(2) = z;
             });
         }
         // increment the time

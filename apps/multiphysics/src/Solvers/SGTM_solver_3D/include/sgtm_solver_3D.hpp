@@ -38,6 +38,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "solver.hpp"
 #include "state.hpp"
 #include "ELEMENTS.h"
+#include "additive_data.hpp"
 
 // Forward declare structs
 struct SimulationParameters_t;
@@ -313,16 +314,16 @@ public:
         const DCArrayKokkos<double>& GaussPoints_vol,
         const MPICArrayKokkos<double>& node_coords,
         const DCArrayKokkos<double>& corner_q_flux,
-        const DCArrayKokkos<double>& sphere_position,
         const corners_in_mat_t corners_in_mat_elem,
         const DRaggedRightArrayKokkos<size_t>& elem_in_mat_elem,
         const size_t num_mat_elems,
-        const double power,
         const size_t mat_id,
         const double fuzz,
         const double small,
         const double dt,
-        const double rk_alpha) const;
+        const double rk_alpha,
+        const double time_step,
+        const ToolPathInfo& path) const;
 
     // **** Functions defined in geometry.cpp **** //
     void update_position(

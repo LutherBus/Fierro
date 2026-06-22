@@ -36,7 +36,7 @@
 # Time integration / stepping control
 # ---------------------------------------------------------------------------
 dynamic_options:
-    time_final: 0.003
+    time_final: 0.002
     dt_min: 1.e-8
     dt_max: 1.e-5
     dt_start: 1.e-5
@@ -116,105 +116,17 @@ boundary_conditions:
         solver_id: 0
         surface:
             type: z_plane
-            plane_position: 30.0
+            plane_position: 0.05
         temperature_model: convection
         temperature_bc_global_vars:
-            - 293.15   # reference temperature (room temp in kelvin)
-            - 0.01    # h (film temperature) = 0.01 mW/(mm^2⋅K)
-
-    - boundary_condition:
-        solver_id: 0
-        surface:
-            type: x_plane
-            plane_position: 0.0
-        temperature_model: convection
-        # See note above about convection coefficients being hard-coded.
-        temperature_bc_global_vars:
-            - 293.15   # reference temperature (room temp in kelvin)
-            - 0.01    # h (film temperature) = 0.01 mW/(mm^2⋅K)
-    - boundary_condition:
-        solver_id: 0
-        surface:
-            type: x_plane
-            plane_position: 300.0
-        temperature_model: convection
-        # See note above about convection coefficients being hard-coded.
-        temperature_bc_global_vars:
-            - 293.15   # reference temperature (room temp in kelvin)
-            - 0.01    # h (film temperature) = 0.01 mW/(mm^2⋅K)
-
-    - boundary_condition:
-        solver_id: 0
-        surface:
-            type: y_plane
-            plane_position: 0.0
-        temperature_model: convection
-        # See note above about convection coefficients being hard-coded.
-        temperature_bc_global_vars:
-            - 293.15   # reference temperature (room temp in kelvin)
-            - 0.01    # h (film temperature) = 0.01 mW/(mm^2⋅K)
-
-    - boundary_condition:
-        solver_id: 0
-        surface:
-            type: y_plane
-            plane_position: 300.0
-        temperature_model: convection
-        # See note above about convection coefficients being hard-coded.
-        temperature_bc_global_vars:
-            - 293.15   # reference temperature (room temp in kelvin)
+            - 473.15   # reference temperature (room temp in kelvin)
             - 0.01    # h (film temperature) = 0.01 mW/(mm^2⋅K)
 
     - boundary_condition:
         solver_id: 0
         surface:
             type: z_plane
-            plane_position: 300.0
-        temperature_model: convection
-        # See note above about convection coefficients being hard-coded.
-        temperature_bc_global_vars:
-            - 293.15   # reference temperature (room temp in kelvin)
-            - 0.01    # h (film temperature) = 0.01 mW/(mm^2⋅K)
-
-
-    # Radiation on the non-constant temp surfaces
-    #
-    # NOTE: SGTM3D’s radiation implementation currently uses hard-coded
-    # emissivity / ambient values internally; it does not read YAML
-    # radiation-specific global vars in this example.
-    - boundary_condition:
-        solver_id: 0
-        surface:
-            type: x_plane
-            plane_position: 0.0
-        temperature_model: radiation
-
-    - boundary_condition:
-        solver_id: 0
-        surface:
-            type: x_plane
-            plane_position: 300.0
-        temperature_model: radiation
-
-    - boundary_condition:
-        solver_id: 0
-        surface:
-            type: y_plane
-            plane_position: 0.0
-        temperature_model: radiation    
-
-    - boundary_condition:
-        solver_id: 0
-        surface:
-            type: y_plane
-            plane_position: 300.0
-        temperature_model: radiation
-
-    - boundary_condition:
-        solver_id: 0
-        surface:
-            type: z_plane
-            plane_position: 30.0
+            plane_position: 0.05
         temperature_model: radiation
 
 
