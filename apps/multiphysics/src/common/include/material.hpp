@@ -528,13 +528,17 @@ struct Material_t
 
     // -- Tabular Material Data --
     // DCArrayKokkos<MaterialTables_t> MaterialTables;
-    Table_t density_table;
-    Table_t thermal_conductivity_table;
-    Table_t specific_heat_table;
+    Table_t density_table_solid;
+    Table_t thermal_conductivity_table_solid;
+    Table_t specific_heat_table_solid;
 
-    Table_t density_table_solidified;
-    Table_t thermal_conductivity_table_solidified;
-    Table_t specific_heat_table_solidified;
+    Table_t density_table_liquid;
+    Table_t thermal_conductivity_table_liquid;
+    Table_t specific_heat_table_liquid;
+
+    Table_t density_table_powder;
+    Table_t thermal_conductivity_table_powder;
+    Table_t specific_heat_table_powder;
 
     // ...
 

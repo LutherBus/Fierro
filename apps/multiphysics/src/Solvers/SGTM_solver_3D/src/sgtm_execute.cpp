@@ -120,12 +120,24 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
     // Print the material tables
     for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
-        if (log) log->info("Material %lu density table:\n", mat_id);
-        if (log) Materials.density_table.print_table();
-        if (log) log->info("Material %lu thermal conductivity table:\n", mat_id);
-        if (log) Materials.thermal_conductivity_table.print_table();
-        if (log) log->info("Material %lu specific heat table:\n", mat_id);
-        if (log) Materials.specific_heat_table.print_table();
+        if (log) log->info("Material %lu density table (solid):\n", mat_id);
+        if (log) Materials.density_table_solid.print_table();
+        if (log) log->info("Material %lu thermal conductivity table (solid):\n", mat_id);
+        if (log) Materials.thermal_conductivity_table_solid.print_table();
+        if (log) log->info("Material %lu specific heat table (solid):\n", mat_id);
+        if (log) Materials.specific_heat_table_solid.print_table();
+        if (log) log->info("Material %lu density table (liquid):\n", mat_id);
+        if (log) Materials.density_table_liquid.print_table();
+        if (log) log->info("Material %lu thermal conductivity table (liquid):\n", mat_id);
+        if (log) Materials.thermal_conductivity_table_liquid.print_table();
+        if (log) log->info("Material %lu specific heat table (liquid):\n", mat_id);
+        if (log) Materials.specific_heat_table_liquid.print_table();
+        if (log) log->info("Material %lu density table (powder):\n", mat_id);
+        if (log) Materials.density_table_powder.print_table();
+        if (log) log->info("Material %lu thermal conductivity table (powder):\n", mat_id);
+        if (log) Materials.thermal_conductivity_table_powder.print_table();
+        if (log) log->info("Material %lu specific heat table (powder):\n", mat_id);
+        if (log) Materials.specific_heat_table_powder.print_table();
         if (log) log->flush();
     } // end for mat_id
  

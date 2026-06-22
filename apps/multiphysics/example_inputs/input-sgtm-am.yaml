@@ -36,7 +36,7 @@
 # Time integration / stepping control
 # ---------------------------------------------------------------------------
 dynamic_options:
-    time_final: 0.004
+    time_final: 0.003
     dt_min: 1.e-8
     dt_max: 1.e-5
     dt_start: 1.e-5
@@ -229,12 +229,15 @@ materials:
             file_format: Abaqus_jmatpro
             tabular_data: /var/tmp/repos/Fierro/apps/multiphysics/example_inputs/Abaqus_inputs/1018_thermal_jmatpro.inp
             fields:
-                - density
-                - thermal_conductivity
-                - specific_heat
-                - density_solidified
-                - thermal_conductivity_solidified
-                - specific_heat_solidified
+                - density_solid
+                - thermal_conductivity_solid
+                - specific_heat_solid
+                - density_liquid
+                - thermal_conductivity_liquid
+                - specific_heat_liquid
+                - density_powder
+                - thermal_conductivity_powder
+                - specific_heat_powder
         # `tabular_model.fields` selects which quantities are interpolated
         # from the temperature-dependent table. In this example it provides:
         # - density (used for masses/thermal capacity)
