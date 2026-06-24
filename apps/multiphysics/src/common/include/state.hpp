@@ -529,6 +529,7 @@ enum class material_pt_state
     volume_fraction,
     heat_flux,
     eroded_flag,
+    activated_flag,
     elastic_modulii,
     shear_modulii,
     poisson_ratios,
@@ -578,6 +579,7 @@ struct MaterialPoint_t
     DRaggedRightArrayKokkos<double> geo_volfrac;   ///< change in MaterialPoint geometric (part) volume fraction (interface reconstruction)
     DRaggedRightArrayKokkos<double> delta_geo_volfrac; ///< change in MaterialPoint geometric (part) volume fraction (interface reconstruction)
     DRaggedRightArrayKokkos<bool> eroded;              ///< MaterialPoint eroded or not flag
+    DRaggedRightArrayKokkos<bool> activated;              ///< MaterialPoint activated or not flag
 
 
     void initialize_num_mats(size_t num_mats)
@@ -652,6 +654,9 @@ struct MaterialPoint_t
                     break;
                 case material_pt_state::eroded_flag:
                     if (eroded.size() == 0) this->eroded = DRaggedRightArrayKokkos<bool>(this->num_material_points_buffer, "material_point_eroded");
+                    break;
+                case material_pt_state::activated_flag:
+                    if (activated.size() == 0) this->activated = DRaggedRightArrayKokkos<bool>(this->num_material_points_buffer, "material_point_activated");
                     break;
                 default:
                     std::cout<<"Desired material point state not understood in MaterialPoint_t initialize"<<std::endl;

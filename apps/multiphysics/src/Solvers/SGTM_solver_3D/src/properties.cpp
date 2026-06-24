@@ -68,9 +68,11 @@ void SGTM3D::update_properties(
     const DRaggedRightArrayKokkos<double>& MaterialPoints_conductivity,
     const DRaggedRightArrayKokkos<double>& MaterialPoints_specific_heat,
     const DRaggedRightArrayKokkos<bool>&   MaterialPoints_eroded,
+    const DRaggedRightArrayKokkos<bool>&   MaterialPoints_activated,
     const DRaggedRightArrayKokkos<size_t>& elem_in_mat_elem,
     const size_t num_material_elems,
-    const size_t mat_id) const
+    const size_t mat_id,
+    DynamicArrayKokkos<size_t>& mat_elem_sid_activated) const
 {
     const size_t num_dims = mesh.num_dims;
     const size_t num_nodes_in_elem = 8;
@@ -90,10 +92,10 @@ void SGTM3D::update_properties(
   
 
     // Compute the element temperature by averaging the node temperatures
-    FOR_ALL(mat_elem_sid, 0, num_material_elems, {
+    FOR_ALL(i, 0, mat_elem_sid_activated.dims(0), {
 
         // get elem gid
-        size_t elem_gid = elem_in_mat_elem(mat_id, mat_elem_sid); 
+        size_t elem_gid = elem_in_mat_elem(mat_id, mat_elem_sid_activated(i)); 
 
         double avg_temp = 0.0;
         
@@ -116,49 +118,49 @@ void SGTM3D::update_properties(
             double L_fusion = 260000000000; // (mJ/tonne)
             double gamma = 1.0;
             double beta = 0.5 * (Kokkos::tanh(2 * gamma * (avg_temp - 1650) / (T_liquidus - T_solidus)) + 1);
-            if (MaterialPoints_eroded(mat_id, mat_elem_sid)) { // Check if the element is in solid form (is this needed? should it always use solid instead of powder since its melting?)
+            if (MaterialPoints_eroded(mat_id, mat_elem_sid_activated(i))) { // Check if the element is in solid form
 
                 // Specific heat
-                MaterialPoints_specific_heat(mat_id, mat_elem_sid) = beta * Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature_liquid(specific_heat_table_liquid, avg_temp)
+                MaterialPoints_specific_heat(mat_id, mat_elem_sid_activated(i)) = beta * Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature_liquid(specific_heat_table_liquid, avg_temp)
                     + (1-beta) * Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature_solid(specific_heat_table_solid, avg_temp)
                     + L_fusion * (2 * gamma / ((T_liquidus - T_solidus) * 3.141593 * (((avg_temp - T_solidus) * (2 * gamma / (T_liquidus - T_solidus))
                     * (avg_temp - T_solidus) * (2 * gamma / (T_liquidus - T_solidus)) + 1))));
 
                 // Density
-                MaterialPoints_den(mat_id, mat_elem_sid) = beta * Materials.MaterialFunctions(mat_id).get_density_from_temperature_liquid(density_table_liquid, avg_temp)
+                MaterialPoints_den(mat_id, mat_elem_sid_activated(i)) = beta * Materials.MaterialFunctions(mat_id).get_density_from_temperature_liquid(density_table_liquid, avg_temp)
                                                             + (1 - beta) * Materials.MaterialFunctions(mat_id).get_density_from_temperature_solid(density_table_solid, avg_temp);
 
                 // Thermal Conductivity
-                MaterialPoints_conductivity(mat_id, mat_elem_sid) = beta * Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature_liquid(thermal_conductivity_table_liquid, avg_temp)
+                MaterialPoints_conductivity(mat_id, mat_elem_sid_activated(i)) = beta * Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature_liquid(thermal_conductivity_table_liquid, avg_temp)
                                                             + (1 - beta) * Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature_solid(thermal_conductivity_table_solid, avg_temp);
 
             } else { // Else the element is in powder form
 
                 // Specific heat
-                MaterialPoints_specific_heat(mat_id, mat_elem_sid) = beta * Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature_liquid(specific_heat_table_liquid, avg_temp)
+                MaterialPoints_specific_heat(mat_id, mat_elem_sid_activated(i)) = beta * Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature_liquid(specific_heat_table_liquid, avg_temp)
                     + (1-beta) * Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature_powder(specific_heat_table_powder, avg_temp)
                     + L_fusion * (2 * gamma / ((T_liquidus - T_solidus) * 3.141593 * (((avg_temp - T_solidus) * (2 * gamma / (T_liquidus - T_solidus))
                     * (avg_temp - T_solidus) * (2 * gamma / (T_liquidus - T_solidus)) + 1))));
 
                 // Density
-                MaterialPoints_den(mat_id, mat_elem_sid) = beta * Materials.MaterialFunctions(mat_id).get_density_from_temperature_liquid(density_table_liquid, avg_temp)
+                MaterialPoints_den(mat_id, mat_elem_sid_activated(i)) = beta * Materials.MaterialFunctions(mat_id).get_density_from_temperature_liquid(density_table_liquid, avg_temp)
                                                             + (1 - beta) * Materials.MaterialFunctions(mat_id).get_density_from_temperature_powder(density_table_powder, avg_temp);
 
                 // Thermal Conductivity
-                MaterialPoints_conductivity(mat_id, mat_elem_sid) = beta * Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature_liquid(thermal_conductivity_table_liquid, avg_temp)
+                MaterialPoints_conductivity(mat_id, mat_elem_sid_activated(i)) = beta * Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature_liquid(thermal_conductivity_table_liquid, avg_temp)
                                                             + (1 - beta) * Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature_powder(thermal_conductivity_table_powder, avg_temp);
 
             } // end if/else statement for whether the element was eroded
         } else {
-            if (MaterialPoints_eroded(mat_id, mat_elem_sid)) { // Check if the element is in solid form
-                MaterialPoints_specific_heat(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature_solid(specific_heat_table_solid, avg_temp);
-                MaterialPoints_den(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_density_from_temperature_solid(density_table_solid, avg_temp);
-                MaterialPoints_conductivity(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature_solid(thermal_conductivity_table_solid, avg_temp);
+            if (MaterialPoints_eroded(mat_id, mat_elem_sid_activated(i))) { // Check if the element is in solid form
+                MaterialPoints_specific_heat(mat_id, mat_elem_sid_activated(i)) = Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature_solid(specific_heat_table_solid, avg_temp);
+                MaterialPoints_den(mat_id, mat_elem_sid_activated(i)) = Materials.MaterialFunctions(mat_id).get_density_from_temperature_solid(density_table_solid, avg_temp);
+                MaterialPoints_conductivity(mat_id, mat_elem_sid_activated(i)) = Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature_solid(thermal_conductivity_table_solid, avg_temp);
 
             } else { // Else the element is in powder form
-                MaterialPoints_specific_heat(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature_powder(specific_heat_table_powder, avg_temp);
-                MaterialPoints_den(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_density_from_temperature_powder(density_table_powder, avg_temp);
-                MaterialPoints_conductivity(mat_id, mat_elem_sid) = Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature_powder(thermal_conductivity_table_powder, avg_temp);
+                MaterialPoints_specific_heat(mat_id, mat_elem_sid_activated(i)) = Materials.MaterialFunctions(mat_id).get_specific_heat_from_temperature_powder(specific_heat_table_powder, avg_temp);
+                MaterialPoints_den(mat_id, mat_elem_sid_activated(i)) = Materials.MaterialFunctions(mat_id).get_density_from_temperature_powder(density_table_powder, avg_temp);
+                MaterialPoints_conductivity(mat_id, mat_elem_sid_activated(i)) = Materials.MaterialFunctions(mat_id).get_thermal_conductivity_from_temperature_powder(thermal_conductivity_table_powder, avg_temp);
 
             } // end if/else statement for whether the element was eroded
         } // end if/else staement for whether the element was undergoing a phase change

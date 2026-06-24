@@ -83,6 +83,7 @@ namespace SGTM3D_State
         material_pt_state::volume_fraction,
         material_pt_state::specific_internal_energy,
         material_pt_state::eroded_flag,
+        material_pt_state::activated_flag,
         material_pt_state::heat_flux,
         material_pt_state::thermal_conductivity,
         material_pt_state::specific_heat
@@ -285,7 +286,8 @@ public:
             const DCArrayKokkos<double>& node_q_transfer,
             const DRaggedRightArrayKokkos<double>& mat_pt_specific_heat,
             const double rk_alpha,
-            const double dt) const;
+            const double dt,
+            DynamicArrayKokkos<size_t>& node_gid_activated) const;
 
     // **** Functions defined in heat_flux.cpp **** //
     void get_heat_flux(
@@ -306,7 +308,8 @@ public:
         const double fuzz,
         const double small,
         const double dt,
-        const double rk_alpha) const;
+        const double rk_alpha,
+        DynamicArrayKokkos<size_t>& mat_elem_sid_activated) const;
 
     void moving_flux(
         const Material_t& Materials,
@@ -323,7 +326,8 @@ public:
         const double dt,
         const double rk_alpha,
         const double time_step,
-        const ToolPathInfo& path) const;
+        const ToolPathInfo& path,
+        DynamicArrayKokkos<size_t>& mat_elem_sid_activated) const;
 
     // **** Functions defined in geometry.cpp **** //
     void update_position(
@@ -355,9 +359,11 @@ public:
         const DRaggedRightArrayKokkos<double>& MaterialPoints_conductivity,
         const DRaggedRightArrayKokkos<double>& MaterialPoints_specific_heat,
         const mtr::DRaggedRightArrayKokkos<bool>& eroded,
+        const mtr::DRaggedRightArrayKokkos<bool>& activated,
         const DRaggedRightArrayKokkos<size_t>& elem_in_mat_elem,
         const size_t num_material_elems,
-        const size_t mat_id) const;
+        const size_t mat_id,
+        DynamicArrayKokkos<size_t>& mat_elem_sid_activated) const;
 
     // **** Functions defined in time_integration.cpp **** //
     // NOTE: Consider pulling up

@@ -103,9 +103,6 @@ boundary_conditions:
         temperature_bc_global_vars:
             - 473.15   # constantly held at preheat temperature (200°C)
 
-   
-
-
     # Convection on the z=1 plane (heat loss/gain via h*(T-T_ref))
     #
     # NOTE: SGTM3D’s convection implementation currently uses hard-coded
@@ -115,8 +112,76 @@ boundary_conditions:
     - boundary_condition:
         solver_id: 0
         surface:
+            type: x_plane
+            plane_position: 0.0
+        temperature_model: convection
+        temperature_bc_global_vars:
+            - 473.15   # reference temperature (room temp in kelvin)
+            - 0.01    # h (film temperature) = 0.01 mW/(mm^2⋅K)
+
+    - boundary_condition:
+        solver_id: 0
+        surface:
+            type: x_plane
+            plane_position: 0.0
+        temperature_model: radiation
+
+    - boundary_condition:
+        solver_id: 0
+        surface:
+            type: x_plane
+            plane_position: 1.2
+        temperature_model: convection
+        temperature_bc_global_vars:
+            - 473.15   # reference temperature (room temp in kelvin)
+            - 0.01    # h (film temperature) = 0.01 mW/(mm^2⋅K)
+
+    - boundary_condition:
+        solver_id: 0
+        surface:
+            type: x_plane
+            plane_position: 1.2
+        temperature_model: radiation
+
+    - boundary_condition:
+        solver_id: 0
+        surface:
+            type: y_plane
+            plane_position: 0.0
+        temperature_model: convection
+        temperature_bc_global_vars:
+            - 473.15   # reference temperature (room temp in kelvin)
+            - 0.01    # h (film temperature) = 0.01 mW/(mm^2⋅K)
+
+    - boundary_condition:
+        solver_id: 0
+        surface:
+            type: y_plane
+            plane_position: 0.0
+        temperature_model: radiation
+
+    - boundary_condition:
+        solver_id: 0
+        surface:
+            type: y_plane
+            plane_position: 0.5
+        temperature_model: convection
+        temperature_bc_global_vars:
+            - 473.15   # reference temperature (room temp in kelvin)
+            - 0.01    # h (film temperature) = 0.01 mW/(mm^2⋅K)
+
+    - boundary_condition:
+        solver_id: 0
+        surface:
+            type: y_plane
+            plane_position: 0.5
+        temperature_model: radiation
+
+    - boundary_condition:
+        solver_id: 0
+        surface:
             type: z_plane
-            plane_position: 0.05
+            plane_position: 0.0
         temperature_model: convection
         temperature_bc_global_vars:
             - 473.15   # reference temperature (room temp in kelvin)
@@ -126,7 +191,7 @@ boundary_conditions:
         solver_id: 0
         surface:
             type: z_plane
-            plane_position: 0.05
+            plane_position: 0.0
         temperature_model: radiation
 
 

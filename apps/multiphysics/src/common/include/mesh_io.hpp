@@ -1888,6 +1888,9 @@ public:
                 case material_pt_state::eroded_flag:
                     State.MaterialPoints.eroded.update_host();
                     break;
+                case material_pt_state::activated_flag:
+                    State.MaterialPoints.activated.update_host();
+                    break;
                 // tensor vars to write out
                 case material_pt_state::stress:
                     State.MaterialPoints.stress.update_host();

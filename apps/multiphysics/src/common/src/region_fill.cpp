@@ -1209,6 +1209,11 @@ void material_state_setup(SimulationParameters_t& SimulationParamaters,
                     State.MaterialPoints.eroded.host(mat_id,mat_point_sid) = false; // set to default
                 }
 
+                // --- set activated flag to false ---
+                if( State.MaterialPoints.activated.size()>0 ){
+                    State.MaterialPoints.activated.host(mat_id,mat_point_sid) = false; // set to default
+                }
+
                 // --- specific internal energy ---
                 if( State.MaterialPoints.sie.size()>0 ){
                     // save state, that is integrated in time
@@ -1305,6 +1310,10 @@ void material_state_setup(SimulationParameters_t& SimulationParamaters,
     
     if (State.MaterialPoints.eroded.size()>0){
         State.MaterialPoints.eroded.update_device();
+    }
+
+    if (State.MaterialPoints.activated.size()>0){
+        State.MaterialPoints.activated.update_device();
     }
 
     if (State.MaterialPoints.conductivity.size()>0){

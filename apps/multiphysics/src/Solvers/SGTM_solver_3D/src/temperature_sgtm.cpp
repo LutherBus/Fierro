@@ -59,31 +59,32 @@ void SGTM3D::update_temperature(
     const DCArrayKokkos<double>& node_q_transfer,
     const DRaggedRightArrayKokkos<double>& mat_pt_specific_heat,
     const double rk_alpha,
-    const double dt) const
+    const double dt,
+    DynamicArrayKokkos<size_t>& node_gid_activated) const
 {
     // ---- loop over all the nodes in the mesh ---- //
-    FOR_ALL(node_gid, 0, mesh.num_nodes, {
+    FOR_ALL(i, 0, node_gid_activated.dims(0), {
         
         // ---- loop over all corners around the node and calculate total flux through that node (divergence) ---- //
-        for (size_t corner_lid = 0; corner_lid < mesh.num_corners_in_node(node_gid); corner_lid++) {
+        for (size_t corner_lid = 0; corner_lid < mesh.num_corners_in_node(node_gid_activated(i)); corner_lid++) {
             
             // Get corner gid
-            size_t corner_gid = mesh.corners_in_node(node_gid, corner_lid);
-            node_q_transfer(node_gid) += corner_q_transfer(corner_gid);
+            size_t corner_gid = mesh.corners_in_node(node_gid_activated(i), corner_lid);
+            node_q_transfer(node_gid_activated(i)) += corner_q_transfer(corner_gid);
 
         } // end for corner_lid
 
         // ---- Calculate the average specific heat for all materials surrounding a node ---- //
         double Cp = 0.0;
-        for(int elem_lid = 0; elem_lid < mesh.num_corners_in_node(node_gid); elem_lid++){ // NOTE: num_corners_in_node = num_elems_in_node
-            size_t elem_gid = mesh.elems_in_node(node_gid, elem_lid);
-            Cp += mat_pt_specific_heat(0,elem_gid)/mesh.num_corners_in_node(node_gid);
+        for(int elem_lid = 0; elem_lid < mesh.num_corners_in_node(node_gid_activated(i)); elem_lid++){ // NOTE: num_corners_in_node = num_elems_in_node
+            size_t elem_gid = mesh.elems_in_node(node_gid_activated(i), elem_lid);
+            Cp += mat_pt_specific_heat(0,elem_gid)/mesh.num_corners_in_node(node_gid_activated(i));
         }
 
-        // std::cout << "Cp*mass = " << Cp * node_mass(node_gid) << std::endl;
+        // std::cout << "Cp*mass = " << Cp * node_mass(node_gid_activated(i)) << std::endl;
 
         // ---- Update the nodal temperature ---- //
-        node_temp(node_gid) = node_temp_n0(node_gid) + rk_alpha * dt * node_q_transfer(node_gid) / (node_mass(node_gid)*Cp);
+        node_temp(node_gid_activated(i)) = node_temp_n0(node_gid_activated(i)) + rk_alpha * dt * node_q_transfer(node_gid_activated(i)) / (node_mass(node_gid_activated(i))*Cp);
 
     }); // end for parallel for over nodes
 

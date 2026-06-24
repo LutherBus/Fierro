@@ -85,19 +85,20 @@ void SGTM3D::get_heat_flux(
     const double fuzz,
     const double small,
     const double dt,
-    const double rk_alpha) const
+    const double rk_alpha,
+    DynamicArrayKokkos<size_t>& mat_elem_sid_activated) const
 {
     const size_t num_dims = 3;
     const size_t num_nodes_in_elem = 8;
 
     // ---- calculate the forces acting on the nodes from the element ---- //
-    FOR_ALL(mat_elem_sid, 0, num_mat_elems, {
+    FOR_ALL(i, 0, mat_elem_sid_activated.dims(0), {
 
         // get elem gid
-        size_t elem_gid = elem_in_mat_elem(mat_id, mat_elem_sid); 
+        size_t elem_gid = elem_in_mat_elem(mat_id, mat_elem_sid_activated(i)); 
 
         // the material point index = the material elem index for a 1-point element
-        size_t mat_point_sid = mat_elem_sid;
+        size_t mat_point_sid = mat_elem_sid_activated(i);
 
         // corner area normals
         double b_matrix_array[24];
@@ -130,7 +131,7 @@ void SGTM3D::get_heat_flux(
         // ---- Change element state if above some melting temperature ---- //
         if(avg_temp >= 1600){
             // printf("Melted!");
-            MaterialPoints_eroded(mat_id, mat_elem_sid) = true;
+            MaterialPoints_eroded(mat_id, mat_elem_sid_activated(i)) = true;
         } 
 
         // ---- Calculate the temperature gradient ---- //
@@ -172,7 +173,7 @@ void SGTM3D::get_heat_flux(
             size_t corner_gid = mesh.corners_in_elem(elem_gid, corner_lid);
 
             // Get the material corner lid
-            size_t mat_corner_lid = corners_in_mat_elem(mat_elem_sid, corner_lid);
+            size_t mat_corner_lid = corners_in_mat_elem(mat_elem_sid_activated(i), corner_lid);
 
             // Zero out flux at material corners
             corner_q_transfer(corner_gid) = 0.0;
@@ -232,14 +233,15 @@ void SGTM3D::moving_flux(
     const double dt,
     const double rk_alpha,
     const double time_value,
-    const ToolPathInfo& path) const
+    const ToolPathInfo& path,
+    DynamicArrayKokkos<size_t>& mat_elem_sid_activated) const
 {
 
     // ---- Apply heat flux from a moving heat source ---- //
-    FOR_ALL(mat_elem_sid, 0, num_mat_elems, {
+    FOR_ALL(i, 0, mat_elem_sid_activated.dims(0), {
         
         // get elem gid
-        size_t elem_gid = elem_in_mat_elem(mat_id, mat_elem_sid); 
+        size_t elem_gid = elem_in_mat_elem(mat_id, mat_elem_sid_activated(i)); 
     
         // calculate the coordinates and radius of the element
         double elem_coords_1D[3]; // note:initialization with a list won't work
@@ -267,7 +269,7 @@ void SGTM3D::moving_flux(
         //               * exp[-3 * (d_x * d_x) / (a * a) + (d_y * d_y) / (b * b) + (dz * dz) / (c * c)] for d_x <= 0
 
         double power = path.get_power(time_value);
-        double n = 0.67; // Absorbtivity of powder bed
+        double n = 0.67; // Absorptivity of powder bed
         double a_f = 0.02; // Semi-axis along travel direction, front (mm)
         double a_r = 0.06; // Semi-axis along travel direction, rear (mm)
         double b = 0.04; // Transverse semi_axis (mm)
@@ -304,7 +306,7 @@ void SGTM3D::moving_flux(
         } else {
             path.get_position(time_value - dt, x0, y0, z0);
         } // end if/else for previous heat source position
-        
+
         double L = Kokkos::sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0));
         double xi;
         double eta;

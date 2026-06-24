@@ -73,6 +73,7 @@ void Driver::initialize()
     swage::Mesh initial_mesh;
     MPICArrayKokkos<double> initial_node_coords;
     MPICArrayKokkos<double> final_node_coords;
+    
 
     // Initialize communication plans
     // These are set up by elements::partition_mesh
@@ -459,6 +460,7 @@ void Driver::execute()
                         BoundaryConditions, 
                         mesh, 
                         State);
+                        
     } // loop over solvers
 
     // Collective: dump any remaining buffered output from the run. Solvers
