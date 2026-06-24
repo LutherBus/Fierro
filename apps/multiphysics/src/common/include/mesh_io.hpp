@@ -2027,6 +2027,9 @@ public:
                     num_mat_pt_scalar_vars ++;
                     break;
 
+                case material_pt_state::activated_flag:
+                    num_mat_pt_scalar_vars ++;
+                    break;
                 // add other variables here
 
                 // not used
@@ -2088,6 +2091,8 @@ public:
                 case material_pt_state::volume_fraction:
                     break;
                 case material_pt_state::eroded_flag:
+                    break;
+                case material_pt_state::activated_flag:
                     break;
                 case material_pt_state::elastic_modulii:
                     break;
@@ -2156,6 +2161,7 @@ public:
         int mat_mat_volfrac_id = -1;  
         int mat_geo_volfrac_id = -1;  // geometric volume fraction of part
         int mat_eroded_id = -1;
+        int mat_activated_id = -1;
         int mat_stress_id = -1;
 
         int mat_conductivity_id = -1;
@@ -2207,6 +2213,11 @@ public:
                 case material_pt_state::eroded_flag:
                     mat_elem_scalar_var_names[var] = "mat_eroded";
                     mat_eroded_id = var;
+                    var++;
+                    break;
+                case material_pt_state::activated_flag:
+                    mat_elem_scalar_var_names[var] = "mat_activated";
+                    mat_activated_id = var;
                     var++;
                     break;
                 // tensor vars
@@ -2319,6 +2330,8 @@ public:
                 case material_pt_state::volume_fraction:
                     break;
                 case material_pt_state::eroded_flag:
+                    break;
+                case material_pt_state::activated_flag:
                     break;
                 case material_pt_state::elastic_modulii:
                     break;
@@ -2952,6 +2965,7 @@ public:
         State.MaterialPoints.sie.update_host();
         State.MaterialPoints.mass.update_host();
         State.MaterialPoints.eroded.update_host();
+        State.MaterialPoints.activated.update_host();
 
 
         // gauss point values
@@ -3367,6 +3381,7 @@ public:
         State.MaterialPoints.conductivity.update_host();
         State.MaterialPoints.temp_grad.update_host();
         State.MaterialPoints.eroded.update_host();
+        State.MaterialPoints.activated.update_host();
 
 
         // gauss point values

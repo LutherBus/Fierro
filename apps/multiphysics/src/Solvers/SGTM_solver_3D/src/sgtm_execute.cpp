@@ -104,31 +104,31 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
     // This toolpath is set to 700 mm/s, a typical scan speed
     // The laser power is set to 150 watts
-    path.set_data_point(0, 0.00000000, 0.300000, 0.250000, 0.05, 150000.0);
-    path.set_data_point(1, 0.00002061, 0.295500, 0.260900, 0.05, 150000.0);
-    path.set_data_point(2, 0.00004122, 0.294700, 0.272300, 0.05, 150000.0);
-    path.set_data_point(3, 0.00006184, 0.297600, 0.284000, 0.05, 150000.0);
-    path.set_data_point(4, 0.00008245, 0.304200, 0.295300, 0.05, 150000.0);
-    path.set_data_point(5, 0.00010306, 0.314300, 0.305700, 0.05, 150000.0);
-    path.set_data_point(6, 0.00012367, 0.327000, 0.315000, 0.05, 150000.0);
-    path.set_data_point(7, 0.00014429, 0.341600, 0.323400, 0.05, 150000.0);
-    path.set_data_point(8, 0.00016490, 0.357600, 0.331000, 0.05, 150000.0);
-    path.set_data_point(9, 0.00018551, 0.375100, 0.338000, 0.05, 150000.0);
-    path.set_data_point(10, 0.00020612, 0.394100, 0.344200, 0.05, 150000.0);
-    path.set_data_point(11, 0.00022673, 0.414300, 0.348700, 0.05, 150000.0);
-    path.set_data_point(12, 0.00024735, 0.435300, 0.348100, 0.05, 150000.0);
-    path.set_data_point(13, 0.00026796, 0.456400, 0.340800, 0.05, 150000.0);
-    path.set_data_point(14, 0.00028857, 0.477100, 0.326500, 0.05, 150000.0);
-    path.set_data_point(15, 0.00030918, 0.497100, 0.307400, 0.05, 150000.0);
-    path.set_data_point(16, 0.00032980, 0.516200, 0.287700, 0.05, 150000.0);
-    path.set_data_point(17, 0.00035041, 0.535000, 0.270300, 0.05, 150000.0);
-    path.set_data_point(18, 0.00037102, 0.554100, 0.256700, 0.05, 150000.0);
-    path.set_data_point(19, 0.00039163, 0.573800, 0.246300, 0.05, 150000.0);
-    path.set_data_point(20, 0.00041224, 0.594300, 0.237900, 0.05, 150000.0);
-    path.set_data_point(21, 0.00043286, 0.615400, 0.230000, 0.05, 150000.0);
-    path.set_data_point(22, 0.00045347, 0.636900, 0.221900, 0.05, 150000.0);
-    path.set_data_point(23, 0.00047408, 0.658500, 0.213100, 0.05, 150000.0);
-    path.set_data_point(24, 0.00049469, 0.679800, 0.203300, 0.05, 150000.0);
+    path.set_data_point(0, 0.00000000, 0.300000, 0.250000, 0.025, 150000.0);
+    path.set_data_point(1, 0.00002061, 0.295500, 0.260900, 0.025, 150000.0);
+    path.set_data_point(2, 0.00004122, 0.294700, 0.272300, 0.025, 150000.0);
+    path.set_data_point(3, 0.00006184, 0.297600, 0.284000, 0.025, 150000.0);
+    path.set_data_point(4, 0.00008245, 0.304200, 0.295300, 0.025, 150000.0);
+    path.set_data_point(5, 0.00010306, 0.314300, 0.305700, 0.025, 150000.0);
+    path.set_data_point(6, 0.00012367, 0.327000, 0.315000, 0.025, 150000.0);
+    path.set_data_point(7, 0.00014429, 0.341600, 0.323400, 0.025, 150000.0);
+    path.set_data_point(8, 0.00016490, 0.357600, 0.331000, 0.025, 150000.0);
+    path.set_data_point(9, 0.00018551, 0.375100, 0.338000, 0.025, 150000.0);
+    path.set_data_point(10, 0.00020612, 0.394100, 0.344200, 0.025, 150000.0);
+    path.set_data_point(11, 0.00022673, 0.414300, 0.348700, 0.025, 150000.0);
+    path.set_data_point(12, 0.00024735, 0.435300, 0.348100, 0.025, 150000.0);
+    path.set_data_point(13, 0.00026796, 0.456400, 0.340800, 0.025, 150000.0);
+    path.set_data_point(14, 0.00028857, 0.477100, 0.326500, 0.025, 150000.0);
+    path.set_data_point(15, 0.00030918, 0.497100, 0.307400, 0.025, 150000.0);
+    path.set_data_point(16, 0.00032980, 0.516200, 0.287700, 0.025, 150000.0);
+    path.set_data_point(17, 0.00035041, 0.535000, 0.270300, 0.025, 150000.0);
+    path.set_data_point(18, 0.00037102, 0.554100, 0.256700, 0.025, 150000.0);
+    path.set_data_point(19, 0.00039163, 0.573800, 0.246300, 0.025, 150000.0);
+    path.set_data_point(20, 0.00041224, 0.594300, 0.237900, 0.025, 150000.0);
+    path.set_data_point(21, 0.00043286, 0.615400, 0.230000, 0.025, 150000.0);
+    path.set_data_point(22, 0.00045347, 0.636900, 0.221900, 0.025, 150000.0);
+    path.set_data_point(23, 0.00047408, 0.658500, 0.213100, 0.025, 150000.0);
+    path.set_data_point(24, 0.00049469, 0.679800, 0.203300, 0.025, 150000.0);
     path.set_data_point(25, 0.00051531, 0.700900, 0.192800, 0.05, 150000.0);
     path.set_data_point(26, 0.00053592, 0.721800, 0.181900, 0.05, 150000.0);
     path.set_data_point(27, 0.00055653, 0.742600, 0.170900, 0.05, 150000.0);
@@ -165,12 +165,11 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
     // Initialize necessary components
 
-    double num_mat_elems = State.MaterialToMeshMaps.num_mat_elems.host(0); // Check if this is right to set to 0
+    int num_mat_elems = State.MaterialToMeshMaps.num_mat_elems.host(0);
     const MPICArrayKokkos<double>& node_coords = State.node.coords;
 
     const DRaggedRightArrayKokkos<size_t>& elem_mat_elem = State.MaterialToMeshMaps.elem_in_mat_elem;
-    const DRaggedRightArrayKokkos<bool>& MaterialPoints_activated = State.MaterialPoints.activated;
-    
+    DRaggedRightArrayKokkos<bool>& MaterialPoints_activated = State.MaterialPoints.activated;
     
     // Initialize activated elements and nodes arrays
     DynamicArrayKokkos<size_t> mat_elem_sid_activated(num_mat_elems, "mat_elem_sid_activated");
@@ -180,25 +179,39 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
         for(size_t mat_elem_sid = 0; mat_elem_sid < num_mat_elems; mat_elem_sid++) {
             size_t elem_gid = elem_mat_elem(mat_id, mat_elem_sid);
-            
-
-            double coords0[24];  // element coords
-            ViewCArrayKokkos<double> coords(coords0, 8, 3);
+            ViewCArrayKokkos<size_t> elem_node_gids(&mesh.nodes_in_elem(elem_gid, 0), 8);
 
             // Getting the coordinates of the element
             double element_z = 0.0;
 
             for (size_t node_lid = 0; node_lid < 8; node_lid++) {
-                element_z += node_coords(mesh.nodes_in_elem(elem_gid, node_lid), 3);
+                element_z += node_coords(mesh.nodes_in_elem(elem_gid, node_lid), 2);
             } // end for loop over node_lid
 
-            if (element_z / 8 <= layer_height) {
+            // Checking if the element is in the activated region
+            double x_coord = 0.0;
+            double y_coord = 0.0;
+            double z_coord = 0.0;
+            path.get_position(time_value, x_coord, y_coord, z_coord);
+            double heat_source_height = z_coord;
+            if (element_z / 8 <= heat_source_height) {
                 MaterialPoints_activated(mat_id, mat_elem_sid) = true;
                 mat_elem_sid_activated.push_back(mat_elem_sid);
 
-                for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the element to the list of activated nodes
-                    ViewCArrayKokkos<size_t> elem_node_gids(&mesh.nodes_in_elem(elem_gid, 0), 8);
-                    node_gid_activated.push_back(elem_node_gids(node_lid));
+                for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the element to the list of activated nodes if not already in it
+                    bool found = false;
+
+                    for (size_t i = 0; i < node_gid_activated.dims(0); i++) { // Check if the node is already added to the array
+
+                        if (node_gid_activated(i) == elem_node_gids(node_lid)) {
+                            found = true;
+                            break; // If the node_gid is already in the array of activated nodes, don't add it
+                        }
+                    }
+
+                    if (!found) { // If the node_gid is not yet in the array of activated nodes, add it
+                        node_gid_activated.push_back(elem_node_gids(node_lid));
+                    }
                 }
             }
         }
@@ -491,6 +504,8 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
             
         } // end of RK loop
+        
+        time_value += dt;
 
         // ---- Activate new elements, if needed ---- //
 
@@ -499,18 +514,20 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                 size_t elem_gid = elem_mat_elem(mat_id, mat_elem_sid);
                 ViewCArrayKokkos<size_t> elem_node_gids(&mesh.nodes_in_elem(elem_gid, 0), 8);
 
-                double coords0[24];  // element coords
-                ViewCArrayKokkos<double> coords(coords0, 8, 3);
-
                 // Getting the coordinates of the element
                 double element_z = 0.0;
 
                 for (size_t node_lid = 0; node_lid < 8; node_lid++) {
-                    element_z += node_coords(mesh.nodes_in_elem(elem_gid, node_lid), 3);
+                    element_z += node_coords(mesh.nodes_in_elem(elem_gid, node_lid), 2);
                 } // end for loop over node_lid
 
                 // Checking if the element is in the activated region
-                if (element_z / 8 <= layer_height * cycle) {
+                double x_coord = 0.0;
+                double y_coord = 0.0;
+                double z_coord = 0.0;
+                path.get_position(time_value, x_coord, y_coord, z_coord);
+                double heat_source_height = z_coord;
+                if (element_z / 8 <= heat_source_height) {
 
                     if (MaterialPoints_activated(mat_id, mat_elem_sid)) {
                         continue; // Check if the element has already been activated
@@ -538,8 +555,6 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                 }
             }
         }
-        
-        time_value += dt;
 
 
         // ---- Move heat source ---- //

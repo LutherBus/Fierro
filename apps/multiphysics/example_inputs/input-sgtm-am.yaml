@@ -69,6 +69,7 @@ output_options:
     mat_pt_field_outputs:
         - den
         - eroded
+        - activated
     node_field_outputs:
         # Node temperature field (written to output).
         - temp
