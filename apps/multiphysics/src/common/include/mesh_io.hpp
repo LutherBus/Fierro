@@ -2752,7 +2752,8 @@ public:
                                                mat_eroded_id,
                                                mat_stress_id,
                                                mat_conductivity_id,
-                                               mat_specific_heat_id);
+                                               mat_specific_heat_id,
+                                               mat_activated_id);
                         Kokkos::fence();
                         mat_elem_scalar_fields.update_host();
                         mat_elem_tensor_fields.update_host();
@@ -3963,7 +3964,8 @@ public:
                                 const int mat_eroded_id,
                                 const int mat_stress_id,
                                 const int mat_conductivity_id,
-                                const int mat_specific_heat_id)
+                                const int mat_specific_heat_id,
+                                const int mat_activated_id)
     {
       
         // --- loop over the material point states
@@ -4031,6 +4033,13 @@ public:
                         mat_elem_scalar_fields(mat_eroded_id, mat_elem_sid) = (double)MaterialPoints.eroded(mat_id, mat_elem_sid);
                     });
                     break;
+                case material_pt_state::activated_flag:
+                    FOR_ALL(mat_elem_sid, 0, num_mat_elems, {
+
+                        // field
+                        mat_elem_scalar_fields(mat_activated_id, mat_elem_sid) = (double)MaterialPoints.activated(mat_id, mat_elem_sid);
+                    });
+                    break;
                 // ---------------    
                 // tensor vars
                 // ---------------
@@ -4073,6 +4082,7 @@ public:
                         mat_elem_scalar_fields(mat_specific_heat_id, elem_gid) += MaterialPoints.specific_heat(mat_id, mat_elem_sid);
                     });
                     break;
+
 
                 // add other variables here
 
