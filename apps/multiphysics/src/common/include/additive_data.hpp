@@ -100,6 +100,16 @@ public:
         z = tool_path_table.linear_interpolation(t, Fields::z, Fields::time);
     } // end function
 
+    // Compute current position of tool at time t, assuming linear motion between path points.
+    // Returns a double, z
+    KOKKOS_INLINE_FUNCTION
+    void get_position(const double& t, double& z) const {
+
+        // get the z position at time t
+        z = tool_path_table.linear_interpolation(t, Fields::z, Fields::time);
+        
+    } // end function
+
 
     // Compute current power of tool at time t, assuming linear interpolation between path points.
     // Returns the power at the time t
