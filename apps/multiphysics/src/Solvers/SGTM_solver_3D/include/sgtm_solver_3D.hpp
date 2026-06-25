@@ -62,7 +62,8 @@ namespace SGTM3D_State
         node_state::velocity,
         node_state::mass,
         node_state::temp,
-        node_state::heat_transfer
+        node_state::heat_transfer,
+        node_state::activated_flag
     };
 
     // Gauss point state to be initialized for the SGH solver

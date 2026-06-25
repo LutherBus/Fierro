@@ -99,12 +99,12 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     auto time_1 = std::chrono::high_resolution_clock::now();    
 
     // ---- Initialize the tool path information ---- //
-    int number_of_points = 50;
+    int number_of_points = 6;
     ToolPathInfo path(number_of_points);
 
     // This toolpath is set to 700 mm/s, a typical scan speed
     // The laser power is set to 150 watts
-    path.set_data_point(0, 0.00000000, 0.300000, 0.250000, 0.025, 150000.0);
+    /* path.set_data_point(0, 0.00000000, 0.300000, 0.250000, 0.025, 150000.0);
     path.set_data_point(1, 0.00002061, 0.295500, 0.260900, 0.025, 150000.0);
     path.set_data_point(2, 0.00004122, 0.294700, 0.272300, 0.025, 150000.0);
     path.set_data_point(3, 0.00006184, 0.297600, 0.284000, 0.025, 150000.0);
@@ -154,8 +154,14 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     path.set_data_point(47, 0.00096878, 1.000000, 0.250000, 0.05, 150000.0);
     path.set_data_point(48, 0.00098939, 1.000000, 0.250000, 0.05, 150000.0);
     path.set_data_point(49, 0.00101000, 1.000000, 0.250000, 0.05, 0.0);
+    */
+    path.set_data_point(0, 0.0, 0.3, 0.25, 0.025, 150000.0);
+    path.set_data_point(1, 0.001, 1.0, 0.25, 0.025, 150000.0);
+    path.set_data_point(2, 0.001, 0.3, 0.25, 0.025, 0.0);
+    path.set_data_point(3, 0.0012, 0.3, 0.25, 0.05, 150000.0);
+    path.set_data_point(4, 0.00199, 1.0, 0.25, 0.05, 150000.0);
+    path.set_data_point(5, 0.00199, 1.0, 0.25, 0.05, 0.0);
 
-    
     path.tool_path_table.print_table();
 
     path.update_device();
@@ -170,10 +176,19 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
     const DRaggedRightArrayKokkos<size_t>& elem_mat_elem = State.MaterialToMeshMaps.elem_in_mat_elem;
     DRaggedRightArrayKokkos<bool>& MaterialPoints_activated = State.MaterialPoints.activated;
+    DCArrayKokkos<bool>& node_activated = State.node.activated;
+
+    // ---- Initialize the nodal activation to false ---- //
+    FOR_ALL(node_gid, 0, mesh.num_nodes, {
+        State.node.activated(node_gid) = false;
+    }); // end for parallel for over nodes
     
     // Initialize activated elements and nodes arrays
     DynamicArrayKokkos<size_t> mat_elem_sid_activated(num_mat_elems, "mat_elem_sid_activated");
     DynamicArrayKokkos<size_t> node_gid_activated(mesh.num_nodes, "node_gid_activated");
+    
+    double z_coord = 0.0;
+    path.get_position(time_value, z_coord);
     
     // Activate the first layer of elements
     for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
@@ -182,38 +197,26 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
             ViewCArrayKokkos<size_t> elem_node_gids(&mesh.nodes_in_elem(elem_gid, 0), 8);
 
             // Getting the coordinates of the element
-            double element_z = 0.0;
+            double avg_z = 0.0;
 
             for (size_t node_lid = 0; node_lid < 8; node_lid++) {
-                element_z += node_coords(mesh.nodes_in_elem(elem_gid, node_lid), 2);
+                avg_z += node_coords(mesh.nodes_in_elem(elem_gid, node_lid), 2);
             } // end for loop over node_lid
 
+            avg_z *= 0.125;
+
             // Checking if the element is in the activated region
-            double x_coord = 0.0;
-            double y_coord = 0.0;
-            double z_coord = 0.0;
-            path.get_position(time_value, x_coord, y_coord, z_coord);
-            double heat_source_height = z_coord;
-            if (element_z / 8 <= heat_source_height) {
-                MaterialPoints_activated(mat_id, mat_elem_sid) = true;
-                mat_elem_sid_activated.push_back(mat_elem_sid);
+            if (avg_z <= z_coord) {
+                    MaterialPoints_activated(mat_id, mat_elem_sid) = true; // If it is, activate the element
+                    mat_elem_sid_activated.push_back(mat_elem_sid);
 
                 for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the element to the list of activated nodes if not already in it
-                    bool found = false;
-
-                    for (size_t i = 0; i < node_gid_activated.dims(0); i++) { // Check if the node is already added to the array
-
-                        if (node_gid_activated(i) == elem_node_gids(node_lid)) {
-                            found = true;
-                            break; // If the node_gid is already in the array of activated nodes, don't add it
-                        }
-                    }
-
-                    if (!found) { // If the node_gid is not yet in the array of activated nodes, add it
-                        node_gid_activated.push_back(elem_node_gids(node_lid));
-                    }
-                }
-            }
+                    if (!State.node.activated(elem_node_gids(node_lid))) {
+                        State.node.activated(elem_node_gids(node_lid)) = true;
+                        node_gid_activated.push_back(elem_node_gids(node_lid));                
+                    } // end if loop for adding nodes to activated list
+                } // end for loop over all nodes in an activated element
+            } // end if loop for adding elements to activated list
         }
     }
 
@@ -534,22 +537,13 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                         mat_elem_sid_activated.push_back(mat_elem_sid);
 
                         for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the element to the list of activated nodes if not already in it
-                            bool found = false;
-
-                            for (size_t i = 0; i < node_gid_activated.dims(0); i++) { // Check if the node is already added to the array
-
-                                if (node_gid_activated(i) == elem_node_gids(node_lid)) {
-                                    found = true;
-                                    break; // If the node_gid is already in the array of activated nodes, don't add it
-                                }
-                            }
-
-                            if (!found) { // If the node_gid is not yet in the array of activated nodes, add it
-                                node_gid_activated.push_back(elem_node_gids(node_lid));
-                            }
-                        }
-                    }
-                }
+                            if (!State.node.activated(elem_node_gids(node_lid))) {
+                                State.node.activated(elem_node_gids(node_lid)) = true;
+                                node_gid_activated.push_back(elem_node_gids(node_lid));                
+                            } // end if loop for adding nodes to activated list
+                        } // end for loop over nodes in activated element
+                    } // end if loop for adding elements to activated list
+                } // end if statement for checking whether the element should be activated
             }
         }
 

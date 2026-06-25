@@ -36,10 +36,10 @@
 # Time integration / stepping control
 # ---------------------------------------------------------------------------
 dynamic_options:
-    time_final: 0.002
+    time_final: 0.003
     dt_min: 1.e-8
-    dt_max: 1.e-5
-    dt_start: 1.e-5
+    dt_max: 5.e-5
+    dt_start: 5.e-5
     cycle_stop: 100000
 
 

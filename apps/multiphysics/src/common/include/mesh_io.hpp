@@ -2435,6 +2435,7 @@ public:
         int node_coord_id = -1;
         int node_temp_id = -1;
         int node_grad_level_set_id = -1;
+        int node_activated_id = -1;
 
         // reset counters for node fields
         var = 0;
@@ -2477,6 +2478,12 @@ public:
                     node_vector_var_names[vector_var] = "node_grad_lvlset";
                     node_grad_level_set_id = vector_var;
                     vector_var++;
+                    break;
+
+                case node_state::activated_flag:
+                    node_scalar_var_names[var] = "node_activated";
+                    node_activated_id = var;
+                    var++;
                     break;
 
                 // -- not used vars
@@ -2575,7 +2582,8 @@ public:
                                  node_accel_id,
                                  node_coord_id,
                                  node_grad_level_set_id,
-                                 node_temp_id);
+                                 node_temp_id,
+                                 node_activated_id);
                                  
 
         Kokkos::fence();
@@ -4111,7 +4119,8 @@ public:
                                   const int node_accel_id,
                                   const int node_coord_id,
                                   const int node_grad_level_set_id,
-                                  const int node_temp_id)
+                                  const int node_temp_id,
+                                  const int node_activated_id)
     {
         for (auto field : output_node_states){
             switch(field){
@@ -4201,6 +4210,10 @@ public:
 
                 // heat transer vars
                 case node_state::heat_transfer:
+                    break;
+
+                // activated vars
+                case node_state::activated_flag:
                     break;
                 // tensors
             } // end switch
