@@ -87,6 +87,5 @@ void SGTM3D::update_temperature(
         node_temp(node_gid_activated(i)) = node_temp_n0(node_gid_activated(i)) + rk_alpha * dt * node_q_transfer(node_gid_activated(i)) / (node_mass(node_gid_activated(i))*Cp);
 
     }); // end for parallel for over nodes
-
     return;
 } // end subroutine

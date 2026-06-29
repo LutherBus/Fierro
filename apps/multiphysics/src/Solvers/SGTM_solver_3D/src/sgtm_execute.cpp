@@ -156,7 +156,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     path.set_data_point(48, 0.00098939, 1.000000, 0.250000, 0.05, 150000.0);
     path.set_data_point(49, 0.00101000, 1.000000, 0.250000, 0.05, 0.0);
     */
-    path.set_data_point(0, 0.0, 0.3, 0.25, 0.025, 150000.0);
+    path.set_data_point(0, 0.000, 0.3, 0.25, 0.025, 150000.0);
     path.set_data_point(1, 0.001, 1.0, 0.25, 0.025, 150000.0);
     path.set_data_point(2, 0.001, 1.0, 0.25, 0.025, 0.0);
     
@@ -172,11 +172,11 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     path.set_data_point(11, 0.007, 1.0, 0.25, 0.075, 150000.0);
     path.set_data_point(12, 0.007, 1.0, 0.25, 0.075, 0.0);
     
-    path.set_data_point(13, 0.008, 0.3, 0.25, 0.01, 0.0);
-    path.set_data_point(14, 0.009, 0.3, 0.25, 0.01, 0.0);
-    path.set_data_point(15, 0.009, 0.3, 0.25, 0.01, 150000.0);
-    path.set_data_point(16, 0.01, 1.0, 0.25, 0.01, 150000.0);
-    path.set_data_point(17, 0.01, 1.0, 0.25, 0.01, 0.0);
+    path.set_data_point(13, 0.008, 0.3, 0.25, 0.1, 0.0);
+    path.set_data_point(14, 0.009, 0.3, 0.25, 0.1, 0.0);
+    path.set_data_point(15, 0.009, 0.3, 0.25, 0.1, 150000.0);
+    path.set_data_point(16, 0.01, 1.0, 0.25, 0.1, 150000.0);
+    path.set_data_point(17, 0.01, 1.0, 0.25, 0.1, 0.0);
     
     /*path.set_data_point(18, 0.011, 0.3, 0.25, 0.0125, 0.0);
     path.set_data_point(19, 0.012, 0.3, 0.25, 0.0125, 0.0);
@@ -223,18 +223,30 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         
     // Initialize necessary components
 
-/*  State.MaterialToMeshMaps.num_mat_elems.update_device();
+    /*State.MaterialToMeshMaps.num_mat_elems.update_device();
+
     State.MaterialToMeshMaps.elem_in_mat_elem.update_device();
+
     State.MaterialPoints.activated.update_device();
+
     State.node.activated.update_device();
+
     State.node.coords.update_device();
     */
-                        
+   
+   
+    FOR_ALL(mat_elem_sid, 0, State.MaterialToMeshMaps.num_mat_elems.host(0), {
+        State.MaterialPoints.activated(0, mat_elem_sid) = false;
+    }); // end for parallel for over elements
+
     const MPICArrayKokkos<double>& node_coords = State.node.coords;
     DRaggedRightArrayKokkos<size_t>& elem_in_mat_elem = State.MaterialToMeshMaps.elem_in_mat_elem;
 
     DRaggedRightArrayKokkos<bool>& MaterialPoints_activated = State.MaterialPoints.activated;
     DCArrayKokkos<bool>& node_activated = State.node.activated;
+
+    DynamicArrayKokkos<size_t> mat_elem_sid_activated(State.MaterialToMeshMaps.num_mat_elems.host(0), "mat_elem_sid_activated");
+    DynamicArrayKokkos<size_t> node_gid_activated(mesh.num_nodes, "node_gid_activated");
 
     // ---- Initialize the nodal activation to false ---- //
     FOR_ALL(node_gid, 0, mesh.num_nodes, {
@@ -243,20 +255,24 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     
     double z_coord = 0.0;
     path.get_position_z_host(time_value, z_coord);
+    printf("z_coord = %f\n", z_coord);
 
-    DynamicArrayKokkos<size_t> mat_elem_sid_activated(State.MaterialToMeshMaps.num_mat_elems.host(0), "mat_elem_sid_activated");
-    DynamicArrayKokkos<size_t> node_gid_activated(mesh.num_nodes, "node_gid_activated");
     
     // Activate the first layer of elements
     MATAR_FENCE();
+    int count_true = 0;
+    int count_false = 0;
+
     for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
         MATAR_FENCE();
         int num_mat_elems = State.MaterialToMeshMaps.num_mat_elems.host(mat_id);
 
         for(size_t mat_elem_sid = 0; mat_elem_sid < num_mat_elems; mat_elem_sid++) {    
             MATAR_FENCE();
+            //printf("mat_elem_sid = %f\n", mat_elem_sid);
             size_t elem_gid = elem_in_mat_elem.host(mat_id, mat_elem_sid);
             ViewCArrayHost<size_t> elem_node_gids(&mesh.nodes_in_elem.host(elem_gid, 0), 8);
+            
             // Getting the coordinates of the element
             double avg_z = 0.0;
 
@@ -265,12 +281,12 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
             } // end for loop over node_lid
 
             avg_z *= 0.125;
-
+            
             // Checking if the element is in the activated region
             if (avg_z <= z_coord) {
                 MaterialPoints_activated.host(mat_id, mat_elem_sid) = true; // If it is, activate the element
+                count_true++;
                 mat_elem_sid_activated.push_back(mat_elem_sid);
-                //printf("After if inside if\n");
 
                 for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the element to the list of activated nodes if not already in it
                     if (!node_activated.host(elem_node_gids(node_lid))) {
@@ -278,62 +294,21 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                         node_gid_activated.push_back(elem_node_gids(node_lid));      
 
                     } // end if loop for adding nodes to activated list
-                } // end for loop over all nodes in an activated element
+                } // end for loop over all nodes in an activated element 
+            } else {
+                count_false++;
+                //MaterialPoints_activated.host(mat_id, mat_elem_sid) = false; // If it is, activate the element
             }
         }    
     }
     MATAR_FENCE();
+    printf("Activated %d elements\n", count_true);
+    printf("%d elements were not activated\n", count_false);
+
     MaterialPoints_activated.update_device();
     node_activated.update_device();
+    
 
-
-
-
-
-
-
-
-
-
-
-
-   /*std::cout << "After fence\n";
-
-   MaterialPoints_activated.update_host();
-   node_activated.update_host();
-
-    State.MaterialToMeshMaps.num_mat_elems.update_host();
-    State.MaterialToMeshMaps.elem_in_mat_elem.update_host();
-    State.MaterialPoints.activated.update_host();
-    State.node.activated.update_host();
-    State.node.coords.update_host();
-
-    std::cout << "num_mats: " << num_mats << std::endl;
-    for(size_t mat_id = 0; mat_id < num_mats; mat_id++) {
-        int num_mat_elems = State.MaterialToMeshMaps.num_mat_elems.host(mat_id);
-        std::cout << "Before second for. num_mat_elems: " << num_mat_elems << std::endl;
-        for(size_t mat_elem_sid = 0; mat_elem_sid < num_mat_elems; mat_elem_sid++) {
-            std::cout << "After second for" << endl;
-            cout << "mat_id: " << mat_id << ", mat_elem_sid: " << mat_elem_sid << endl;
-            if(MaterialPoints_activated(mat_id, mat_elem_sid)) {
-                std::cout << "Before materials push back" << endl;
-                mat_elem_sid_activated.push_back(mat_elem_sid);
-                std::cout << "After materials push back" << endl;
-            }
-            std::cout << "After first if" << endl;
-            
-            if(node_activated(elem_in_mat_elem(mat_id, mat_elem_sid))) {
-                std::cout << "Before nodes push back" << endl;
-                node_gid_activated.push_back(elem_in_mat_elem(mat_id, mat_elem_sid)); 
-                std::cout << "After nodes push back" << endl;
-            }
-            std::cout << "Leaving inner for loop" << endl;
-        }
-        std::cout << "Leaving outer for loop" << endl;
-        
-    }
-    std::cout << "After upper for" << endl;
-*/
 
     // Print the material tables
     for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
@@ -636,6 +611,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         
         double z_coord = 0.0;
         path.get_position_z_host(time_value, z_coord);
+        
 
         for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
 
@@ -654,11 +630,11 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                 } // end for loop over node_lid
 
                 avg_z *= 0.125;
-
                 // Checking if the element is in the activated region
-            
                 if (avg_z <= z_coord) {
+
                     if (!MaterialPoints_activated.host(mat_id, mat_elem_sid)) {
+
                         MaterialPoints_activated.host(mat_id, mat_elem_sid) = true; // If it is, activate the element
                         mat_elem_sid_activated.push_back(mat_elem_sid);
 
@@ -668,8 +644,11 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                                 node_gid_activated.push_back(elem_node_gids(node_lid)); 
                             }
 
-                        } // end if loop for adding nodes to activated list
+                        } // end if loop for adding nodes to activated list 
                     } // end for loop over all nodes in an activated element
+                }
+                else {
+                    //MaterialPoints_activated.host(mat_id, mat_elem_sid) = false; // If it is, activate the element
                 }
             }    
         }

@@ -366,7 +366,6 @@ void SGTM3D::moving_flux(
     }); // end parallel for loop over elements
 
     // Note: a correction term may be needed to account for the fact that the flux is not evenly distributed to enforce conservation
-
     return;
 }
 
