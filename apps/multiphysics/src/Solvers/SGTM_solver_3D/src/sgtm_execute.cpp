@@ -248,50 +248,43 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     DynamicArrayKokkos<size_t> node_gid_activated(mesh.num_nodes, "node_gid_activated");
     
     // Activate the first layer of elements
-    printf("Activating the first layer of elements\n");
     MATAR_FENCE();
     for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
-        printf("Activating the first layer of elements for material %lu\n", mat_id);
         MATAR_FENCE();
         int num_mat_elems = State.MaterialToMeshMaps.num_mat_elems.host(mat_id);
 
         for(size_t mat_elem_sid = 0; mat_elem_sid < num_mat_elems; mat_elem_sid++) {    
-            printf("Activating the first layer of elements for material %lu, element %lu\n", mat_id, mat_elem_sid);
             MATAR_FENCE();
             size_t elem_gid = elem_in_mat_elem.host(mat_id, mat_elem_sid);
-
             ViewCArrayHost<size_t> elem_node_gids(&mesh.nodes_in_elem.host(elem_gid, 0), 8);
-
             // Getting the coordinates of the element
             double avg_z = 0.0;
 
             for (size_t node_lid = 0; node_lid < 8; node_lid++) {
-                avg_z += node_coords(mesh.nodes_in_elem.host(elem_gid, node_lid), 2);
+                avg_z += node_coords.host(mesh.nodes_in_elem.host(elem_gid, node_lid), 2);
             } // end for loop over node_lid
 
             avg_z *= 0.125;
 
             // Checking if the element is in the activated region
-    
             if (avg_z <= z_coord) {
-                MaterialPoints_activated(mat_id, mat_elem_sid) = true; // If it is, activate the element
+                MaterialPoints_activated.host(mat_id, mat_elem_sid) = true; // If it is, activate the element
                 mat_elem_sid_activated.push_back(mat_elem_sid);
                 //printf("After if inside if\n");
 
                 for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the element to the list of activated nodes if not already in it
-                    if (!node_activated(elem_node_gids(node_lid))) {
-                        node_activated(elem_node_gids(node_lid)) = true;
+                    if (!node_activated.host(elem_node_gids(node_lid))) {
+                        node_activated.host(elem_node_gids(node_lid)) = true;
                         node_gid_activated.push_back(elem_node_gids(node_lid));      
 
                     } // end if loop for adding nodes to activated list
                 } // end for loop over all nodes in an activated element
-            } else {
-                //printf("avg_z > z_coord\n");
-            } // end if loop for adding elements to activated list
-        };
+            }
+        }    
     }
-    printf("Finished activating the first layer of elements\n");
     MATAR_FENCE();
+    MaterialPoints_activated.update_device();
+    node_activated.update_device();
 
 
 
@@ -649,7 +642,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
             int num_mat_elems = State.MaterialToMeshMaps.num_mat_elems.host(mat_id);
 
             for(size_t mat_elem_sid = 0; mat_elem_sid < num_mat_elems; mat_elem_sid++) {    
-                size_t elem_gid = elem_in_mat_elem(mat_id, mat_elem_sid);
+                size_t elem_gid = elem_in_mat_elem.host(mat_id, mat_elem_sid);
 
                 ViewCArrayHost<size_t> elem_node_gids(&mesh.nodes_in_elem.host(elem_gid, 0), 8);
 
@@ -657,7 +650,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                 double avg_z = 0.0;
 
                 for (size_t node_lid = 0; node_lid < 8; node_lid++) {
-                    avg_z += node_coords(mesh.nodes_in_elem.host(elem_gid, node_lid), 2);
+                    avg_z += node_coords.host(mesh.nodes_in_elem.host(elem_gid, node_lid), 2);
                 } // end for loop over node_lid
 
                 avg_z *= 0.125;
@@ -665,22 +658,24 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                 // Checking if the element is in the activated region
             
                 if (avg_z <= z_coord) {
-                    MaterialPoints_activated(mat_id, mat_elem_sid) = true; // If it is, activate the element
-                    mat_elem_sid_activated.push_back(mat_elem_sid);
-                    //printf("After if inside if\n");
+                    if (!MaterialPoints_activated.host(mat_id, mat_elem_sid)) {
+                        MaterialPoints_activated.host(mat_id, mat_elem_sid) = true; // If it is, activate the element
+                        mat_elem_sid_activated.push_back(mat_elem_sid);
 
-                    for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the element to the list of activated nodes if not already in it
-                        if (!node_activated(elem_node_gids(node_lid))) {
-                            node_activated(elem_node_gids(node_lid)) = true;
-                            node_gid_activated.push_back(elem_node_gids(node_lid));      
+                        for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the element to the list of activated nodes if not already in it
+                            if (!node_activated.host(elem_node_gids(node_lid))) {
+                                node_activated.host(elem_node_gids(node_lid)) = true;
+                                node_gid_activated.push_back(elem_node_gids(node_lid)); 
+                            }
 
                         } // end if loop for adding nodes to activated list
                     } // end for loop over all nodes in an activated element
-                } else {
-                    //printf("avg_z > z_coord\n");
-                } // end if loop for adding elements to activated list
-            };
-    }
+                }
+            }    
+        }
+    MATAR_FENCE();
+    MaterialPoints_activated.update_device();
+    node_activated.update_device();
 
 
 
