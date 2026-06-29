@@ -219,6 +219,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     path.tool_path_table.print_table();
 
     path.update_device();
+    MATAR_FENCE();
         
     // Initialize necessary components
 
@@ -228,7 +229,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     State.node.activated.update_device();
     State.node.coords.update_device();
     */
-   
+                        
     const MPICArrayKokkos<double>& node_coords = State.node.coords;
     DRaggedRightArrayKokkos<size_t>& elem_in_mat_elem = State.MaterialToMeshMaps.elem_in_mat_elem;
 
@@ -247,6 +248,8 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     DynamicArrayKokkos<size_t> node_gid_activated(mesh.num_nodes, "node_gid_activated");
     
     // Activate the first layer of elements
+    printf("Activating the first layer of elements\n");
+    MATAR_FENCE();
     for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
 
         int num_mat_elems = State.MaterialToMeshMaps.num_mat_elems.host(mat_id);
@@ -284,7 +287,8 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
             } // end if loop for adding elements to activated list
         };
     }
-
+    printf("Finished activating the first layer of elements\n");
+    MATAR_FENCE();
 
 
 
@@ -357,7 +361,8 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         if (log) Materials.specific_heat_table_powder.print_table();
         if (log) log->flush();
     } // end for mat_id
- 
+    printf("Finished printing the material tables\n");
+    MATAR_FENCE();
     // ---- Write initial state at t=0 ---- 
     if (log) log->info("Writing outputs to file at %f \n", graphics_time);
     mesh_writer.write_mesh(
@@ -385,6 +390,9 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     heat_source_position.host(2) = 0.0;
     heat_source_position.update_device();
 
+    printf("Setting the nodal flux to zero\n");
+    MATAR_FENCE();
+
 
     FOR_ALL(node_gid, 0, mesh.num_nodes, {
         State.node.q_transfer(node_gid) = 0.0;
@@ -408,6 +416,9 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                 mat_elem_sid_activated);
         } // end for mat_id
     }
+
+    printf("Finished updating the material properties, starting cycle\n");
+    MATAR_FENCE();
 
     // ---- loop over the max number of time integration cycles ---- //
     for (size_t cycle = 0; cycle < cycle_stop; cycle++) {
