@@ -63,5 +63,6 @@ void SGTM3D::update_position(
             double half_vel = (node_vel(node_gid, dim) + node_vel_n0(node_gid, dim)) * 0.5;
             node_coords(node_gid, dim) = node_coords_n0(node_gid, dim) + rk_alpha * dt * half_vel;
         }
-    }); // end parallel for over nodes
+    });
+    // end parallel for over nodes
 } // end subroutine

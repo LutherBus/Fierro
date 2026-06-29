@@ -239,6 +239,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         State.MaterialPoints.activated(0, mat_elem_sid) = false;
     }); // end for parallel for over elements
 
+    State.node.coords.update_host();
     const MPICArrayKokkos<double>& node_coords = State.node.coords;
     DRaggedRightArrayKokkos<size_t>& elem_in_mat_elem = State.MaterialToMeshMaps.elem_in_mat_elem;
 
@@ -255,13 +256,10 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     
     double z_coord = 0.0;
     path.get_position_z_host(time_value, z_coord);
-    printf("z_coord = %f\n", z_coord);
 
     
     // Activate the first layer of elements
     MATAR_FENCE();
-    int count_true = 0;
-    int count_false = 0;
 
     for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
         MATAR_FENCE();
@@ -269,8 +267,8 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
         for(size_t mat_elem_sid = 0; mat_elem_sid < num_mat_elems; mat_elem_sid++) {    
             MATAR_FENCE();
-            //printf("mat_elem_sid = %f\n", mat_elem_sid);
             size_t elem_gid = elem_in_mat_elem.host(mat_id, mat_elem_sid);
+            
             ViewCArrayHost<size_t> elem_node_gids(&mesh.nodes_in_elem.host(elem_gid, 0), 8);
             
             // Getting the coordinates of the element
@@ -278,6 +276,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
             for (size_t node_lid = 0; node_lid < 8; node_lid++) {
                 avg_z += node_coords.host(mesh.nodes_in_elem.host(elem_gid, node_lid), 2);
+
             } // end for loop over node_lid
 
             avg_z *= 0.125;
@@ -285,7 +284,6 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
             // Checking if the element is in the activated region
             if (avg_z <= z_coord) {
                 MaterialPoints_activated.host(mat_id, mat_elem_sid) = true; // If it is, activate the element
-                count_true++;
                 mat_elem_sid_activated.push_back(mat_elem_sid);
 
                 for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the element to the list of activated nodes if not already in it
@@ -295,16 +293,11 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
                     } // end if loop for adding nodes to activated list
                 } // end for loop over all nodes in an activated element 
-            } else {
-                count_false++;
-                //MaterialPoints_activated.host(mat_id, mat_elem_sid) = false; // If it is, activate the element
-            }
-        }    
+            }  
+        }  
     }
     MATAR_FENCE();
-    printf("Activated %d elements\n", count_true);
-    printf("%d elements were not activated\n", count_false);
-
+    
     MaterialPoints_activated.update_device();
     node_activated.update_device();
     
@@ -332,7 +325,6 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         if (log) Materials.specific_heat_table_powder.print_table();
         if (log) log->flush();
     } // end for mat_id
-    printf("Finished printing the material tables\n");
     MATAR_FENCE();
     // ---- Write initial state at t=0 ---- 
     if (log) log->info("Writing outputs to file at %f \n", graphics_time);
@@ -361,7 +353,6 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     heat_source_position.host(2) = 0.0;
     heat_source_position.update_device();
 
-    printf("Setting the nodal flux to zero\n");
     MATAR_FENCE();
 
 
@@ -388,7 +379,6 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         } // end for mat_id
     }
 
-    printf("Finished updating the material properties, starting cycle\n");
     MATAR_FENCE();
 
     // ---- loop over the max number of time integration cycles ---- //
@@ -650,6 +640,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                 else {
                     //MaterialPoints_activated.host(mat_id, mat_elem_sid) = false; // If it is, activate the element
                 }
+        
             }    
         }
     MATAR_FENCE();
