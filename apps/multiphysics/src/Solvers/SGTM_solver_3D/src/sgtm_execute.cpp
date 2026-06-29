@@ -222,12 +222,13 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         
     // Initialize necessary components
 
-    State.MaterialToMeshMaps.num_mat_elems.update_device();
+/*  State.MaterialToMeshMaps.num_mat_elems.update_device();
     State.MaterialToMeshMaps.elem_in_mat_elem.update_device();
     State.MaterialPoints.activated.update_device();
     State.node.activated.update_device();
     State.node.coords.update_device();
-    
+    */
+   
     const MPICArrayKokkos<double>& node_coords = State.node.coords;
     DRaggedRightArrayKokkos<size_t>& elem_in_mat_elem = State.MaterialToMeshMaps.elem_in_mat_elem;
 
@@ -240,63 +241,49 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     }); // end for parallel for over nodes
     
     double z_coord = 0.0;
-    path.get_position_z_device(time_value, z_coord);
+    path.get_position_z_host(time_value, z_coord);
 
-    DynamicRaggedRightArrayKokkos<size_t> mat_elem_sid_activated(Materials.num_mats, State.MaterialToMeshMaps.num_mat_elems, "mat_elem_sid_activated");
+    DynamicArrayKokkos<size_t> mat_elem_sid_activated(State.MaterialToMeshMaps.num_mat_elems.host(0), "mat_elem_sid_activated");
     DynamicArrayKokkos<size_t> node_gid_activated(mesh.num_nodes, "node_gid_activated");
     
     // Activate the first layer of elements
-    //for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
+    for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
 
-        //int num_mat_elems = State.MaterialToMeshMaps.num_mat_elems.host(mat_id);
+        int num_mat_elems = State.MaterialToMeshMaps.num_mat_elems.host(mat_id);
 
-        //FOR_ALL(mat_elem_sid, 0, num_mat_elems, {
-        //for(size_t mat_elem_sid = 0; mat_elem_sid < num_mat_elems; mat_elem_sid++) {
-    FOR_ALL(mat_id, 0, num_mats, mat_elem_side, 0, num_mat_elems, {    
-        size_t elem_gid = elem_in_mat_elem(mat_id, mat_elem_sid);
-        int num_mat_elems = State.MaterialToMeshMaps.num_mat_elems(mat_id);
+        for(size_t mat_elem_sid = 0; mat_elem_sid < num_mat_elems; mat_elem_sid++) {    
+            size_t elem_gid = elem_in_mat_elem(mat_id, mat_elem_sid);
 
-        ViewCArrayKokkos<size_t> elem_node_gids(&mesh.nodes_in_elem(elem_gid, 0), 8);
+            ViewCArrayHost<size_t> elem_node_gids(&mesh.nodes_in_elem.host(elem_gid, 0), 8);
 
-        // Getting the coordinates of the element
-        double avg_z = 0.0;
+            // Getting the coordinates of the element
+            double avg_z = 0.0;
 
-        for (size_t node_lid = 0; node_lid < 8; node_lid++) {
-            avg_z += node_coords(mesh.nodes_in_elem(elem_gid, node_lid), 2);
-        } // end for loop over node_lid
+            for (size_t node_lid = 0; node_lid < 8; node_lid++) {
+                avg_z += node_coords(mesh.nodes_in_elem.host(elem_gid, node_lid), 2);
+            } // end for loop over node_lid
 
-        avg_z *= 0.125;
+            avg_z *= 0.125;
 
-        // Checking if the element is in the activated region
-        //printf("Before if\n");
+            // Checking if the element is in the activated region
+    
+            if (avg_z <= z_coord) {
+                MaterialPoints_activated(mat_id, mat_elem_sid) = true; // If it is, activate the element
+                mat_elem_sid_activated.push_back(mat_elem_sid);
+                //printf("After if inside if\n");
 
+                for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the element to the list of activated nodes if not already in it
+                    if (!node_activated(elem_node_gids(node_lid))) {
+                        node_activated(elem_node_gids(node_lid)) = true;
+                        node_gid_activated.push_back(elem_node_gids(node_lid));      
 
-
-        /* Should this next part be done on the host side, since push_back is modifying a single array?
-
-        If so, how should the avg_z be compiled? Should a DCArrayKokkos be made to hold all the avg_z values,
-        and the host does the if check?
-        */
-
-
-
-        if (avg_z <= z_coord) {
-            MaterialPoints_activated(mat_id, mat_elem_sid) = true; // If it is, activate the element
-            mat_elem_sid_activated.push_back(mat_elem_sid);
-            //printf("After if inside if\n");
-
-            for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the element to the list of activated nodes if not already in it
-                if (!node_activated(elem_node_gids(node_lid))) {
-                    node_activated(elem_node_gids(node_lid)) = true;
-                    node_gid_activated.push_back(elem_node_gids(node_lid));      
-
-                } // end if loop for adding nodes to activated list
-            } // end for loop over all nodes in an activated element
-        } else {
-            //printf("avg_z > z_coord\n");
-        } // end if loop for adding elements to activated list
-    });
-
+                    } // end if loop for adding nodes to activated list
+                } // end for loop over all nodes in an activated element
+            } else {
+                //printf("avg_z > z_coord\n");
+            } // end if loop for adding elements to activated list
+        };
+    }
 
 
 
@@ -641,58 +628,45 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         // ---- Activate new elements, if needed ---- //
         
         double z_coord = 0.0;
-        path.get_position_z_device(time_value, z_coord);
+        path.get_position_z_host(time_value, z_coord);
+
         for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
 
             int num_mat_elems = State.MaterialToMeshMaps.num_mat_elems.host(mat_id);
-            std::cout << "Before FOR_ALL\n";
-            FOR_ALL(mat_elem_sid, 0, num_mat_elems, {
-                printf("Into FOR_ALL\n");
+
+            for(size_t mat_elem_sid = 0; mat_elem_sid < num_mat_elems; mat_elem_sid++) {    
                 size_t elem_gid = elem_in_mat_elem(mat_id, mat_elem_sid);
-                printf("Before VIEW\n");
-                ViewCArrayKokkos<size_t> elem_node_gids(&mesh.nodes_in_elem(elem_gid, 0), 8);
-                printf("After VIEW\n");
+
+                ViewCArrayHost<size_t> elem_node_gids(&mesh.nodes_in_elem.host(elem_gid, 0), 8);
+
                 // Getting the coordinates of the element
-                double avg_z= 0.0;
+                double avg_z = 0.0;
 
                 for (size_t node_lid = 0; node_lid < 8; node_lid++) {
-                    avg_z += node_coords(mesh.nodes_in_elem(elem_gid, node_lid), 2);
+                    avg_z += node_coords(mesh.nodes_in_elem.host(elem_gid, node_lid), 2);
                 } // end for loop over node_lid
-                
+
                 avg_z *= 0.125;
 
                 // Checking if the element is in the activated region
+            
                 if (avg_z <= z_coord) {
-                    printf("Before lower if materials\n");
-                    if (!MaterialPoints_activated(mat_id, mat_elem_sid)) { // Check if the element has already been activated. If not, add it to the array
-                        printf("Before Materials activation\n");
-                        MaterialPoints_activated(mat_id, mat_elem_sid) = true;
-                        printf("After materials Activation\n");
-                        //mat_elem_sid_activated.push_back(mat_elem_sid);
+                    MaterialPoints_activated(mat_id, mat_elem_sid) = true; // If it is, activate the element
+                    mat_elem_sid_activated.push_back(mat_elem_sid);
+                    //printf("After if inside if\n");
 
-                        for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the element to the list of activated nodes if not already in it
-                            if (!node_activated(elem_node_gids(node_lid))) {
-                                node_activated(elem_node_gids(node_lid)) = true;
-                                //node_gid_activated.push_back(elem_node_gids(node_lid));                
-                            } // end if loop for adding nodes to activated list
-                        } // end for loop over nodes in activated element
-                    } // end if loop for adding elements to activated list
-                } // end if statement for checking whether the element should be activated
-            });                 
-            Kokkos::fence();
-            printf("After lower fence\n");
-            for(size_t mat_id = 0; mat_id < num_mats; mat_id++) {
-                int num_mat_elems = State.MaterialToMeshMaps.num_mat_elems.host(mat_id);
-                for(size_t mat_elem_sid = 0; mat_elem_sid < num_mat_elems; mat_elem_sid++) {
-                    if(MaterialPoints_activated(mat_id, mat_elem_sid)) {
-                        mat_elem_sid_activated.push_back(mat_elem_sid);
-                    }
-                    if(node_activated(elem_in_mat_elem(mat_id, mat_elem_sid))) {
-                        node_gid_activated.push_back(elem_in_mat_elem(mat_id, mat_elem_sid)); 
-                    }
-                }
-            }
-        }
+                    for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the element to the list of activated nodes if not already in it
+                        if (!node_activated(elem_node_gids(node_lid))) {
+                            node_activated(elem_node_gids(node_lid)) = true;
+                            node_gid_activated.push_back(elem_node_gids(node_lid));      
+
+                        } // end if loop for adding nodes to activated list
+                    } // end for loop over all nodes in an activated element
+                } else {
+                    //printf("avg_z > z_coord\n");
+                } // end if loop for adding elements to activated list
+            };
+    }
 
 
 
