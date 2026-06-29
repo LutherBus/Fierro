@@ -101,9 +101,19 @@ public:
     } // end function
 
     // Compute current position of tool at time t, assuming linear motion between path points.
-    // Returns a double, z
+    // Returns a double, z, and accesses on host side
     KOKKOS_INLINE_FUNCTION
-    void get_position(const double& t, double& z) const {
+    void get_position_z_host(const double& t, double& z) const {
+
+        // get the z position at time t
+        z = tool_path_table.linear_interpolation_host(t, Fields::z, Fields::time);
+        
+    } // end function
+
+    // Compute current position of tool at time t, assuming linear motion between path points.
+    // Returns a double, z, and accesses on device side
+    KOKKOS_INLINE_FUNCTION
+    void get_position_z_device(const double& t, double& z) const {
 
         // get the z position at time t
         z = tool_path_table.linear_interpolation(t, Fields::z, Fields::time);

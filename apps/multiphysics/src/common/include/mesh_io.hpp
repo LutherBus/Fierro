@@ -2455,6 +2455,11 @@ public:
                     node_temp_id = var;
                     var++;
                     break;
+                case node_state::activated_flag:
+                    node_scalar_var_names[var] = "node_activated";
+                    node_activated_id = var;
+                    var++;
+                    break;
 
                 // vector fields
 
@@ -2478,12 +2483,6 @@ public:
                     node_vector_var_names[vector_var] = "node_grad_lvlset";
                     node_grad_level_set_id = vector_var;
                     vector_var++;
-                    break;
-
-                case node_state::activated_flag:
-                    node_scalar_var_names[var] = "node_activated";
-                    node_activated_id = var;
-                    var++;
                     break;
 
                 // -- not used vars
@@ -2984,6 +2983,7 @@ public:
         State.node.coords.update_host();
         State.node.vel.update_host();
         State.node.mass.update_host();
+        State.node.activated.update_host();
 
         Kokkos::fence();
 
@@ -4149,6 +4149,13 @@ public:
 
                     break;
 
+                case node_state::activated_flag:
+                    FOR_ALL(node_gid, 0, num_nodes, {
+                        node_scalar_fields(node_activated_id, node_gid) = Node.activated(node_gid);
+                    });
+
+                    break;
+
                 // vector fields
 
                 case node_state::coords:
@@ -4222,9 +4229,6 @@ public:
                 case node_state::heat_transfer:
                     break;
 
-                // activated vars
-                case node_state::activated_flag:
-                    break;
                 // tensors
             } // end switch
         } // end for over
