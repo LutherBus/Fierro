@@ -258,7 +258,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         for(size_t mat_elem_sid = 0; mat_elem_sid < num_mat_elems; mat_elem_sid++) {    
             printf("Activating the first layer of elements for material %lu, element %lu\n", mat_id, mat_elem_sid);
             MATAR_FENCE();
-            size_t elem_gid = elem_in_mat_elem(mat_id, mat_elem_sid);
+            size_t elem_gid = elem_in_mat_elem.host(mat_id, mat_elem_sid);
 
             ViewCArrayHost<size_t> elem_node_gids(&mesh.nodes_in_elem.host(elem_gid, 0), 8);
 
