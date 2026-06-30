@@ -79,7 +79,8 @@ static std::map<std::string, node_state> node_outputs_map
     { "mass",   node_state::mass },
     { "force",  node_state::force },
     { "grad_level_set", node_state::gradient_level_set },
-    { "activated", node_state::activated_flag}
+    { "activated", node_state::activated_flag},
+    { "eroded", node_state::eroded_flag}
 };
 
 // gauss point state variables writen to file

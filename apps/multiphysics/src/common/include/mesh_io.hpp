@@ -1964,6 +1964,9 @@ public:
                 case node_state::activated_flag:
                     State.node.activated.update_host();
                     break;
+                case node_state::eroded_flag:
+                    State.node.eroded.update_host();
+                    break;
                 case node_state::velocity:
                     State.node.vel.update_host();
                     break;
@@ -2016,6 +2019,9 @@ public:
                 case material_pt_state::eroded_flag:
                     num_mat_pt_scalar_vars ++;
                     break;
+                case material_pt_state::activated_flag:
+                    num_mat_pt_scalar_vars ++;
+                    break;
                 // tensor vars to write out
                 case material_pt_state::stress:
                     num_mat_pt_tensor_vars ++;
@@ -2030,9 +2036,6 @@ public:
                     num_mat_pt_scalar_vars ++;
                     break;
 
-                case material_pt_state::activated_flag:
-                    num_mat_pt_scalar_vars ++;
-                    break;
                 // add other variables here
 
                 // not used
@@ -2409,6 +2412,9 @@ public:
                 case node_state::activated_flag:
                     num_node_scalar_vars ++;
                     break;
+                case node_state::eroded_flag:
+                    num_node_scalar_vars ++;
+                    break;
 
                 // -- vectors
                 case node_state::coords:
@@ -2443,6 +2449,7 @@ public:
         int node_temp_id = -1;
         int node_grad_level_set_id = -1;
         int node_activated_id = -1;
+        int node_eroded_id = -1;
 
         // reset counters for node fields
         var = 0;
@@ -2465,6 +2472,11 @@ public:
                 case node_state::activated_flag:
                     node_scalar_var_names[var] = "node_activated";
                     node_activated_id = var;
+                    var++;
+                    break;
+                case node_state::eroded_flag:
+                    node_scalar_var_names[var] = "node_eroded";
+                    node_eroded_id = var;
                     var++;
                     break;
 
@@ -2589,7 +2601,8 @@ public:
                                  node_coord_id,
                                  node_grad_level_set_id,
                                  node_temp_id,
-                                 node_activated_id);
+                                 node_activated_id,
+                                 node_eroded_id);
                                  
 
         Kokkos::fence();
@@ -2991,12 +3004,13 @@ public:
         State.node.vel.update_host();
         State.node.mass.update_host();
         State.node.activated.update_host();
+        State.node.eroded.update_host();
 
         Kokkos::fence();
 
         // --------------------------
 
-        const int num_scalar_vars = 10;
+        const int num_scalar_vars = 11;
         const int num_vec_vars    = 3;
 
         std::string name_tmp;
@@ -3006,7 +3020,7 @@ public:
         std::strcpy(name, name_tmp.c_str());
 
         const char scalar_var_names[num_scalar_vars][15] = {
-            "den", "pres", "sie", "vol", "mass", "sspd", "speed", "mat_id", "elem_switch", "eroded"
+            "den", "pres", "sie", "vol", "mass", "sspd", "speed", "mat_id", "elem_switch", "eroded", "activated"
         };
 
         const char vec_var_names[num_vec_vars][15] = {
@@ -3076,6 +3090,7 @@ public:
                 elem_fields(elem_gid, 7) = (double)mat_id;
                 // 8 is the e_switch
                 elem_fields(elem_gid, 9) = (double)State.MaterialPoints.eroded.host(mat_id, mat_elem_sid);
+                elem_fields(elem_gid, 10) = (double)State.MaterialPoints.activated.host(mat_id, mat_elem_sid);
             } // end for mat elems storage
         } // end parallel loop over materials
 
@@ -3408,11 +3423,13 @@ public:
         State.node.vel.update_host();
         State.node.mass.update_host();
         State.node.temp.update_host();
+        State.node.activated.update_host();
+        State.node.eroded.update_host();
 
         Kokkos::fence();
 
 
-        const int num_cell_scalar_vars = 13;
+        const int num_cell_scalar_vars = 14;
         const int num_cell_vec_vars    = 0;
         const int num_cell_tensor_vars = 0;
 
@@ -3422,7 +3439,7 @@ public:
 
         // Scalar values associated with a cell
         const char cell_scalar_var_names[num_cell_scalar_vars][15] = {
-            "den", "pres", "sie", "vol", "mass", "sspd", "speed", "mat_id", "elem_switch","eroded", "temp_grad_x", "temp_grad_y", "temp_grad_z"
+            "den", "pres", "sie", "vol", "mass", "sspd", "speed", "mat_id", "elem_switch","eroded", "activated", "temp_grad_x", "temp_grad_y", "temp_grad_z"
         };
         
         const char cell_vec_var_names[num_cell_vec_vars][15] = {
@@ -3500,9 +3517,10 @@ public:
                 elem_fields(elem_gid, 7) = (double)mat_id;
                 // 8 is the e_switch
                 elem_fields(elem_gid, 9) = (double)State.MaterialPoints.eroded.host(mat_id, mat_elem_sid);
-                elem_fields(elem_gid, 10) = (double)State.MaterialPoints.temp_grad.host(mat_id, elem_gid,0);
-                elem_fields(elem_gid, 11) = (double)State.MaterialPoints.temp_grad.host(mat_id, elem_gid,1);
-                elem_fields(elem_gid, 12) = (double)State.MaterialPoints.temp_grad.host(mat_id, elem_gid,2);
+                elem_fields(elem_gid,10) = (double)State.MaterialPoints.activated.host(mat_id, mat_elem_sid);
+                elem_fields(elem_gid, 11) = (double)State.MaterialPoints.temp_grad.host(mat_id, elem_gid,0);
+                elem_fields(elem_gid, 12) = (double)State.MaterialPoints.temp_grad.host(mat_id, elem_gid,1);
+                elem_fields(elem_gid, 13) = (double)State.MaterialPoints.temp_grad.host(mat_id, elem_gid,2);
             } // end for mat elems storage
         } // end parallel loop over materials
 
@@ -3867,6 +3885,8 @@ public:
                     break;
                 case material_pt_state::eroded_flag:
                     break;
+                case material_pt_state::activated_flag:
+                    break;
                 case material_pt_state::elastic_modulii:
                     break;
                 case material_pt_state::shear_modulii:
@@ -4137,7 +4157,8 @@ public:
                                   const int node_coord_id,
                                   const int node_grad_level_set_id,
                                   const int node_temp_id,
-                                  const int node_activated_id)
+                                  const int node_activated_id,
+                                  const int node_eroded_id)
     {
         for (auto field : output_node_states){
             switch(field){
@@ -4159,6 +4180,11 @@ public:
                 case node_state::activated_flag:
                     FOR_ALL(node_gid, 0, num_nodes, {
                         node_scalar_fields(node_activated_id, node_gid) = Node.activated(node_gid);
+                    });
+
+                case node_state::eroded_flag:
+                    FOR_ALL(node_gid, 0, num_nodes, {
+                        node_scalar_fields(node_eroded_id, node_gid) = Node.eroded(node_gid);
                     });
 
                     break;

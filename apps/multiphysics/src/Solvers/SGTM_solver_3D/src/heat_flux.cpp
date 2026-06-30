@@ -73,6 +73,7 @@ void SGTM3D::get_heat_flux(
     const DCArrayKokkos<double>& GaussPoints_vol,
     const MPICArrayKokkos<double>& node_coords,
     const MPICArrayKokkos<double>& node_temp,
+    const DCArrayKokkos<bool>& node_eroded,
     const DRaggedRightArrayKokkos<double>& MaterialPoints_q_flux,
     const DRaggedRightArrayKokkos<double>& MaterialPoints_conductivity,
     const DRaggedRightArrayKokkos<double>& MaterialPoints_temp_grad,
@@ -130,9 +131,12 @@ void SGTM3D::get_heat_flux(
 
         // ---- Change element state if above some melting temperature ---- //
         if(avg_temp >= 1600){
-            // printf("Melted!");
             MaterialPoints_eroded(mat_id, mat_elem_sid_activated(i)) = true;
-        } 
+            for (size_t node_lid = 0; node_lid < 8; node_lid++) {
+                node_eroded(elem_node_gids(node_lid)) = true;
+            } 
+        }
+        
 
         // ---- Calculate the temperature gradient ---- //
         double inverse_vol = 1.0 / vol;

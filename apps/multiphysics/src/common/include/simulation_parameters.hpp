@@ -46,6 +46,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "boundary_conditions.hpp"
 #include "dynamic_options.hpp"
 #include "table.hpp"
+#include "laser.hpp"
 
 using namespace mtr;
 
@@ -69,6 +70,8 @@ struct SimulationParameters_t
     RegionSetup_t RegionSetups;                ///< region fills across all solvers
 
     InitialConditionSetup_t InitialConditionSetup;     ///< intial conditions
+
+    Laser_t Laser; ///< Laser
 
 }; // simulation_parameters_t
 

@@ -41,6 +41,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "geometry_new.hpp"
 #include "mesh_io.hpp"
 #include "additive_data.hpp"
+#include "laser.hpp"
 
 using std::cout;
 using std::endl;
@@ -100,134 +101,13 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     auto time_1 = std::chrono::high_resolution_clock::now();    
 
     // ---- Initialize the tool path information ---- //
-    int number_of_points = 18;
-    ToolPathInfo path(number_of_points);
-
+   
     // This toolpath is set to 700 mm/s, a typical scan speed
     // The laser power is set to 150 watts
-    /* path.set_data_point(0, 0.00000000, 0.300000, 0.250000, 0.025, 150000.0);
-    path.set_data_point(1, 0.00002061, 0.295500, 0.260900, 0.025, 150000.0);
-    path.set_data_point(2, 0.00004122, 0.294700, 0.272300, 0.025, 150000.0);
-    path.set_data_point(3, 0.00006184, 0.297600, 0.284000, 0.025, 150000.0);
-    path.set_data_point(4, 0.00008245, 0.304200, 0.295300, 0.025, 150000.0);
-    path.set_data_point(5, 0.00010306, 0.314300, 0.305700, 0.025, 150000.0);
-    path.set_data_point(6, 0.00012367, 0.327000, 0.315000, 0.025, 150000.0);
-    path.set_data_point(7, 0.00014429, 0.341600, 0.323400, 0.025, 150000.0);
-    path.set_data_point(8, 0.00016490, 0.357600, 0.331000, 0.025, 150000.0);
-    path.set_data_point(9, 0.00018551, 0.375100, 0.338000, 0.025, 150000.0);
-    path.set_data_point(10, 0.00020612, 0.394100, 0.344200, 0.025, 150000.0);
-    path.set_data_point(11, 0.00022673, 0.414300, 0.348700, 0.025, 150000.0);
-    path.set_data_point(12, 0.00024735, 0.435300, 0.348100, 0.025, 150000.0);
-    path.set_data_point(13, 0.00026796, 0.456400, 0.340800, 0.025, 150000.0);
-    path.set_data_point(14, 0.00028857, 0.477100, 0.326500, 0.025, 150000.0);
-    path.set_data_point(15, 0.00030918, 0.497100, 0.307400, 0.025, 150000.0);
-    path.set_data_point(16, 0.00032980, 0.516200, 0.287700, 0.025, 150000.0);
-    path.set_data_point(17, 0.00035041, 0.535000, 0.270300, 0.025, 150000.0);
-    path.set_data_point(18, 0.00037102, 0.554100, 0.256700, 0.025, 150000.0);
-    path.set_data_point(19, 0.00039163, 0.573800, 0.246300, 0.025, 150000.0);
-    path.set_data_point(20, 0.00041224, 0.594300, 0.237900, 0.025, 150000.0);
-    path.set_data_point(21, 0.00043286, 0.615400, 0.230000, 0.025, 150000.0);
-    path.set_data_point(22, 0.00045347, 0.636900, 0.221900, 0.025, 150000.0);
-    path.set_data_point(23, 0.00047408, 0.658500, 0.213100, 0.025, 150000.0);
-    path.set_data_point(24, 0.00049469, 0.679800, 0.203300, 0.025, 150000.0);
-    path.set_data_point(25, 0.00051531, 0.700900, 0.192800, 0.05, 150000.0);
-    path.set_data_point(26, 0.00053592, 0.721800, 0.181900, 0.05, 150000.0);
-    path.set_data_point(27, 0.00055653, 0.742600, 0.170900, 0.05, 150000.0);
-    path.set_data_point(28, 0.00057714, 0.763400, 0.160400, 0.05, 150000.0);
-    path.set_data_point(29, 0.00059776, 0.784400, 0.151200, 0.05, 150000.0);
-    path.set_data_point(30, 0.00061837, 0.805700, 0.145000, 0.05, 150000.0);
-    path.set_data_point(31, 0.00063898, 0.827400, 0.143000, 0.05, 150000.0);
-    path.set_data_point(32, 0.00065959, 0.849300, 0.145800, 0.05, 150000.0);
-    path.set_data_point(33, 0.00068020, 0.871400, 0.153400, 0.05, 150000.0);
-    path.set_data_point(34, 0.00070082, 0.893500, 0.165000, 0.05, 150000.0);
-    path.set_data_point(35, 0.00072143, 0.915300, 0.179400, 0.05, 150000.0);
-    path.set_data_point(36, 0.00074204, 0.936500, 0.195300, 0.05, 150000.0);
-    path.set_data_point(37, 0.00076265, 0.956700, 0.211100, 0.05, 150000.0);
-    path.set_data_point(38, 0.00078327, 0.975400, 0.225200, 0.05, 150000.0);
-    path.set_data_point(39, 0.00080388, 0.992300, 0.236400, 0.05, 150000.0);
-    path.set_data_point(40, 0.00082449, 1.000000, 0.250000, 0.05, 150000.0);
-    path.set_data_point(41, 0.00084510, 1.000000, 0.250000, 0.05, 150000.0);
-    path.set_data_point(42, 0.00086571, 1.000000, 0.250000, 0.05, 150000.0);
-    path.set_data_point(43, 0.00088633, 1.000000, 0.250000, 0.05, 150000.0);
-    path.set_data_point(44, 0.00090694, 1.000000, 0.250000, 0.05, 150000.0);
-    path.set_data_point(45, 0.00092755, 1.000000, 0.250000, 0.05, 150000.0);
-    path.set_data_point(46, 0.00094816, 1.000000, 0.250000, 0.05, 150000.0);
-    path.set_data_point(47, 0.00096878, 1.000000, 0.250000, 0.05, 150000.0);
-    path.set_data_point(48, 0.00098939, 1.000000, 0.250000, 0.05, 150000.0);
-    path.set_data_point(49, 0.00101000, 1.000000, 0.250000, 0.05, 0.0);
-    */
-    /*
-    path.set_data_point(0, 0.000, 0.3, 0.25, 0.05, 150000.0);
-    path.set_data_point(1, 0.001, 1.0, 0.25, 0.05, 150000.0);
-    path.set_data_point(2, 0.001, 1.0, 0.25, 0.05, 0.0);
-    
-    path.set_data_point(3, 0.002, 0.3, 0.25, 0.1, 0.0);
-    path.set_data_point(4, 0.003, 0.3, 0.25, 0.1, 0.0);
-    path.set_data_point(5, 0.003, 0.3, 0.25, 0.1, 150000.0);
-    path.set_data_point(6, 0.004, 1.0, 0.25, 0.1, 150000.0);
-    path.set_data_point(7, 0.004, 1.0, 0.25, 0.1, 0.0);
-   
-    path.set_data_point(8, 0.005, 0.3, 0.25, 0.15, 0.0);
-    path.set_data_point(9, 0.006, 0.3, 0.25, 0.15, 0.0);
-    path.set_data_point(10, 0.006, 0.3, 0.25, 0.15, 150000.0);
-    path.set_data_point(11, 0.007, 1.0, 0.25, 0.15, 150000.0);
-    path.set_data_point(12, 0.007, 1.0, 0.25, 0.15, 0.0);
-    
-    path.set_data_point(13, 0.008, 0.3, 0.25, 0.2, 0.0);
-    path.set_data_point(14, 0.009, 0.3, 0.25, 0.2, 0.0);
-    path.set_data_point(15, 0.009, 0.3, 0.25, 0.2, 150000.0);
-    path.set_data_point(16, 0.01, 1.0, 0.25, 0.2, 150000.0);
-    path.set_data_point(17, 0.01, 1.0, 0.25, 0.2, 0.0);
-    
-    path.set_data_point(18, 0.011, 0.3, 0.25, 0.25, 0.0);
-    path.set_data_point(19, 0.012, 0.3, 0.25, 0.25, 0.0);
-    path.set_data_point(20, 0.012, 0.3, 0.25, 0.25, 150000.0);
-    path.set_data_point(21, 0.013, 1.0, 0.25, 0.25, 150000.0);
-    path.set_data_point(22, 0.013, 1.0, 0.25, 0.25, 0.0);
-
-    path.set_data_point(23, 0.014, 0.3, 0.25, 0.3, 0.0);
-    path.set_data_point(24, 0.015, 0.3, 0.25, 0.3, 0.0);
-    path.set_data_point(25, 0.015, 0.3, 0.25, 0.3, 150000.0);
-    path.set_data_point(26, 0.016, 1.0, 0.25, 0.3, 150000.0);
-    path.set_data_point(27, 0.016, 1.0, 0.25, 0.3, 0.0);
-
-    path.set_data_point(28, 0.017, 0.3, 0.25, 0.35, 0.0);
-    path.set_data_point(29, 0.018, 0.3, 0.25, 0.35, 0.0);
-    path.set_data_point(30, 0.018, 0.3, 0.25, 0.35, 150000.0);
-    path.set_data_point(31, 0.019, 1.0, 0.25, 0.35, 150000.0);
-    path.set_data_point(32, 0.019, 1.0, 0.25, 0.35, 0.0);
-
-    path.set_data_point(33, 0.020, 0.3, 0.25, 0.4, 0.0);
-    path.set_data_point(34, 0.021, 0.3, 0.25, 0.4, 0.0);
-    path.set_data_point(35, 0.021, 0.3, 0.25, 0.4, 150000.0);
-    path.set_data_point(36, 0.022, 1.0, 0.25, 0.4, 150000.0);
-    path.set_data_point(37, 0.022, 1.0, 0.25, 0.4, 0.0);
-                        */
-
-    path.set_data_point(0, 0.000, 0.3, 0.25, 0.025, 150000.0);
-    path.set_data_point(1, 0.001, 1.0, 0.25, 0.025, 150000.0);
-    path.set_data_point(2, 0.001, 1.0, 0.25, 0.025, 0.0);
-    
-    path.set_data_point(3, 0.002, 0.3, 0.25, 0.05, 0.0);
-    path.set_data_point(4, 0.003, 0.3, 0.25, 0.05, 0.0);
-    path.set_data_point(5, 0.003, 0.3, 0.25, 0.05, 150000.0);
-    path.set_data_point(6, 0.004, 1.0, 0.25, 0.05, 150000.0);
-    path.set_data_point(7, 0.004, 1.0, 0.25, 0.05, 0.0);
-   
-    path.set_data_point(8, 0.005, 0.3, 0.25, 0.075, 0.0);
-    path.set_data_point(9, 0.006, 0.3, 0.25, 0.075, 0.0);
-    path.set_data_point(10, 0.006, 0.3, 0.25, 0.075, 150000.0);
-    path.set_data_point(11, 0.007, 1.0, 0.25, 0.075, 150000.0);
-    path.set_data_point(12, 0.007, 1.0, 0.25, 0.075, 0.0);
-    
-    path.set_data_point(13, 0.008, 0.3, 0.25, 0.1, 0.0);
-    path.set_data_point(14, 0.009, 0.3, 0.25, 0.1, 0.0);
-    path.set_data_point(15, 0.009, 0.3, 0.25, 0.1, 150000.0);
-    path.set_data_point(16, 0.01, 1.0, 0.25, 0.1, 150000.0);
-    path.set_data_point(17, 0.01, 1.0, 0.25, 0.1, 0.0);
-    path.tool_path_table.print_table();
-
-    path.update_device();
+    std::cout << "Before ToolPathInfo pointer in sgtm_execute.cpp" << std::endl;
+    ToolPathInfo& path = SimulationParamaters.Laser.tool_path_info;
+    path.tool_path_table.update_device();
+    std::cout << "After ToolPathInfo pointer in sgtm_execute.cpp" << std::endl;
     MATAR_FENCE();
         
     // ---- Initialize necessary variables for activating the elements/nodes below the heat source (in the z-direction) ---- //
@@ -495,6 +375,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                     State.GaussPoints.vol,
                     State.node.coords,
                     State.node.temp,  // fixed to use current time level
+                    State.node.eroded,
                     State.MaterialPoints.q_flux,
                     State.MaterialPoints.conductivity,
                     State.MaterialPoints.temp_grad,

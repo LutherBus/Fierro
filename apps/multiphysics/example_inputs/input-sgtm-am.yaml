@@ -74,6 +74,7 @@ output_options:
         # Node temperature field (written to output).
         - temp
         - activated
+        - eroded
 
 
 

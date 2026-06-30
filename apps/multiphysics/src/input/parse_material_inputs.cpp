@@ -846,7 +846,7 @@ void parse_materials(Yaml::Node& root, Material_t& Materials, const size_t num_d
                 for (size_t field_id = 0; field_id < num_fields; field_id++) {
                     std::string field_name = root["materials"][m_id]["material"]["tabular_model"]["fields"][field_id].As<std::string>();
 
-
+                    
                     if(field_name.compare("density_solid") == 0){
 
                         // Read the data from the Abaqus JMatPro file

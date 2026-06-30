@@ -63,7 +63,8 @@ namespace SGTM3D_State
         node_state::mass,
         node_state::temp,
         node_state::heat_transfer,
-        node_state::activated_flag
+        node_state::activated_flag,
+        node_state::eroded_flag
     };
 
     // Gauss point state to be initialized for the SGH solver
@@ -297,6 +298,7 @@ public:
         const DCArrayKokkos<double>& GaussPoints_vol,
         const MPICArrayKokkos<double>& node_coords,
         const MPICArrayKokkos<double>& node_temp,
+        const DCArrayKokkos<bool>& node_eroded,
         const DRaggedRightArrayKokkos<double>& MaterialPoints_q_flux,
         const DRaggedRightArrayKokkos<double>& MaterialPoints_conductivity,
         const DRaggedRightArrayKokkos<double>& MaterialPoints_temp_grad,

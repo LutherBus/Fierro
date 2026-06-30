@@ -30,6 +30,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/parse_initial_conditions.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/parse_yaml.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/Yaml.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/read_abaqus_files.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/parse_laser_path.cpp
 PARENT_SCOPE
 )
 

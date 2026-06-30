@@ -38,6 +38,12 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "matar.h"
 #include "table.hpp"
 
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <stdexcept>
+
 
 /////////////////////////////////////////////////////////////////////////////
 ///
@@ -67,6 +73,9 @@ public:
 
     size_t num_columns = 5;
     
+    // Default constructor
+    ToolPathInfo() = default;
+
     // Default constructor that takes the number of data points
     ToolPathInfo(size_t npoints)
     {
@@ -81,6 +90,50 @@ public:
         tool_path_table.set_value(i, Fields::z, z);
         tool_path_table.set_value(i, Fields::power, power);
     }
+
+    static ToolPathInfo load_laser_path(const std::string& filename) {
+    // Pass 1: just count non-empty lines so we know how big to make the table.
+    size_t npoints = 0;
+    {
+        std::ifstream file(filename);
+        if (!file.is_open()) {
+            throw std::runtime_error("Could not open laser path file: " + filename);
+        }
+        std::string line;
+        while (std::getline(file, line)) {
+            if (!line.empty()) npoints++;
+        }
+    }
+
+    ToolPathInfo info(npoints);   // table is now allocated to the right size
+
+    // Pass 2: re-open and actually parse into the table.
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        throw std::runtime_error("Could not open laser path file: " + filename);
+    }
+    std::string line;
+    size_t i = 0;
+    while (std::getline(file, line)) {
+        if (line.empty()) continue;
+        std::stringstream ss(line);
+        std::string field;
+        std::vector<double> vals;
+        while (std::getline(ss, field, ',')) {
+            vals.push_back(std::stod(field));
+        }
+        if (vals.size() != 6) {
+            throw std::runtime_error("Malformed line " + std::to_string(i) +
+                " in " + filename + " (expected 6 fields, got " +
+                std::to_string(vals.size()) + ")");
+        }
+        // vals[0] is the file's own index column — ignored, same as before.
+        info.set_data_point(i, vals[1], vals[2], vals[3], vals[4], vals[5]);
+        i++;
+    }
+    std::cout << "additive_data.hpp?" << std::endl;
+    return info;
+}
     
     // Update the device views (copy to the GPU from the CPU)
     void update_device() {

@@ -257,7 +257,8 @@ enum class node_state
     heat_transfer,
     force,
     gradient_level_set,
-    activated_flag
+    activated_flag,
+    eroded_flag
 };
 
 
@@ -281,6 +282,7 @@ struct node_t
     DCArrayKokkos<double> q_transfer; ///< Nodal heat flux
     DCArrayKokkos<double> gradient_level_set;   ///< Nodal gradient of the level set function
     DCArrayKokkos<bool> activated; ///< Nodal activation flag
+    DCArrayKokkos<bool> eroded; ///< Nodal eroded flag
 
     // initialization method (num_nodes, num_dims, state to allocate)
     void initialize(size_t num_nodes, size_t num_dims, std::vector<node_state> node_states)
@@ -313,6 +315,9 @@ struct node_t
                     break;
                 case node_state::activated_flag:
                     if (activated.size() == 0) this->activated = DCArrayKokkos<bool>(num_nodes, "node_activated");
+                    break;
+                case node_state::eroded_flag:
+                    if (eroded.size() == 0) this->eroded = DCArrayKokkos<bool>(num_nodes, "node_eroded");
                     break;
                 default:
                     std::cout<<"Desired node state not understood in node_t initialize"<<std::endl;
