@@ -156,6 +156,54 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     path.set_data_point(48, 0.00098939, 1.000000, 0.250000, 0.05, 150000.0);
     path.set_data_point(49, 0.00101000, 1.000000, 0.250000, 0.05, 0.0);
     */
+    /*
+    path.set_data_point(0, 0.000, 0.3, 0.25, 0.05, 150000.0);
+    path.set_data_point(1, 0.001, 1.0, 0.25, 0.05, 150000.0);
+    path.set_data_point(2, 0.001, 1.0, 0.25, 0.05, 0.0);
+    
+    path.set_data_point(3, 0.002, 0.3, 0.25, 0.1, 0.0);
+    path.set_data_point(4, 0.003, 0.3, 0.25, 0.1, 0.0);
+    path.set_data_point(5, 0.003, 0.3, 0.25, 0.1, 150000.0);
+    path.set_data_point(6, 0.004, 1.0, 0.25, 0.1, 150000.0);
+    path.set_data_point(7, 0.004, 1.0, 0.25, 0.1, 0.0);
+   
+    path.set_data_point(8, 0.005, 0.3, 0.25, 0.15, 0.0);
+    path.set_data_point(9, 0.006, 0.3, 0.25, 0.15, 0.0);
+    path.set_data_point(10, 0.006, 0.3, 0.25, 0.15, 150000.0);
+    path.set_data_point(11, 0.007, 1.0, 0.25, 0.15, 150000.0);
+    path.set_data_point(12, 0.007, 1.0, 0.25, 0.15, 0.0);
+    
+    path.set_data_point(13, 0.008, 0.3, 0.25, 0.2, 0.0);
+    path.set_data_point(14, 0.009, 0.3, 0.25, 0.2, 0.0);
+    path.set_data_point(15, 0.009, 0.3, 0.25, 0.2, 150000.0);
+    path.set_data_point(16, 0.01, 1.0, 0.25, 0.2, 150000.0);
+    path.set_data_point(17, 0.01, 1.0, 0.25, 0.2, 0.0);
+    
+    path.set_data_point(18, 0.011, 0.3, 0.25, 0.25, 0.0);
+    path.set_data_point(19, 0.012, 0.3, 0.25, 0.25, 0.0);
+    path.set_data_point(20, 0.012, 0.3, 0.25, 0.25, 150000.0);
+    path.set_data_point(21, 0.013, 1.0, 0.25, 0.25, 150000.0);
+    path.set_data_point(22, 0.013, 1.0, 0.25, 0.25, 0.0);
+
+    path.set_data_point(23, 0.014, 0.3, 0.25, 0.3, 0.0);
+    path.set_data_point(24, 0.015, 0.3, 0.25, 0.3, 0.0);
+    path.set_data_point(25, 0.015, 0.3, 0.25, 0.3, 150000.0);
+    path.set_data_point(26, 0.016, 1.0, 0.25, 0.3, 150000.0);
+    path.set_data_point(27, 0.016, 1.0, 0.25, 0.3, 0.0);
+
+    path.set_data_point(28, 0.017, 0.3, 0.25, 0.35, 0.0);
+    path.set_data_point(29, 0.018, 0.3, 0.25, 0.35, 0.0);
+    path.set_data_point(30, 0.018, 0.3, 0.25, 0.35, 150000.0);
+    path.set_data_point(31, 0.019, 1.0, 0.25, 0.35, 150000.0);
+    path.set_data_point(32, 0.019, 1.0, 0.25, 0.35, 0.0);
+
+    path.set_data_point(33, 0.020, 0.3, 0.25, 0.4, 0.0);
+    path.set_data_point(34, 0.021, 0.3, 0.25, 0.4, 0.0);
+    path.set_data_point(35, 0.021, 0.3, 0.25, 0.4, 150000.0);
+    path.set_data_point(36, 0.022, 1.0, 0.25, 0.4, 150000.0);
+    path.set_data_point(37, 0.022, 1.0, 0.25, 0.4, 0.0);
+                        */
+
     path.set_data_point(0, 0.000, 0.3, 0.25, 0.025, 150000.0);
     path.set_data_point(1, 0.001, 1.0, 0.25, 0.025, 150000.0);
     path.set_data_point(2, 0.001, 1.0, 0.25, 0.025, 0.0);
@@ -177,75 +225,24 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     path.set_data_point(15, 0.009, 0.3, 0.25, 0.1, 150000.0);
     path.set_data_point(16, 0.01, 1.0, 0.25, 0.1, 150000.0);
     path.set_data_point(17, 0.01, 1.0, 0.25, 0.1, 0.0);
-    
-    /*path.set_data_point(18, 0.011, 0.3, 0.25, 0.0125, 0.0);
-    path.set_data_point(19, 0.012, 0.3, 0.25, 0.0125, 0.0);
-    path.set_data_point(20, 0.012, 0.3, 0.25, 0.0125, 150000.0);
-    path.set_data_point(21, 0.013, 1.0, 0.25, 0.0125, 150000.0);
-    path.set_data_point(22, 0.013, 1.0, 0.25, 0.0125, 0.0);
-
-    path.set_data_point(23, 0.014, 0.3, 0.25, 0.0375, 0.0);
-    path.set_data_point(24, 0.015, 0.3, 0.25, 0.0375, 0.0);
-    path.set_data_point(25, 0.015, 0.3, 0.25, 0.0375, 150000.0);
-    path.set_data_point(26, 0.016, 1.0, 0.25, 0.0375, 150000.0);
-    path.set_data_point(27, 0.016, 1.0, 0.25, 0.0375, 0.0);
-
-    path.set_data_point(28, 0.017, 0.3, 0.25, 0.0625, 0.0);
-    path.set_data_point(29, 0.018, 0.3, 0.25, 0.0625, 0.0);
-    path.set_data_point(30, 0.018, 0.3, 0.25, 0.0625, 150000.0);
-    path.set_data_point(31, 0.019, 1.0, 0.25, 0.0625, 150000.0);
-    path.set_data_point(32, 0.019, 1.0, 0.25, 0.0625, 0.0);
-
-    path.set_data_point(33, 0.020, 0.3, 0.25, 0.0875, 0.0);
-    path.set_data_point(34, 0.021, 0.3, 0.25, 0.0875, 0.0);
-    path.set_data_point(35, 0.021, 0.3, 0.25, 0.0875, 150000.0);
-    path.set_data_point(36, 0.022, 1.0, 0.25, 0.0875, 150000.0);
-    path.set_data_point(37, 0.022, 1.0, 0.25, 0.0875, 0.0);
-
-    path.set_data_point(38, 0.023, 0.3, 0.25, 0.1125, 0.0);
-    path.set_data_point(39, 0.024, 0.3, 0.25, 0.1125, 0.0);
-    path.set_data_point(40, 0.024, 0.3, 0.25, 0.1125, 150000.0);
-    path.set_data_point(41, 0.025, 1.0, 0.25, 0.1125, 150000.0);
-    path.set_data_point(42, 0.025, 1.0, 0.25, 0.1125, 0.0);
-
-    path.set_data_point(43, 0.026, 0.3, 0.25, 0.1375, 0.0);
-    path.set_data_point(44, 0.027, 0.3, 0.25, 0.1375, 0.0);
-    path.set_data_point(45, 0.027, 0.3, 0.25, 0.1375, 150000.0);
-    path.set_data_point(46, 0.028, 1.0, 0.25, 0.1375, 150000.0);
-    path.set_data_point(47, 0.028, 1.0, 0.25, 0.1375, 0.0);
-                        */
-
-
     path.tool_path_table.print_table();
 
     path.update_device();
     MATAR_FENCE();
         
-    // Initialize necessary components
-
-    /*State.MaterialToMeshMaps.num_mat_elems.update_device();
-
-    State.MaterialToMeshMaps.elem_in_mat_elem.update_device();
-
-    State.MaterialPoints.activated.update_device();
-
-    State.node.activated.update_device();
-
-    State.node.coords.update_device();
-    */
-   
-   
-    FOR_ALL(mat_elem_sid, 0, State.MaterialToMeshMaps.num_mat_elems.host(0), {
-        State.MaterialPoints.activated(0, mat_elem_sid) = false;
-    }); // end for parallel for over elements
-
+    // ---- Initialize necessary variables for activating the elements/nodes below the heat source (in the z-direction) ---- //
     State.node.coords.update_host();
     const MPICArrayKokkos<double>& node_coords = State.node.coords;
     DRaggedRightArrayKokkos<size_t>& elem_in_mat_elem = State.MaterialToMeshMaps.elem_in_mat_elem;
+    double z_coord = 0.0;
+    path.get_position_z_host(time_value, z_coord);
 
+    
+    // ---- Initialize activated elements/nodes flag arrays ---- //
     DRaggedRightArrayKokkos<bool>& MaterialPoints_activated = State.MaterialPoints.activated;
     DCArrayKokkos<bool>& node_activated = State.node.activated;
 
+    // ---- Initialize arrays to hold all activated elements/nodes ---- //
     DynamicArrayKokkos<size_t> mat_elem_sid_activated(State.MaterialToMeshMaps.num_mat_elems.host(0), "mat_elem_sid_activated");
     DynamicArrayKokkos<size_t> node_gid_activated(mesh.num_nodes, "node_gid_activated");
 
@@ -253,12 +250,15 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     FOR_ALL(node_gid, 0, mesh.num_nodes, {
         State.node.activated(node_gid) = false;
     }); // end for parallel for over nodes
-    
-    double z_coord = 0.0;
-    path.get_position_z_host(time_value, z_coord);
 
+
+    // ---- Initialize the element activation to false ---- //
+    FOR_ALL(mat_elem_sid, 0, State.MaterialToMeshMaps.num_mat_elems.host(0), {
+        State.MaterialPoints.activated(0, mat_elem_sid) = false;
+    }); // end for parallel for over elements
     
-    // Activate the first layer of elements
+
+    // ---- Calculate the z-coordinate for every element, and activate any elements below the current position of the heat source ---- //
     MATAR_FENCE();
 
     for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
@@ -269,9 +269,9 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
             MATAR_FENCE();
             size_t elem_gid = elem_in_mat_elem.host(mat_id, mat_elem_sid);
             
-            ViewCArrayHost<size_t> elem_node_gids(&mesh.nodes_in_elem.host(elem_gid, 0), 8);
+            ViewCArrayHost<size_t> elem_node_gids(&mesh.nodes_in_elem.host(elem_gid, mat_id), 8);
             
-            // Getting the coordinates of the element
+            // Get the z-coordinate of the element
             double avg_z = 0.0;
 
             for (size_t node_lid = 0; node_lid < 8; node_lid++) {
@@ -281,23 +281,25 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
             avg_z *= 0.125;
             
-            // Checking if the element is in the activated region
+            // Check if the element is below the z-coordinate of the heat source
             if (avg_z <= z_coord) {
-                MaterialPoints_activated.host(mat_id, mat_elem_sid) = true; // If it is, activate the element
-                mat_elem_sid_activated.push_back(mat_elem_sid);
+                MaterialPoints_activated.host(mat_id, mat_elem_sid) = true; // If it is, set the activated flag for the element to true
+                mat_elem_sid_activated.push_back(mat_elem_sid); // Add the element to the array of activated elements
 
-                for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the element to the list of activated nodes if not already in it
-                    if (!node_activated.host(elem_node_gids(node_lid))) {
-                        node_activated.host(elem_node_gids(node_lid)) = true;
-                        node_gid_activated.push_back(elem_node_gids(node_lid));      
+                for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the newly activated element to the list of activated nodes if not already in it
+                    if (!node_activated.host(elem_node_gids(node_lid))) { // Check if the nodes of the newly activated element are already activated
+                        node_activated.host(elem_node_gids(node_lid)) = true; // If not, set the activated flag for the node to true
+                        node_gid_activated.push_back(elem_node_gids(node_lid)); // Add the node to the array of activated nodes
 
-                    } // end if loop for adding nodes to activated list
+                    } // end if loop for adding nodes to activated nodes array
                 } // end for loop over all nodes in an activated element 
-            }  
-        }  
-    }
+            } // end if statement to check if the element is below the heat source
+        } // end for loop over mat_elem_sid
+    } // end for loop over mat_id
+    
     MATAR_FENCE();
     
+    // ---- Update the device with the activated flags for elements and nodes ---- //
     MaterialPoints_activated.update_device();
     node_activated.update_device();
     
@@ -599,53 +601,55 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
         // ---- Activate new elements, if needed ---- //
         
+        // ---- Calculate the z-coordinate for every element, and activate any elements below the current position of the heat source ---- //
+        MATAR_FENCE();
+
         double z_coord = 0.0;
         path.get_position_z_host(time_value, z_coord);
-        
 
         for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
-
+            MATAR_FENCE();
             int num_mat_elems = State.MaterialToMeshMaps.num_mat_elems.host(mat_id);
 
             for(size_t mat_elem_sid = 0; mat_elem_sid < num_mat_elems; mat_elem_sid++) {    
+                MATAR_FENCE();
                 size_t elem_gid = elem_in_mat_elem.host(mat_id, mat_elem_sid);
-
-                ViewCArrayHost<size_t> elem_node_gids(&mesh.nodes_in_elem.host(elem_gid, 0), 8);
-
-                // Getting the coordinates of the element
+                
+                ViewCArrayHost<size_t> elem_node_gids(&mesh.nodes_in_elem.host(elem_gid, mat_id), 8);
+                
+                // Get the z-coordinate of the element
                 double avg_z = 0.0;
 
                 for (size_t node_lid = 0; node_lid < 8; node_lid++) {
                     avg_z += node_coords.host(mesh.nodes_in_elem.host(elem_gid, node_lid), 2);
+
                 } // end for loop over node_lid
 
                 avg_z *= 0.125;
-                // Checking if the element is in the activated region
+                
+                // Check if the element is below the z-coordinate of the heat source
                 if (avg_z <= z_coord) {
+                    if (!MaterialPoints_activated.host(mat_id, mat_elem_sid)) { // If it is, check if the element has already been activated
+                        MaterialPoints_activated.host(mat_id, mat_elem_sid) = true; // If it has not previously been activated, set the activated flag for the element to true
+                        mat_elem_sid_activated.push_back(mat_elem_sid); // Add the element to the array of activated elements
 
-                    if (!MaterialPoints_activated.host(mat_id, mat_elem_sid)) {
+                        for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the newly activated element to the list of activated nodes if not already in it
+                            if (!node_activated.host(elem_node_gids(node_lid))) { // Check if the nodes of the newly activated element are already activated
+                                node_activated.host(elem_node_gids(node_lid)) = true; // If not, set the activated flag for the node to true
+                                node_gid_activated.push_back(elem_node_gids(node_lid)); // Add the node to the array of activated nodes
 
-                        MaterialPoints_activated.host(mat_id, mat_elem_sid) = true; // If it is, activate the element
-                        mat_elem_sid_activated.push_back(mat_elem_sid);
-
-                        for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the element to the list of activated nodes if not already in it
-                            if (!node_activated.host(elem_node_gids(node_lid))) {
-                                node_activated.host(elem_node_gids(node_lid)) = true;
-                                node_gid_activated.push_back(elem_node_gids(node_lid)); 
-                            }
-
-                        } // end if loop for adding nodes to activated list 
-                    } // end for loop over all nodes in an activated element
-                }
-                else {
-                    //MaterialPoints_activated.host(mat_id, mat_elem_sid) = false; // If it is, activate the element
-                }
+                            } // end if statement for adding nodes to activated nodes array
+                        } // end for loop over all nodes in an activated element
+                    } // end if statement for checking if the element under the heat source has already been activated
+                } // end if statement to check if the element is below the heat source
+            } // end for loop over mat_elem_sid
+        } // end for loop over mat_id
         
-            }    
-        }
-    MATAR_FENCE();
-    MaterialPoints_activated.update_device();
-    node_activated.update_device();
+        MATAR_FENCE();
+        
+        // ---- Update the device with the activated flags for elements and nodes ---- //
+        MaterialPoints_activated.update_device();
+        node_activated.update_device();
 
 
 

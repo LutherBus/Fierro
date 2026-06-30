@@ -1961,6 +1961,9 @@ public:
                 case node_state::coords:
                     State.node.coords.update_host();
                     break;
+                case node_state::activated_flag:
+                    State.node.activated.update_host();
+                    break;
                 case node_state::velocity:
                     State.node.vel.update_host();
                     break;
@@ -2403,6 +2406,10 @@ public:
                 case node_state::temp:
                     num_node_scalar_vars ++;
                     break;
+                case node_state::activated_flag:
+                    num_node_scalar_vars ++;
+                    break;
+
                 // -- vectors
                 case node_state::coords:
                     num_node_vector_vars ++;
