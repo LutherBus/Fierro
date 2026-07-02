@@ -38,6 +38,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "state.hpp"
 #include "geometry_new.hpp"
 #include "additive_data.hpp"
+#include "simulation_parameters.hpp"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -238,7 +239,8 @@ void SGTM3D::moving_flux(
     const double rk_alpha,
     const double time_value,
     const ToolPathInfo& path,
-    DynamicArrayKokkos<size_t>& mat_elem_sid_activated) const
+    DynamicArrayKokkos<size_t>& mat_elem_sid_activated,
+    const SimulationParameters_t& SimulationParamaters) const
 {
 
     // ---- Apply heat flux from a moving heat source ---- //
@@ -273,11 +275,11 @@ void SGTM3D::moving_flux(
         //               * exp[-3 * (d_x * d_x) / (a * a) + (d_y * d_y) / (b * b) + (dz * dz) / (c * c)] for d_x <= 0
 
         double power = path.get_power(time_value);
-        double n = 0.67; // Absorptivity of powder bed
-        double a_f = 0.02; // Semi-axis along travel direction, front (mm)
-        double a_r = 0.06; // Semi-axis along travel direction, rear (mm)
-        double b = 0.04; // Transverse semi_axis (mm)
-        double c = 0.08; // Depth (mm) 
+        double n = SimulationParamaters.Laser.absorptivity; // Absorptivity of powder bed
+        double a_f = SimulationParamaters.Laser.major_front; // Semi-axis along travel direction, front (mm)
+        double a_r = SimulationParamaters.Laser.major_rear; // Semi-axis along travel direction, rear (mm)
+        double b = SimulationParamaters.Laser.minor; // Transverse semi_axis (mm)
+        double c = SimulationParamaters.Laser.depth; // Depth (mm) 
         double f_f = 2.0 * a_f / (a_f + a_r);  // Heat fraction, front
         double f_r = 2.0 * a_r / (a_f + a_r);  // Heat fraction, rear
 

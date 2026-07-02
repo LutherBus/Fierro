@@ -1,5 +1,5 @@
-#ifndef PARSE_LASER_PATH_HPP
-#define PARSE_LASER_PATH_HPP
+#ifndef PARSE_LASER_HPP
+#define PARSE_LASER_HPP
 
 #include <vector>
 #include <string>
@@ -24,6 +24,7 @@
 extern std::vector<std::string> str_laser_path_inps;
 extern std::vector<std::string> laser_path_required_inps;
 
-void parse_laser_path(Yaml::Node& root, Laser_t& Laser);
+
+void parse_laser(Yaml::Node& root, Laser_t& Laser);
 
 #endif

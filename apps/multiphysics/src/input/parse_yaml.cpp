@@ -58,7 +58,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "parse_bdy_conds_inputs.hpp"
 #include "parse_dynamic_inputs.hpp"
 #include "parse_output_options.hpp"
-#include "parse_laser_path.hpp"
+#include "parse_laser.hpp"
 
 // simulation parameters contains:
 //   MeshInput
@@ -120,7 +120,7 @@ void parse_yaml(Yaml::Node& root, SimulationParameters_t& SimulationParamaters, 
     parse_multimaterial_options(root, Materials);
 
     // parse the laser path into a table of positions
-    parse_laser_path(root, SimulationParamaters.Laser);
+    parse_laser(root, SimulationParamaters.Laser);
 }
 
 

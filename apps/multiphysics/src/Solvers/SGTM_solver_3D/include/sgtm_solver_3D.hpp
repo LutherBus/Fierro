@@ -330,7 +330,8 @@ public:
         const double rk_alpha,
         const double time_step,
         const ToolPathInfo& path,
-        DynamicArrayKokkos<size_t>& mat_elem_sid_activated) const;
+        DynamicArrayKokkos<size_t>& mat_elem_sid_activated,
+        const SimulationParameters_t& SimulationParamaters) const;
 
     // **** Functions defined in geometry.cpp **** //
     void update_position(
