@@ -59,7 +59,7 @@ mesh_options:
 # Laser Path
 # ---------------------------------------------------------------------------
 laser_options:
-    path: /var/tmp/repos/Fierro/apps/multiphysics/example_inputs/Laser_paths/initialization_test
+    path: /var/tmp/repos/Fierro/apps/multiphysics/example_inputs/Laser_paths/Thin_wall_validation
     model: goldak
     absorptivity: 0.67
     major_front: 0.02

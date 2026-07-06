@@ -131,7 +131,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     
     // ---- Calculate the z-coordinate for every element, and activate any elements below the current position of the heat source ---- //
     MATAR_FENCE();
-/*
+    
     for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
         MATAR_FENCE();
         int num_mat_elems = State.MaterialToMeshMaps.num_mat_elems.host(mat_id);
@@ -143,7 +143,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
             ViewCArrayHost<size_t> elem_node_gids(&mesh.nodes_in_elem.host(elem_gid, mat_id), 8);
             
             // Check if the element is below the z-coordinate of the heat source
-            if (elem_gid <= 120000) {
+            if (elem_gid < 1600000) {
                 MaterialPoints_activated.host(mat_id, mat_elem_sid) = true; // If it is, set the activated flag for the element to true
                 mat_elem_sid_activated.push_back(mat_elem_sid); // Add the element to the array of activated elements
                 State.MaterialPoints.eroded.host(mat_id, mat_elem_sid) = true;
@@ -161,11 +161,11 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     } // end for loop over mat_id
     
     MATAR_FENCE();
-    */
     
+    /*
     // ---- Calculate the z-coordinate for every element, and activate any elements below the current position of the heat source ---- //
     MATAR_FENCE();
-
+    
     for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
         MATAR_FENCE();
         int num_mat_elems = State.MaterialToMeshMaps.num_mat_elems.host(mat_id);
@@ -203,7 +203,8 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     } // end for loop over mat_id
     
     MATAR_FENCE();
-    
+    */
+
     // ---- Update the device with the activated flags for elements and nodes ---- //
     MaterialPoints_activated.update_device();
     node_activated.update_device();
@@ -486,9 +487,6 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
             // ---- apply temperature boundary conditions to the boundary patches----
             boundary_temperature(mesh, BoundaryConditions, State.node.temp, time_value);
-
-            State.node.temp.communicate();
-            State.node.temp_n0.communicate();
 
             State.node.temp.communicate();
             State.node.temp_n0.communicate();
