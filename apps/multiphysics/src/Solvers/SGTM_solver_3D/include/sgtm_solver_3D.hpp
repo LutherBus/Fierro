@@ -38,7 +38,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "solver.hpp"
 #include "state.hpp"
 #include "ELEMENTS.h"
-#include "additive_data.hpp"
+#include "additive_data.hpp" // Luther - added additve_data.hpp library for laser path
 
 // Forward declare structs
 struct SimulationParameters_t;
@@ -63,8 +63,8 @@ namespace SGTM3D_State
         node_state::mass,
         node_state::temp,
         node_state::heat_transfer,
-        node_state::activated_flag,
-        node_state::eroded_flag
+        node_state::activated_flag, // Luther - added activation flag for nodes
+        node_state::eroded_flag // Luther - added eroded flag for nodes
     };
 
     // Gauss point state to be initialized for the SGH solver
@@ -85,7 +85,7 @@ namespace SGTM3D_State
         material_pt_state::volume_fraction,
         material_pt_state::specific_internal_energy,
         material_pt_state::eroded_flag,
-        material_pt_state::activated_flag,
+        material_pt_state::activated_flag, // Luther - added activation flag for elements
         material_pt_state::heat_flux,
         material_pt_state::thermal_conductivity,
         material_pt_state::specific_heat
@@ -289,7 +289,7 @@ public:
             const DRaggedRightArrayKokkos<double>& mat_pt_specific_heat,
             const double rk_alpha,
             const double dt,
-            DynamicArrayKokkos<size_t>& node_gid_activated) const;
+            DynamicArrayKokkos<size_t>& node_gid_activated) const; // Luther - passing in activation flags for nodes
 
     // **** Functions defined in heat_flux.cpp **** //
     void get_heat_flux(
@@ -304,7 +304,7 @@ public:
         const DRaggedRightArrayKokkos<double>& MaterialPoints_temp_grad,
         const DCArrayKokkos<double>& corner_q_flux,
         const corners_in_mat_t corners_in_mat_elem,
-        const DRaggedRightArrayKokkos<bool>&   MaterialPoints_eroded,
+        const DRaggedRightArrayKokkos<bool>&   MaterialPoints_eroded, // Luther - passing in array of eroded elements
         const DRaggedRightArrayKokkos<size_t>& elem_in_mat_elem,
         const size_t num_mat_elems,
         const size_t mat_id,
@@ -312,7 +312,7 @@ public:
         const double small,
         const double dt,
         const double rk_alpha,
-        DynamicArrayKokkos<size_t>& mat_elem_sid_activated) const;
+        DynamicArrayKokkos<size_t>& mat_elem_sid_activated) const; // Luther - passing in activated elements array
 
     void moving_flux(
         const Material_t& Materials,
@@ -328,10 +328,10 @@ public:
         const double small,
         const double dt,
         const double rk_alpha,
-        const double time_step,
-        const ToolPathInfo& path,
-        DynamicArrayKokkos<size_t>& mat_elem_sid_activated,
-        const SimulationParameters_t& SimulationParamaters) const;
+        const double time_step, // Luther - passing in time_step to get heat source position at different times
+        const ToolPathInfo& path, // Luther - passing in path with the laser path
+        DynamicArrayKokkos<size_t>& mat_elem_sid_activated, // Luther - passing in the array with the element activation flag
+        const SimulationParameters_t& SimulationParamaters) const; // Luther - passing in SimulationParamaters so that the laser parameters can be called
 
     // **** Functions defined in geometry.cpp **** //
     void update_position(
@@ -363,11 +363,11 @@ public:
         const DRaggedRightArrayKokkos<double>& MaterialPoints_conductivity,
         const DRaggedRightArrayKokkos<double>& MaterialPoints_specific_heat,
         const mtr::DRaggedRightArrayKokkos<bool>& eroded,
-        const mtr::DRaggedRightArrayKokkos<bool>& activated,
+        const mtr::DRaggedRightArrayKokkos<bool>& activated, // Luther - passing in flags for activated elements
         const DRaggedRightArrayKokkos<size_t>& elem_in_mat_elem,
         const size_t num_material_elems,
         const size_t mat_id,
-        DynamicArrayKokkos<size_t>& mat_elem_sid_activated) const;
+        DynamicArrayKokkos<size_t>& mat_elem_sid_activated) const; // Luther - passing in array for activated elements
 
     // **** Functions defined in time_integration.cpp **** //
     // NOTE: Consider pulling up

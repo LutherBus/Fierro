@@ -1,3 +1,6 @@
+// Luther - Added a laser structure that contains the laser path as well as the parameters defining its shape
+// There are currently two laser shapes: Goldak and Spherical
+
 #pragma once
 
 #include <string>

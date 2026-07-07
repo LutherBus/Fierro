@@ -1961,10 +1961,10 @@ public:
                 case node_state::coords:
                     State.node.coords.update_host();
                     break;
-                case node_state::activated_flag:
+                case node_state::activated_flag: // Luther - added activated flag for nodes
                     State.node.activated.update_host();
                     break;
-                case node_state::eroded_flag:
+                case node_state::eroded_flag: // Luther - added eroded flag for nodes
                     State.node.eroded.update_host();
                     break;
                 case node_state::velocity:
@@ -2019,7 +2019,7 @@ public:
                 case material_pt_state::eroded_flag:
                     num_mat_pt_scalar_vars ++;
                     break;
-                case material_pt_state::activated_flag:
+                case material_pt_state::activated_flag: // Luther - added activation flag for elements
                     num_mat_pt_scalar_vars ++;
                     break;
                 // tensor vars to write out
@@ -2412,7 +2412,7 @@ public:
                 case node_state::activated_flag:
                     num_node_scalar_vars ++;
                     break;
-                case node_state::eroded_flag:
+                case node_state::eroded_flag: // Luther - added eroded flag for nodes
                     num_node_scalar_vars ++;
                     break;
 
@@ -2449,7 +2449,7 @@ public:
         int node_temp_id = -1;
         int node_grad_level_set_id = -1;
         int node_activated_id = -1;
-        int node_eroded_id = -1;
+        int node_eroded_id = -1; // Luther
 
         // reset counters for node fields
         var = 0;
@@ -2469,12 +2469,12 @@ public:
                     node_temp_id = var;
                     var++;
                     break;
-                case node_state::activated_flag:
+                case node_state::activated_flag: // Luther - added activation flag for nodes
                     node_scalar_var_names[var] = "node_activated";
                     node_activated_id = var;
                     var++;
                     break;
-                case node_state::eroded_flag:
+                case node_state::eroded_flag: // Luther - added eroded flag for nodes
                     node_scalar_var_names[var] = "node_eroded";
                     node_eroded_id = var;
                     var++;
@@ -2601,7 +2601,7 @@ public:
                                  node_coord_id,
                                  node_grad_level_set_id,
                                  node_temp_id,
-                                 node_activated_id,
+                                 node_activated_id, // Luther - added node activation and eroded flags
                                  node_eroded_id);
                                  
 
@@ -2993,7 +2993,7 @@ public:
         State.MaterialPoints.sie.update_host();
         State.MaterialPoints.mass.update_host();
         State.MaterialPoints.eroded.update_host();
-        State.MaterialPoints.activated.update_host();
+        State.MaterialPoints.activated.update_host(); // Luther - added activation flag for elements
 
 
         // gauss point values
@@ -3003,14 +3003,14 @@ public:
         State.node.coords.update_host();
         State.node.vel.update_host();
         State.node.mass.update_host();
-        State.node.activated.update_host();
+        State.node.activated.update_host(); // Luther - added activation and eroded flags for nodes
         State.node.eroded.update_host();
 
         Kokkos::fence();
 
         // --------------------------
 
-        const int num_scalar_vars = 11;
+        const int num_scalar_vars = 11; // Luther - increased num_scalar_vars from 10 to 11 to add activated flag
         const int num_vec_vars    = 3;
 
         std::string name_tmp;
@@ -3020,7 +3020,7 @@ public:
         std::strcpy(name, name_tmp.c_str());
 
         const char scalar_var_names[num_scalar_vars][15] = {
-            "den", "pres", "sie", "vol", "mass", "sspd", "speed", "mat_id", "elem_switch", "eroded", "activated"
+            "den", "pres", "sie", "vol", "mass", "sspd", "speed", "mat_id", "elem_switch", "eroded", "activated" // Luther - added activated flag
         };
 
         const char vec_var_names[num_vec_vars][15] = {
@@ -3090,7 +3090,7 @@ public:
                 elem_fields(elem_gid, 7) = (double)mat_id;
                 // 8 is the e_switch
                 elem_fields(elem_gid, 9) = (double)State.MaterialPoints.eroded.host(mat_id, mat_elem_sid);
-                elem_fields(elem_gid, 10) = (double)State.MaterialPoints.activated.host(mat_id, mat_elem_sid);
+                elem_fields(elem_gid, 10) = (double)State.MaterialPoints.activated.host(mat_id, mat_elem_sid); // Luther - added activated flag for elements
             } // end for mat elems storage
         } // end parallel loop over materials
 
@@ -3412,7 +3412,7 @@ public:
         State.MaterialPoints.conductivity.update_host();
         State.MaterialPoints.temp_grad.update_host();
         State.MaterialPoints.eroded.update_host();
-        State.MaterialPoints.activated.update_host();
+        State.MaterialPoints.activated.update_host(); // Luther - added element activation flag
 
 
         // gauss point values
@@ -3423,13 +3423,13 @@ public:
         State.node.vel.update_host();
         State.node.mass.update_host();
         State.node.temp.update_host();
-        State.node.activated.update_host();
+        State.node.activated.update_host(); // Luther - added nodal activation and eroded flags
         State.node.eroded.update_host();
 
         Kokkos::fence();
 
 
-        const int num_cell_scalar_vars = 14;
+        const int num_cell_scalar_vars = 14; // Luther - increased num_cell_scalar_vars to hold new activated flag
         const int num_cell_vec_vars    = 0;
         const int num_cell_tensor_vars = 0;
 
@@ -3439,7 +3439,7 @@ public:
 
         // Scalar values associated with a cell
         const char cell_scalar_var_names[num_cell_scalar_vars][15] = {
-            "den", "pres", "sie", "vol", "mass", "sspd", "speed", "mat_id", "elem_switch","eroded", "activated", "temp_grad_x", "temp_grad_y", "temp_grad_z"
+            "den", "pres", "sie", "vol", "mass", "sspd", "speed", "mat_id", "elem_switch","eroded", "activated", "temp_grad_x", "temp_grad_y", "temp_grad_z" // Luther - added activated flag
         };
         
         const char cell_vec_var_names[num_cell_vec_vars][15] = {
@@ -3517,7 +3517,7 @@ public:
                 elem_fields(elem_gid, 7) = (double)mat_id;
                 // 8 is the e_switch
                 elem_fields(elem_gid, 9) = (double)State.MaterialPoints.eroded.host(mat_id, mat_elem_sid);
-                elem_fields(elem_gid,10) = (double)State.MaterialPoints.activated.host(mat_id, mat_elem_sid);
+                elem_fields(elem_gid,10) = (double)State.MaterialPoints.activated.host(mat_id, mat_elem_sid); // Luther - added activated flag for elements
                 elem_fields(elem_gid, 11) = (double)State.MaterialPoints.temp_grad.host(mat_id, elem_gid,0);
                 elem_fields(elem_gid, 12) = (double)State.MaterialPoints.temp_grad.host(mat_id, elem_gid,1);
                 elem_fields(elem_gid, 13) = (double)State.MaterialPoints.temp_grad.host(mat_id, elem_gid,2);
@@ -3885,7 +3885,7 @@ public:
                     break;
                 case material_pt_state::eroded_flag:
                     break;
-                case material_pt_state::activated_flag:
+                case material_pt_state::activated_flag: // Luther - added activation flag for elements
                     break;
                 case material_pt_state::elastic_modulii:
                     break;
@@ -4157,7 +4157,7 @@ public:
                                   const int node_coord_id,
                                   const int node_grad_level_set_id,
                                   const int node_temp_id,
-                                  const int node_activated_id,
+                                  const int node_activated_id, // Luther - added activation and eroded flags for nodes
                                   const int node_eroded_id)
     {
         for (auto field : output_node_states){
@@ -4177,7 +4177,7 @@ public:
 
                     break;
 
-                case node_state::activated_flag:
+                case node_state::activated_flag: // Luther - added activation and eroded flags for nodes
                     FOR_ALL(node_gid, 0, num_nodes, {
                         node_scalar_fields(node_activated_id, node_gid) = Node.activated(node_gid);
                     });

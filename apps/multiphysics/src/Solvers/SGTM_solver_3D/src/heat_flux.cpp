@@ -34,11 +34,10 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "sgtm_solver_3D.hpp"
 #include "material.hpp"
-//#include "mesh.hpp""
 #include "state.hpp"
 #include "geometry_new.hpp"
-#include "additive_data.hpp"
-#include "simulation_parameters.hpp"
+#include "additive_data.hpp" // Luther - added additive_data.hp library for laser path
+#include "simulation_parameters.hpp" // Luther - added simulation_parameters.hpp library so laser parameters can be called using SimulationParamaters
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -88,7 +87,7 @@ void SGTM3D::get_heat_flux(
     const double small,
     const double dt,
     const double rk_alpha,
-    DynamicArrayKokkos<size_t>& mat_elem_sid_activated) const
+    DynamicArrayKokkos<size_t>& mat_elem_sid_activated) const // Luther - passing in array of activated elements
 {
     const size_t num_dims = 3;
     const size_t num_nodes_in_elem = 8;
@@ -129,12 +128,11 @@ void SGTM3D::get_heat_flux(
             avg_temp += node_temp(node_gid) / (double)num_nodes_in_elem;
         } // end for
 
-
         // ---- Change element state if above some melting temperature ---- //
         if(avg_temp >= 1600){
             MaterialPoints_eroded(mat_id, mat_elem_sid_activated(i)) = true;
             for (size_t node_lid = 0; node_lid < 8; node_lid++) {
-                node_eroded(elem_node_gids(node_lid)) = true;
+                node_eroded(elem_node_gids(node_lid)) = true; // Luther - setting each node in a newly eroded element to eroded 
             } 
         }
         
@@ -237,12 +235,12 @@ void SGTM3D::moving_flux(
     const double small,
     const double dt,
     const double rk_alpha,
-    const double time_value,
-    const ToolPathInfo& path,
-    DynamicArrayKokkos<size_t>& mat_elem_sid_activated,
-    const SimulationParameters_t& SimulationParamaters) const
+    const double time_value, // Luther - passing in time_value to get heat source position at various times
+    const ToolPathInfo& path, // Luther - passing in path for laser path
+    DynamicArrayKokkos<size_t>& mat_elem_sid_activated, // Luther - passing in the array for the element activation flag
+    const SimulationParameters_t& SimulationParamaters) const // Luther - passing in SimulationParamaters for the heat source
 {
-
+    // Luther - loop over all activated elements
     // ---- Apply heat flux from a moving heat source ---- //
     FOR_ALL(i, 0, mat_elem_sid_activated.dims(0), {
         
@@ -265,8 +263,8 @@ void SGTM3D::moving_flux(
         elem_coords(0) = (elem_coords(0) / mesh.num_nodes_in_elem);
         elem_coords(1) = (elem_coords(1) / mesh.num_nodes_in_elem);
         elem_coords(2) = (elem_coords(2) / mesh.num_nodes_in_elem);
-        
-        // Gaussian semi-elipsoid heat source model from (Goldak, 1984)
+
+        // Luther - added Gaussian semi-elispsoid heat source model from (Goldak, 1984)
 
         // Q(x,y,z) = 10.39230 * f_f * n * power / (a * b * c_f * 5.568328) 
         //              * exp[-3 * (d_x * d_x) / (a_f * a_f) + (d_y * d_y) / (b * b) + (dz * dz) / (c * c)] for d_x >= 0
@@ -313,10 +311,10 @@ void SGTM3D::moving_flux(
             path.get_position(time_value - dt, x0, y0, z0);
         } // end if/else for previous heat source position
 
-        double L = Kokkos::sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0));
+        double L = Kokkos::sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0)); // Distance moved between previous timestep and future timestep
         double xi;
         double eta;
-        double dz = elem_coords(2) - z_hs;
+        double dz = elem_coords(2) - z_hs; 
 
         // Check if heat source has moved
         if (L < 1e-12) {
@@ -338,7 +336,7 @@ void SGTM3D::moving_flux(
                       + (dz * dz)  / (c * c);
 
         // Compute volumetric heat flux for elements within the heat source
-        if (ellipsoid_dist <= 9.0) {
+        if (ellipsoid_dist <= 9.0) { // Beyond three characteristic lengths, the heat source contribution to the element is not calculated (error of ~1.9E-12 relative to peak heat flux; could be tightened)
             for (size_t node_lid = 0; node_lid < mesh.num_nodes_in_elem; node_lid++) {
                 size_t node_gid = mesh.nodes_in_elem(elem_gid, node_lid);
 
@@ -353,7 +351,6 @@ void SGTM3D::moving_flux(
                 if (xi >= 0) {
                     q_dot = 10.39230 * f_f * n * power / (a_f * b * c * 5.568328) 
                             * Kokkos::exp(-3 * ((xi * xi) / (a_f * a_f) + (eta * eta) / (b * b) + (dz * dz) / (c * c)));
-                // std::cout << "q_dot = " << q_dot << std::endl;
                 } else {
                     q_dot = 10.39230 * f_r * n * power / (a_r * b * c * 5.568328)
                             * Kokkos::exp(-3 * ((xi * xi) / (a_r * a_r) + (eta * eta) / (b * b) + (dz * dz) / (c * c)));
@@ -361,9 +358,6 @@ void SGTM3D::moving_flux(
 
                 // Note: this will be 1/8th the volumetric flux times the volume
                 corner_q_flux(corner_gid) += q_dot * 0.125 * GaussPoints_vol(elem_gid);
-
-                // std::cout << "corner_q_flux = " << corner_q_flux(corner_gid) << std::endl;
-                //std::cout << "flux delta = " << q_dot * 0.125 * GaussPoints_vol(elem_gid) * 1000000.0 << std::endl;
 
             } // end for loop
             

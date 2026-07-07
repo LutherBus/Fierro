@@ -52,7 +52,7 @@ namespace TabularMaterialModel {
         // Add other fields here
     };
 
-
+    // Luther - added additional functions for materials at different states
     KOKKOS_FUNCTION
     double get_density_from_temperature_solid(const Table_t& data_table, const double temperature){
         return data_table.linear_interpolation(temperature, 1, Fields::temperature);

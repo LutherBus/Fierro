@@ -79,7 +79,7 @@ static std::map<std::string, node_state> node_outputs_map
     { "mass",   node_state::mass },
     { "force",  node_state::force },
     { "grad_level_set", node_state::gradient_level_set },
-    { "activated", node_state::activated_flag},
+    { "activated", node_state::activated_flag}, // Luther - added activation and eroded flags for nodes
     { "eroded", node_state::eroded_flag}
 };
 
@@ -103,7 +103,7 @@ static std::map<std::string, material_pt_state> mat_pt_outputs_map
     { "mass",    material_pt_state::mass},
     { "volfrac", material_pt_state::volume_fraction},
     { "eroded",  material_pt_state::eroded_flag},
-    { "activated",  material_pt_state::activated_flag}
+    { "activated",  material_pt_state::activated_flag} // Luther - added activation flag for elements
 };
 
 // element average state variables writen to file

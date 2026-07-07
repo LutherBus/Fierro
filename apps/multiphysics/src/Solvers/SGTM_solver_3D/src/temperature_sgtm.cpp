@@ -60,10 +60,11 @@ void SGTM3D::update_temperature(
     const DRaggedRightArrayKokkos<double>& mat_pt_specific_heat,
     const double rk_alpha,
     const double dt,
-    DynamicArrayKokkos<size_t>& node_gid_activated) const
+    DynamicArrayKokkos<size_t>& node_gid_activated) const // Luther - passing in nodal activation flags
 {
+    //Luther - loop over all activated nodes in the mesh
     // ---- loop over all the nodes in the mesh ---- //
-    FOR_ALL(i, 0, node_gid_activated.dims(0), {
+    FOR_ALL(i, 0, node_gid_activated.dims(0), { 
         
         // ---- loop over all corners around the node and calculate total flux through that node (divergence) ---- //
         for (size_t corner_lid = 0; corner_lid < mesh.num_corners_in_node(node_gid_activated(i)); corner_lid++) {

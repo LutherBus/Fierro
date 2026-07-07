@@ -1,3 +1,5 @@
+// Luther - added a parser to read the laser path and laser shape parameters from the input file
+
 #include <string>      // std::string
 #include <vector>      // std::vector
 #include <iostream>    // std::cout

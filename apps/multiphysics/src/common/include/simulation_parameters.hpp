@@ -46,7 +46,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "boundary_conditions.hpp"
 #include "dynamic_options.hpp"
 #include "table.hpp"
-#include "laser.hpp"
+#include "laser.hpp" // Luther - added laser.hpp library to hold laser parameters
 
 using namespace mtr;
 
@@ -71,7 +71,7 @@ struct SimulationParameters_t
 
     InitialConditionSetup_t InitialConditionSetup;     ///< intial conditions
 
-    Laser_t Laser; ///< Laser
+    Laser_t Laser; ///< Laser (Luther)
 
 }; // simulation_parameters_t
 

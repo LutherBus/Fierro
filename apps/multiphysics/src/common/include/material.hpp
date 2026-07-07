@@ -436,7 +436,7 @@ struct MaterialFunctions_t
     double normal_velocity = 0.0;    ///< level set velocity in normal direction
     double curvature_velocity = 0.0; ///< level set velocity contribution from curvature
 
-
+    // Luther - added tabular values for materials in different states
     // -- tabular --
     // Tabular density as a function of temperature (solid)
     double (*get_density_from_temperature_solid)(const Table_t& data_table, const double temperature) = NULL;
@@ -525,7 +525,7 @@ struct Material_t
     RaggedRightArrayKokkos<double> dissipation_global_vars; ///< Array holding q1, q1ex, q2, ... for artificial viscosity
     CArrayKokkos<size_t> num_dissipation_global_vars;
 
-
+    // Luther - added additional tables for different material states
     // -- Tabular Material Data --
     // DCArrayKokkos<MaterialTables_t> MaterialTables;
     Table_t density_table_solid;

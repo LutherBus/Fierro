@@ -257,7 +257,7 @@ enum class node_state
     heat_transfer,
     force,
     gradient_level_set,
-    activated_flag,
+    activated_flag, // Luther - added activation and eroded flags for nodes
     eroded_flag
 };
 
@@ -281,8 +281,8 @@ struct node_t
     MPICArrayKokkos<double> temp_n0;    ///< Nodal temperature at tn=0 of time integration
     DCArrayKokkos<double> q_transfer; ///< Nodal heat flux
     DCArrayKokkos<double> gradient_level_set;   ///< Nodal gradient of the level set function
-    DCArrayKokkos<bool> activated; ///< Nodal activation flag
-    DCArrayKokkos<bool> eroded; ///< Nodal eroded flag
+    DCArrayKokkos<bool> activated; ///< Nodal activation flag (Luther)
+    DCArrayKokkos<bool> eroded; ///< Nodal eroded flag (Luther)
 
     // initialization method (num_nodes, num_dims, state to allocate)
     void initialize(size_t num_nodes, size_t num_dims, std::vector<node_state> node_states)
@@ -314,7 +314,7 @@ struct node_t
                     if (gradient_level_set.size() == 0) this->gradient_level_set = DCArrayKokkos<double>(num_nodes, num_dims, "node_grad_levelset");
                     break;
                 case node_state::activated_flag:
-                    if (activated.size() == 0) this->activated = DCArrayKokkos<bool>(num_nodes, "node_activated");
+                    if (activated.size() == 0) this->activated = DCArrayKokkos<bool>(num_nodes, "node_activated"); // Luther - added activation and eroded flags for nodes
                     break;
                 case node_state::eroded_flag:
                     if (eroded.size() == 0) this->eroded = DCArrayKokkos<bool>(num_nodes, "node_eroded");
@@ -540,7 +540,7 @@ enum class material_pt_state
     volume_fraction,
     heat_flux,
     eroded_flag,
-    activated_flag,
+    activated_flag, // Luther - added activation flag for elements
     elastic_modulii,
     shear_modulii,
     poisson_ratios,
@@ -590,7 +590,7 @@ struct MaterialPoint_t
     DRaggedRightArrayKokkos<double> geo_volfrac;   ///< change in MaterialPoint geometric (part) volume fraction (interface reconstruction)
     DRaggedRightArrayKokkos<double> delta_geo_volfrac; ///< change in MaterialPoint geometric (part) volume fraction (interface reconstruction)
     DRaggedRightArrayKokkos<bool> eroded;              ///< MaterialPoint eroded or not flag
-    DRaggedRightArrayKokkos<bool> activated;              ///< MaterialPoint activated or not flag
+    DRaggedRightArrayKokkos<bool> activated;              ///< MaterialPoint activated or not flag (Luther)
 
 
     void initialize_num_mats(size_t num_mats)
@@ -667,7 +667,7 @@ struct MaterialPoint_t
                     if (eroded.size() == 0) this->eroded = DRaggedRightArrayKokkos<bool>(this->num_material_points_buffer, "material_point_eroded");
                     break;
                 case material_pt_state::activated_flag:
-                    if (activated.size() == 0) this->activated = DRaggedRightArrayKokkos<bool>(this->num_material_points_buffer, "material_point_activated");
+                    if (activated.size() == 0) this->activated = DRaggedRightArrayKokkos<bool>(this->num_material_points_buffer, "material_point_activated"); // Luther - added activation flag for elements
                     break;
                 default:
                     std::cout<<"Desired material point state not understood in MaterialPoint_t initialize"<<std::endl;

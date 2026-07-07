@@ -1,3 +1,5 @@
+// Luther - added a parser to read the laser path and laser shape parameters from the input file
+
 #ifndef PARSE_LASER_HPP
 #define PARSE_LASER_HPP
 

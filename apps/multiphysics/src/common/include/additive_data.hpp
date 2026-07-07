@@ -38,6 +38,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "matar.h"
 #include "table.hpp"
 
+// Luther - included additional libraries
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -73,6 +74,7 @@ public:
 
     size_t num_columns = 5;
     
+    // Luther - added default constructor with no inputs
     // Default constructor
     ToolPathInfo() = default;
 
@@ -91,6 +93,7 @@ public:
         tool_path_table.set_value(i, Fields::power, power);
     }
 
+    // Luther - added functionality to set a data point (time, x, y, z, power) by reading a file
     static ToolPathInfo load_laser_path(const std::string& filename) {
     // Pass 1: just count non-empty lines so we know how big to make the table.
     size_t npoints = 0;
@@ -153,6 +156,7 @@ public:
         z = tool_path_table.linear_interpolation(t, Fields::z, Fields::time);
     } // end function
 
+    // Luther - added a funcion to get only the z coordinate of the heat source on the host
     // Compute current position of tool at time t, assuming linear motion between path points.
     // Returns a double, z, and accesses on host side
     KOKKOS_INLINE_FUNCTION
@@ -163,6 +167,7 @@ public:
         
     } // end function
 
+    // Luther - added a funcion to get only the z coordinate of the heat source on the device
     // Compute current position of tool at time t, assuming linear motion between path points.
     // Returns a double, z, and accesses on device side
     KOKKOS_INLINE_FUNCTION

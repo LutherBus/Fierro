@@ -67,16 +67,17 @@ void SGTM3D::update_properties(
     const DRaggedRightArrayKokkos<double>& MaterialPoints_den,
     const DRaggedRightArrayKokkos<double>& MaterialPoints_conductivity,
     const DRaggedRightArrayKokkos<double>& MaterialPoints_specific_heat,
-    const DRaggedRightArrayKokkos<bool>&   MaterialPoints_eroded,
-    const DRaggedRightArrayKokkos<bool>&   MaterialPoints_activated,
+    const DRaggedRightArrayKokkos<bool>&   MaterialPoints_eroded, // Luther - passing in eroded elements flags
+    const DRaggedRightArrayKokkos<bool>&   MaterialPoints_activated, // Luther - passing in activated elements flags
     const DRaggedRightArrayKokkos<size_t>& elem_in_mat_elem,
     const size_t num_material_elems,
     const size_t mat_id,
-    DynamicArrayKokkos<size_t>& mat_elem_sid_activated) const
+    DynamicArrayKokkos<size_t>& mat_elem_sid_activated) const // Luther - passing in array of activated elements
 {
     const size_t num_dims = mesh.num_dims;
     const size_t num_nodes_in_elem = 8;
 
+    // Luther - tables for the material states (solid, powder, liquid)
     auto density_table_solid = Materials.density_table_solid;
     auto thermal_conductivity_table_solid = Materials.thermal_conductivity_table_solid;
     auto specific_heat_table_solid = Materials.specific_heat_table_solid;
@@ -90,7 +91,7 @@ void SGTM3D::update_properties(
     auto specific_heat_table_liquid = Materials.specific_heat_table_liquid;
 
   
-
+    // Luther - loop over nodes in activated elements
     // Compute the element temperature by averaging the node temperatures
     FOR_ALL(i, 0, mat_elem_sid_activated.dims(0), {
 

@@ -41,10 +41,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "geometry_new.hpp"
 #include "mesh_io.hpp"
 #include "additive_data.hpp"
-#include "laser.hpp"
-
-using std::cout;
-using std::endl;
+#include "laser.hpp" // Luther - added laser.hpp for laser path
 
 /////////////////////////////////////////////////////////////////////////////
 ///
@@ -100,11 +97,15 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     size_t stop_calc = 0;
     auto time_1 = std::chrono::high_resolution_clock::now();    
 
+
+    // Luther - Updated laser path to be read from input file
     // ---- Initialize the tool path information ---- //
     ToolPathInfo& path = SimulationParamaters.Laser.tool_path_info;
     path.tool_path_table.update_device();
     MATAR_FENCE();
-        
+    
+    // Luther - Utilized activated element and node arrays for simulating multi-layer builds
+
     // ---- Initialize necessary variables for activating the elements/nodes below the heat source (in the z-direction) ---- //
     State.node.coords.update_host();
     const MPICArrayKokkos<double>& node_coords = State.node.coords;
@@ -126,9 +127,14 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     FOR_ALL(node_gid, 0, mesh.num_nodes, {
         State.node.activated(node_gid) = false;
     }); // end for parallel for over nodes
-    
 
+
+    // ---- Initialize the element activation to false ---- //
+    FOR_ALL(mat_elem_sid, 0, State.MaterialToMeshMaps.num_mat_elems.host(0), {
+        State.MaterialPoints.activated(0, mat_elem_sid) = false;
+    }); // end for parallel for over elements
     
+    /*
     // ---- Calculate the z-coordinate for every element, and activate any elements below the current position of the heat source ---- //
     MATAR_FENCE();
     
@@ -161,8 +167,8 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     } // end for loop over mat_id
     
     MATAR_FENCE();
+    */
     
-    /*
     // ---- Calculate the z-coordinate for every element, and activate any elements below the current position of the heat source ---- //
     MATAR_FENCE();
     
@@ -203,7 +209,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     } // end for loop over mat_id
     
     MATAR_FENCE();
-    */
+    
 
     // ---- Update the device with the activated flags for elements and nodes ---- //
     MaterialPoints_activated.update_device();
@@ -211,7 +217,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     State.MaterialPoints.eroded.update_device();
     
 
-
+    // Luther - added additional material tables for different states
     // Print the material tables
     for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
         if (log) log->info("Material %lu density table (solid):\n", mat_id);
@@ -253,15 +259,6 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
     graphics_time = time_value + graphics_dt_ival;
 
-
-    // ---- Set up sphere to act as a moving heat source ---- //
-    DCArrayKokkos<double> heat_source_position(3, "heat_source_position");
-
-    heat_source_position.host(0) = 0.0;
-    heat_source_position.host(1) = 0.0;
-    heat_source_position.host(2) = 0.0;
-    heat_source_position.update_device();
-
     MATAR_FENCE();
 
 
@@ -279,12 +276,12 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                 State.MaterialPoints.den, 
                 State.MaterialPoints.conductivity, 
                 State.MaterialPoints.specific_heat,
-                State.MaterialPoints.eroded,
-                State.MaterialPoints.activated, 
-                State.MaterialToMeshMaps.elem_in_mat_elem, 
-                State.MaterialToMeshMaps.num_mat_elems.host(mat_id), 
+                State.MaterialPoints.eroded, // Luther - passing in eroded flag for elements
+                State.MaterialPoints.activated, // Luther - passing in activation flag for elements
+                State.MaterialToMeshMaps.elem_in_mat_elem,
+                State.MaterialToMeshMaps.num_mat_elems.host(mat_id),
                 mat_id,
-                mat_elem_sid_activated);
+                mat_elem_sid_activated); // Luther - passing in array of activated elements
         } // end for mat_id
     }
 
@@ -402,13 +399,13 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                     State.GaussPoints.vol,
                     State.node.coords,
                     State.node.temp,  // fixed to use current time level
-                    State.node.eroded,
+                    State.node.eroded, // Luther - passing in eroded flag for nodes
                     State.MaterialPoints.q_flux,
                     State.MaterialPoints.conductivity,
                     State.MaterialPoints.temp_grad,
                     State.corner.q_transfer,
                     State.corners_in_mat_elem,
-                    State.MaterialPoints.eroded,
+                    State.MaterialPoints.eroded, // Luther - passing in eroded flag for elements
                     State.MaterialToMeshMaps.elem_in_mat_elem,
                     State.MaterialToMeshMaps.num_mat_elems.host(mat_id),
                     mat_id,
@@ -416,7 +413,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                     small,
                     dt, 
                     rk_alpha,
-                    mat_elem_sid_activated);
+                    mat_elem_sid_activated); // Luther - passing in array of activated elements
 
                 // ---- Calculate the corner heat flux from moving volumetric heat source ----
                 if (SimulationParamaters.solver_inputs[this->solver_id].use_moving_heat_source) {
@@ -434,10 +431,10 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                         small,
                         dt, 
                         rk_alpha,
-                        time_value,
-                        path,
-                        mat_elem_sid_activated,
-                        SimulationParamaters);
+                        time_value, // Luther - passing in time_value to get heat source position at various times
+                        path, // Luther - passing in the path for the laser
+                        mat_elem_sid_activated, // Luther - passing in array of activated elements
+                        SimulationParamaters); // Luther - passing in SimulationParamaters for the laser parameters
                     
                     update_properties(
                         Materials, 
@@ -447,11 +444,11 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                         State.MaterialPoints.conductivity, 
                         State.MaterialPoints.specific_heat,
                         State.MaterialPoints.eroded, 
-                        State.MaterialPoints.activated,
+                        State.MaterialPoints.activated, // Luther - passing in activation flag for elements
                         State.MaterialToMeshMaps.elem_in_mat_elem, 
                         State.MaterialToMeshMaps.num_mat_elems.host(mat_id), 
                         mat_id,
-                        mat_elem_sid_activated);
+                        mat_elem_sid_activated); // Luther - passing in array of activated elements
                 }
 
             } // end for mat_id
@@ -482,7 +479,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                 State.MaterialPoints.specific_heat, // Note: Need to make this a node field, and calculate in the material loop
                 rk_alpha,
                 dt,
-                node_gid_activated);
+                node_gid_activated); // Luther - passing in activated flag for nodes
 
 
             // ---- apply temperature boundary conditions to the boundary patches----
@@ -504,6 +501,8 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         } // end of RK loop
         
         time_value += dt;
+
+        // Luther - activate new elements/nodes and add them to the activated element/node arrays
 
         // ---- Activate new elements, if needed ---- //
         
@@ -566,7 +565,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                 double y = 0.0;
                 double z = 0.0;
                 path.get_position(time_value, x, y, z);
-                heat_source_position(0) = x;
+                heat_source_position(0) = x; // Luther - changed to heat_source_position (may be able to delete this part)
                 heat_source_position(1) = y;
                 heat_source_position(2) = z;
             });
