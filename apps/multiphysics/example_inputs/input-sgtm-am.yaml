@@ -60,16 +60,18 @@ mesh_options:
 # ---------------------------------------------------------------------------
 laser_options:
     path: /var/tmp/repos/Fierro/apps/multiphysics/example_inputs/Laser_paths/Thin_wall_validation
-    model: goldak
-    absorptivity: 0.67
-    major_front: 0.02
-    major_rear: 0.06
-    minor: 0.04
-    depth: 0.08
     
-    # ---- Spherical heat source is not yet fully implemented ---- #
-    # model: spherical
-    # radius: 0.035
+    # ---- Goldak heat source example ---- #
+    #model: goldak
+    #absorptivity: 0.67
+    #major_front: 0.02
+    #major_rear: 0.06
+    #minor: 0.04
+    #depth: 0.08
+    
+    # ---- Spherical heat source example ---- #
+    model: spherical
+    radius: 0.035
 
 # ---------------------------------------------------------------------------
 # Output / visualization controls

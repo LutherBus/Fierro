@@ -12,6 +12,25 @@ enum class LaserModelType
     GOLDAK
 };
 
+
+
+struct SphericalParams_t
+{
+    double radius = 0.0;
+};
+
+
+
+struct GoldakParams_t
+{
+    double major_front = 0.0;
+    double major_rear  = 0.0;
+    double minor       = 0.0;
+    double depth       = 0.0;
+    double absorptivity = 0.0;
+};
+
+
 struct Laser_t
 {
     // --- Tabular path data ---
@@ -20,14 +39,10 @@ struct Laser_t
     
     LaserModelType model;
     
-    double radius = 0.0;
-
-    double absorptivity = 0.0;
-    double major_front = 0.0;
-    double major_rear = 0.0;
-    double minor = 0.0;
-    double depth = 0.0;
+    SphericalParams_t spherical;
+    GoldakParams_t    goldak;
 
     Laser_t() = default;
+
 };
 

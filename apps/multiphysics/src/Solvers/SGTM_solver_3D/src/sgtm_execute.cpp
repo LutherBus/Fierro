@@ -557,7 +557,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         node_activated.update_device();
 
 
-
+/*
         // ---- Move heat source ---- //
         if (SimulationParamaters.solver_inputs[this->solver_id].use_moving_heat_source) {
             RUN({
@@ -571,7 +571,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
             });
         }
         // increment the time
-
+*/
 
 
         size_t write = 0;

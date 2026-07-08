@@ -98,7 +98,7 @@ void parse_laser(Yaml::Node& root, Laser_t& Laser)
             } // end check on radius
 
             std::cout << "Assigning laser radius in parse_laser.cpp" << std::endl;
-            Laser.radius = radius;
+            Laser.spherical.radius = radius;
             radius_set = true;
         } // end radius
         else if (a_word.compare("absorptivity") == 0) {
@@ -109,7 +109,7 @@ void parse_laser(Yaml::Node& root, Laser_t& Laser)
                 throw std::runtime_error("**** laser_options absorptivity must be in (0, 1] ****");
             } // end check on n
 
-            Laser.absorptivity = absorptivity;
+            Laser.goldak.absorptivity = absorptivity;
             absorptivity_set = true;
         } // end n
         else if (a_word.compare("major_front") == 0) {
@@ -120,7 +120,7 @@ void parse_laser(Yaml::Node& root, Laser_t& Laser)
                 throw std::runtime_error("**** laser_options major_front must be positive ****");
             } // end check on a_f
 
-            Laser.major_front = major_front;
+            Laser.goldak.major_front = major_front;
             major_front_set = true;
         } // end major_front
         else if (a_word.compare("major_rear") == 0) {
@@ -131,7 +131,7 @@ void parse_laser(Yaml::Node& root, Laser_t& Laser)
                 throw std::runtime_error("**** laser_options major_rear must be positive ****");
             } // end check on major_rear
 
-            Laser.major_rear = major_rear;
+            Laser.goldak.major_rear = major_rear;
             major_rear_set = true;
         } // end major_rear
         else if (a_word.compare("minor") == 0) {
@@ -142,7 +142,7 @@ void parse_laser(Yaml::Node& root, Laser_t& Laser)
                 throw std::runtime_error("**** laser_options minor axis must be positive ****");
             } // end check on minor
 
-            Laser.minor = minor;
+            Laser.goldak.minor = minor;
             minor_set = true;
         } // end minor
         else if (a_word.compare("depth") == 0) {
@@ -153,7 +153,7 @@ void parse_laser(Yaml::Node& root, Laser_t& Laser)
                 throw std::runtime_error("**** laser_options depth must be positive ****");
             } // end check on depth
 
-            Laser.depth = depth;
+            Laser.goldak.depth = depth;
             depth_set = true;
         } // end depth
     } // end loop over all laser_path inputs

@@ -39,6 +39,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "state.hpp"
 #include "ELEMENTS.h"
 #include "additive_data.hpp" // Luther - added additve_data.hpp library for laser path
+#include "laser.hpp" // Luther - added laser.hpp library for laser parameters used in moving_flux
 
 // Forward declare structs
 struct SimulationParameters_t;
@@ -313,6 +314,43 @@ public:
         const double dt,
         const double rk_alpha,
         DynamicArrayKokkos<size_t>& mat_elem_sid_activated) const; // Luther - passing in activated elements array
+
+    // Luther - used to compute the corner_q_flux using a Goldak heat source model
+    KOKKOS_INLINE_FUNCTION    
+    void goldak_flux(const Laser_t& laser,
+        const ToolPathInfo& path,
+        const double time_value,
+        ViewCArrayKokkos<double> elem_coords,
+        const swage::Mesh& mesh,
+        const DCArrayKokkos<double>& GaussPoints_vol,
+        const DCArrayKokkos<double>& corner_q_flux,
+        size_t elem_gid,
+        const double dt) const;
+
+    // Luther - used to compute the corner_q_flux using a spherical heat source model   
+    KOKKOS_INLINE_FUNCTION 
+    void spherical_flux(const Laser_t& laser,
+        const ToolPathInfo& path,
+        const double time_value,
+        ViewCArrayKokkos<double> elem_coords,
+        const swage::Mesh& mesh,
+        const DCArrayKokkos<double>& GaussPoints_vol,
+        const DCArrayKokkos<double>& corner_q_flux,
+        size_t elem_gid,
+        const double dt) const;
+
+        // Luther - computes the corner_q_flux depending on which heat source model is specified in the input file 
+    KOKKOS_INLINE_FUNCTION
+    void compute_corner_q_flux(
+        const Laser_t& laser,
+        const ToolPathInfo& path,
+        const double time_value,
+        ViewCArrayKokkos<double> elem_coords,
+        const swage::Mesh& mesh,
+        const DCArrayKokkos<double>& GaussPoints_vol,
+        const DCArrayKokkos<double>& corner_q_flux,
+        size_t elem_gid,
+        const double dt) const;
 
     void moving_flux(
         const Material_t& Materials,
