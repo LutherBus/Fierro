@@ -214,6 +214,12 @@ void parse_mesh_inputs(Yaml::Node& root, MeshInput_t& MeshInput)
             MeshInput.num_elems[1] = n2;
             MeshInput.num_elems[2] = n3;
         }
+        // Luther - Number of layers for the substrate
+        else if (a_word.compare("num_layers_substrate") == 0) {
+            int num_layers_substrate = root["mesh_options"][a_word].As<int>();
+
+            MeshInput.num_layers_substrate = num_layers_substrate;
+        }
         // Polynomial order for the mesh
         else if (a_word.compare("polynomial_order") == 0) {
             int p_order = root["mesh_options"][a_word].As<int>();

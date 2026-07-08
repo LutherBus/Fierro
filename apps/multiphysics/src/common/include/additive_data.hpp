@@ -156,21 +156,11 @@ public:
         z = tool_path_table.linear_interpolation(t, Fields::z, Fields::time);
     } // end function
 
-        // Compute current position of tool at time t on the host, assuming linear motion between path points.
-    // Returns a std::array<double,3> {x, y, z}
-    void get_position_host(const double& t, double& x, double& y, double& z) const {
-
-        // get the x position at time t
-        x = tool_path_table.linear_interpolation_host(t, Fields::x, Fields::time);
-        // get the y position at time t
-        y = tool_path_table.linear_interpolation_host(t, Fields::y, Fields::time);
-        // get the z position at time t
-        z = tool_path_table.linear_interpolation_host(t, Fields::z, Fields::time);
-    } // end function
-
     // Luther - added a funcion to get only the z coordinate of the heat source on the host
     // Compute current position of tool at time t, assuming linear motion between path points.
     // Returns a double, z, and accesses on host side
+
+    // Should this not be KOKKOS_INLINE_FUNCTION since it's on the host side?
     KOKKOS_INLINE_FUNCTION
     void get_position_z_host(const double& t, double& z) const {
 
@@ -196,12 +186,6 @@ public:
     KOKKOS_INLINE_FUNCTION
     double get_power(const double& t) const {
         return tool_path_table.linear_interpolation(t, Fields::power, Fields::time);
-    } // end function
-
-    // Compute current power of tool at time t on the host, assuming linear interpolation between path points.
-    // Returns the power at the time t
-    double get_power_host(const double& t) const {
-        return tool_path_table.linear_interpolation_host(t, Fields::power, Fields::time);
     } // end function
 };
 

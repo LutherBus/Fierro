@@ -116,7 +116,9 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     
     // ---- Initialize activated elements/nodes flag arrays ---- //
     DRaggedRightArrayKokkos<bool>& MaterialPoints_activated = State.MaterialPoints.activated;
+    DRaggedRightArrayKokkos<bool>& MaterialPoints_eroded = State.MaterialPoints.eroded;
     DCArrayKokkos<bool>& node_activated = State.node.activated;
+    DCArrayKokkos<bool>& node_eroded = State.node.eroded;
 
     // ---- Initialize arrays to hold all activated elements/nodes ---- //
     DynamicArrayKokkos<size_t> mat_elem_sid_activated(State.MaterialToMeshMaps.num_mat_elems.host(0), "mat_elem_sid_activated");
@@ -134,40 +136,6 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         State.MaterialPoints.activated(0, mat_elem_sid) = false;
     }); // end for parallel for over elements
     
-    /*
-    // ---- Calculate the z-coordinate for every element, and activate any elements below the current position of the heat source ---- //
-    MATAR_FENCE();
-    
-    for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
-        MATAR_FENCE();
-        int num_mat_elems = State.MaterialToMeshMaps.num_mat_elems.host(mat_id);
-
-        for(size_t mat_elem_sid = 0; mat_elem_sid < num_mat_elems; mat_elem_sid++) {    
-            MATAR_FENCE();
-            size_t elem_gid = elem_in_mat_elem.host(mat_id, mat_elem_sid);
-            
-            ViewCArrayHost<size_t> elem_node_gids(&mesh.nodes_in_elem.host(elem_gid, mat_id), 8);
-            
-            // Check if the element is below the z-coordinate of the heat source
-            if (elem_gid < 1600000) {
-                MaterialPoints_activated.host(mat_id, mat_elem_sid) = true; // If it is, set the activated flag for the element to true
-                mat_elem_sid_activated.push_back(mat_elem_sid); // Add the element to the array of activated elements
-                State.MaterialPoints.eroded.host(mat_id, mat_elem_sid) = true;
-                
-                for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the newly activated element to the list of activated nodes if not already in it
-                    if (!node_activated.host(elem_node_gids(node_lid))) { // Check if the nodes of the newly activated element are already activated
-                        node_activated.host(elem_node_gids(node_lid)) = true; // If not, set the activated flag for the node to true
-                        State.node.eroded(elem_node_gids(node_lid)) = true;
-                        node_gid_activated.push_back(elem_node_gids(node_lid)); // Add the node to the array of activated nodes
-
-                    } // end if loop for adding nodes to activated nodes array
-                } // end for loop over all nodes in an activated element 
-            } // end if statement to check if the element is below the heat source
-        } // end for loop over mat_elem_sid
-    } // end for loop over mat_id
-    
-    MATAR_FENCE();
-    */
     
     // ---- Calculate the z-coordinate for every element, and activate any elements below the current position of the heat source ---- //
     MATAR_FENCE();
@@ -192,6 +160,22 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
             avg_z *= 0.125;
             
+            // Check if the element is part of the substrate
+            if (elem_gid < SimulationParamaters.MeshInput.num_elems[0] * SimulationParamaters.MeshInput.num_elems[1] * SimulationParamaters.MeshInput.num_layers_substrate) {
+                MaterialPoints_eroded.host(mat_id, mat_elem_sid) = true; // If it is, set the eroded flag for the element to true
+                MaterialPoints_activated.host(mat_id, mat_elem_sid) = true; // If it is, set the activated flag for the element to true
+                mat_elem_sid_activated.push_back(mat_elem_sid); // Add the element to the array of activated elements
+
+                for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the newly activated element to the list of activated nodes if not already in it
+                    if (!node_activated.host(elem_node_gids(node_lid))) { // Check if the nodes of the newly activated element are already activated
+                        node_activated.host(elem_node_gids(node_lid)) = true; // If not, set the activated flag for the node to true
+                        node_eroded.host(elem_node_gids(node_lid)) = true; // If not, set the eroded flag for the node to true
+                        node_gid_activated.push_back(elem_node_gids(node_lid)); // Add the node to the array of activated nodes
+
+                    } // end if loop for adding nodes to activated nodes array
+                } // end for loop over all nodes in an activated element 
+            } // end if statement to check if the element is part of the substrate
+
             // Check if the element is below the z-coordinate of the heat source
             if (avg_z <= z_coord) {
                 MaterialPoints_activated.host(mat_id, mat_elem_sid) = true; // If it is, set the activated flag for the element to true
@@ -214,7 +198,8 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     // ---- Update the device with the activated flags for elements and nodes ---- //
     MaterialPoints_activated.update_device();
     node_activated.update_device();
-    State.MaterialPoints.eroded.update_device();
+    MaterialPoints_eroded.update_device();
+    node_eroded.update_device();
     
 
     // Luther - added additional material tables for different states

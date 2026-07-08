@@ -208,11 +208,9 @@ void SGTM3D::goldak_flux(const Laser_t& laser,
         
         // Q(x,y,z) = 10.39230 * f_r * n * power / (a * b * c_r * 5.568328)
         //               * exp[-3 * (d_x * d_x) / (a * a) + (d_y * d_y) / (b * b) + (dz * dz) / (c * c)] for d_x <= 0
-        //printf("Starting in goldak_flux");
+
         double power = path.get_power(time_value);
-        //printf("Power: %f", power);
         double n = laser.goldak.absorptivity; // Absorptivity of powder bed
-        //printf("Absorptivity: %f", n);
         double a_f = laser.goldak.major_front; // Semi-axis along travel direction, front (mm)
         double a_r = laser.goldak.major_rear; // Semi-axis along travel direction, rear (mm)
         double b = laser.goldak.minor; // Transverse semi_axis (mm)
@@ -227,7 +225,6 @@ void SGTM3D::goldak_flux(const Laser_t& laser,
         double y1 = 0.0;
         double z1 = 0.0;
         path.get_position(time_value + dt, x1, y1, z1);
-        //printf("x coordinate: %f", x1);
 
         // Get previous heat source position 
         double x_hs = 0.0;
@@ -443,8 +440,8 @@ void SGTM3D::moving_flux(
         elem_coords(1) = (elem_coords(1) / mesh.num_nodes_in_elem);
         elem_coords(2) = (elem_coords(2) / mesh.num_nodes_in_elem);
 
-        
-        compute_corner_q_flux(SimulationParamaters.Laser, path, time_value, elem_coords, mesh, GaussPoints_vol, corner_q_flux, elem_gid, dt); // Luther - calculate corner_q_flux using the heat source specified in the input file
+        // Luther - calculate corner_q_flux using the heat source specified in the input file
+        compute_corner_q_flux(SimulationParamaters.Laser, path, time_value, elem_coords, mesh, GaussPoints_vol, corner_q_flux, elem_gid, dt);
     }); // end parallel for loop over elements
     
     // Note: a correction term may be needed to account for the fact that the flux is not evenly distributed to enforce conservation

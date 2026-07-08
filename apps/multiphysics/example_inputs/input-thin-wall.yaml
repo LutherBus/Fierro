@@ -36,7 +36,7 @@
 # Time integration / stepping control
 # ---------------------------------------------------------------------------
 dynamic_options:
-    time_final: 0.03
+    time_final: 0.045
     dt_min: 1.e-6
     dt_max: 1.e-4
     dt_start: 1.e-4
@@ -51,8 +51,8 @@ mesh_options:
     num_dims: 3
     type: box
     origin: [0.0, 0.0, 0.0]
-    length: [8.0, 4.0, 0.2]
-    num_elems: [800, 400, 20]
+    length: [4.0, 2.0, 0.2]
+    num_elems: [400, 200, 20]
     
     
 #    length: [1.0, 1.0, 0.2]
@@ -69,7 +69,7 @@ mesh_options:
 output_options:
     timer_output_level: thorough
     output_file_format: viz
-    graphics_time_step: 0.0001
+    graphics_time_step: 0.0003
     #graphics_iteration_step: 5
     elem_field_outputs:
         - den
