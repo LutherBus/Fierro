@@ -204,6 +204,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
     // Luther - added additional material tables for different states
     // Print the material tables
+    /*
     for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
         if (log) log->info("Material %lu density table (solid):\n", mat_id);
         if (log) Materials.density_table_solid.print_table();
@@ -226,6 +227,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         if (log) log->flush();
     } // end for mat_id
     MATAR_FENCE();
+    */
     // ---- Write initial state at t=0 ---- 
     if (log) log->info("Writing outputs to file at %f \n", graphics_time);
     mesh_writer.write_mesh(
@@ -333,6 +335,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
             }
         }
 
+        /*
         // ---- Print the initial time step and time value ---- //
         if (cycle == 0) {
             if (log) log->info("cycle = %lu, time = %f, time step = %f \n", cycle, time_value, dt);
@@ -340,11 +343,11 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         }
         
         // ---- Print time step every 10 cycles ---- // 
-        else if (cycle % 20 == 0) {
+        else if (cycle % 20 == 0 || cycle < 200) {
             if (log) log->info("cycle = %lu, time = %f, time step = %f \n", cycle, time_value, dt);
             if (log) log->info("cycle = %lu, time = %f, time step = %f \n", cycle, time_value, dt);
         } // end if
-
+        */
 
 
         // ---- Initialize the state for the RK integration scheme ---- //
@@ -577,10 +580,12 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         if (write == 1) {
             dt = cached_pregraphics_dt;
             if (log) log->info("Writing outputs to file at %f \n", graphics_time);
+            /*
             if (log) log->info("cycle = %lu, time = %f, time step = %f \n", cycle, time_value, dt);
             if (log) log->flush();
             if (log) log->info("Writing outputs to file at %f \n", graphics_time);
             if (log) log->info("cycle = %lu, time = %f, time step = %f \n", cycle, time_value, dt);
+            */
             if (log) log->flush();
             mesh_writer.write_mesh(mesh,
                                    State,
