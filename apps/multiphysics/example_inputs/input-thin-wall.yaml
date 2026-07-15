@@ -40,7 +40,7 @@ dynamic_options:
     dt_min: 1.e-6
     dt_max: 1.e-4
     dt_start: 1.e-4
-    cycle_stop: 100000
+    cycle_stop: 1000000
 
 
 # ---------------------------------------------------------------------------
@@ -70,7 +70,7 @@ mesh_options:
 output_options:
     timer_output_level: thorough
     output_file_format: viz
-    graphics_time_step: 0.0001
+    graphics_time_step: 0.00025
     #graphics_iteration_step: 5
     elem_field_outputs:
         - den

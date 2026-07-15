@@ -178,16 +178,18 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
             // Check if the element is below the z-coordinate of the heat source
             if (avg_z <= z_coord) {
-                MaterialPoints_activated.host(mat_id, mat_elem_sid) = true; // If it is, set the activated flag for the element to true
-                mat_elem_sid_activated.push_back(mat_elem_sid); // Add the element to the array of activated elements
+                if (!MaterialPoints_eroded.host(mat_id, mat_elem_sid)) { // Check if the element has already been activated during the substrate activation
+                    MaterialPoints_activated.host(mat_id, mat_elem_sid) = true; // If it is, set the activated flag for the element to true
+                    mat_elem_sid_activated.push_back(mat_elem_sid); // Add the element to the array of activated elements
 
-                for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the newly activated element to the list of activated nodes if not already in it
-                    if (!node_activated.host(elem_node_gids(node_lid))) { // Check if the nodes of the newly activated element are already activated
-                        node_activated.host(elem_node_gids(node_lid)) = true; // If not, set the activated flag for the node to true
-                        node_gid_activated.push_back(elem_node_gids(node_lid)); // Add the node to the array of activated nodes
+                    for (size_t node_lid = 0; node_lid < 8; node_lid++) { // Add the nodes of the newly activated element to the list of activated nodes if not already in it
+                        if (!node_activated.host(elem_node_gids(node_lid))) { // Check if the nodes of the newly activated element are already activated
+                            node_activated.host(elem_node_gids(node_lid)) = true; // If not, set the activated flag for the node to true
+                            node_gid_activated.push_back(elem_node_gids(node_lid)); // Add the node to the array of activated nodes
 
-                    } // end if loop for adding nodes to activated nodes array
-                } // end for loop over all nodes in an activated element 
+                        } // end if loop for adding nodes to activated nodes array
+                    } // end for loop over all nodes in an activated element 
+                } // end if statement to check if element has already been activated during substrate activation
             } // end if statement to check if the element is below the heat source
         } // end for loop over mat_elem_sid
     } // end for loop over mat_id

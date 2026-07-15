@@ -1,12 +1,46 @@
+
+# ---------------------------------------------------------------------------
+# Example Fierro input: SGTM (staggered grid thermal) for additive simulations
+#
+# Key idea (additive manufacturing):
+# - Use solver `thrmex_FE` (SGTM3D) with `use_moving_heat_source: true` to
+#   model a moving volumetric heat source (laser / heat spot).
+# - Thermal loads are applied via:
+#   - temperature boundary conditions (constant, convection, radiation)
+#   - optional moving heat source (see `use_moving_heat_source`)
+#
+# Implementation details (from SGTM3D code)
+# - When `use_moving_heat_source: true`, SGTM3D uses a hard-coded tool path
+#   (4 time-stamped (x,y,z,power) points, linearly interpolated in time)
+#   and a fixed source sphere of radius `8.0` (in your mesh coordinate units).
+# - The heat input is applied as a *volumetric* heat flux term inside that
+#   sphere during each time step.
+# - Your YAML toggle controls only whether the moving heat source is enabled;
+#   the actual path/power definition is currently embedded in
+#   `SGTM3D::execute()` rather than read from YAML.
+#
+# Thermal units / quantities (based on this example’s inline comments)
+# - temperature: Kelvin (K)
+# - thermal_conductivity: mW/(mm.K)
+# - specific_heat: mJ/(tonne.K)
+# - density: tonne/mm^3
+#
+# Required fill inputs for `thrmex_FE` (SGTM3D)
+# - On nodes: `velocity` and `temperature`
+# - On material points (gauss points in this code’s discretization):
+#   `density`, `thermal_conductivity`, `specific_heat`, and
+#   `specific_internal_energy`
+# ---------------------------------------------------------------------------
+
 # ---------------------------------------------------------------------------
 # Time integration / stepping control
 # ---------------------------------------------------------------------------
 dynamic_options:
-    time_final: 0.004
+    time_final: 0.03
     dt_min: 1.e-6
     dt_max: 1.e-4
     dt_start: 1.e-4
-    cycle_stop: 100000
+    cycle_stop: 1000000
 
 
 # ---------------------------------------------------------------------------
@@ -17,28 +51,18 @@ mesh_options:
     num_dims: 3
     type: box
     origin: [0.0, 0.0, 0.0]
-    length: [1.2, 0.5, 0.15]
-    num_elems: [120, 50, 3]
+    length: [4.0, 2.0, 0.15]
+    num_elems: [400, 200, 3]
     num_layers_substrate: 1
-
-
-# ---------------------------------------------------------------------------
-# Laser Path
-# ---------------------------------------------------------------------------
-laser_options:
-    path: /var/tmp/repos/Fierro/apps/multiphysics/example_inputs/Laser_paths/Thin_wall_validation
     
-    # ---- Goldak heat source example ---- #
-    model: goldak
-    absorptivity: 0.67
-    major_front: 0.02
-    major_rear: 0.06
-    minor: 0.04
-    depth: 0.08
     
-    # ---- Spherical heat source example ---- #
-    #model: spherical
-    #radius: 0.035
+#    length: [1.0, 1.0, 0.2]
+#    num_elems: [100, 100, 20]
+
+#    num_elems: [500, 200, 20]
+#    length: [5.0, 2.0, 0.2]
+    #num_elems: [305, 153, 27]
+
 
 # ---------------------------------------------------------------------------
 # Output / visualization controls
@@ -46,7 +70,7 @@ laser_options:
 output_options:
     timer_output_level: thorough
     output_file_format: viz
-    graphics_time_step: 0.001
+    graphics_time_step: 0.003
     #graphics_iteration_step: 5
     elem_field_outputs:
         - den
@@ -62,6 +86,21 @@ output_options:
         - eroded
 
 
+# ---------------------------------------------------------------------------
+# Laser Path
+# ---------------------------------------------------------------------------
+laser_options:
+    path: /var/tmp/repos/Fierro/apps/multiphysics/example_inputs/Laser_paths/scaling-study
+    model: goldak
+    absorptivity: 0.67
+    major_front: 0.02
+    major_rear: 0.06
+    minor: 0.04
+    depth: 0.08
+    
+    # ---- Spherical heat source ---- #
+    # model: spherical
+    # radius: 0.035
 
 
 # ---------------------------------------------------------------------------
@@ -121,7 +160,7 @@ boundary_conditions:
         solver_id: 0
         surface:
             type: x_plane
-            plane_position: 1.2
+            plane_position: 8.0
         temperature_model: convection
         temperature_bc_global_vars:
             - 473.15   # reference temperature (room temp in kelvin)
@@ -131,7 +170,7 @@ boundary_conditions:
         solver_id: 0
         surface:
             type: x_plane
-            plane_position: 1.2
+            plane_position: 8.0
         temperature_model: radiation
 
     - boundary_condition:
@@ -155,7 +194,7 @@ boundary_conditions:
         solver_id: 0
         surface:
             type: y_plane
-            plane_position: 0.5
+            plane_position: 4.0
         temperature_model: convection
         temperature_bc_global_vars:
             - 473.15   # reference temperature (room temp in kelvin)
@@ -165,7 +204,7 @@ boundary_conditions:
         solver_id: 0
         surface:
             type: y_plane
-            plane_position: 0.5
+            plane_position: 4.0
         temperature_model: radiation
 
     - boundary_condition:
