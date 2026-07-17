@@ -81,6 +81,13 @@ enum BCTemperatureModels
     //userDefinedTemperatureBC = 4
 };
 
+// types of heat flux boundary conditions
+enum BCHeatFluxModels
+{
+    noHeatFluxBC = 0,
+    constantHeatFluxBC = 1
+};
+
 enum BCStressModels
 {
     noStressBC = 0,
@@ -145,6 +152,13 @@ static std::map<std::string, boundary_conditions::BCTemperatureModels> bc_temper
     //{ "user_defined", boundary_conditions::userDefinedTemperatureBC }
 };
 
+// Heat Flux models
+static std::map<std::string, boundary_conditions::BCHeatFluxModels> bc_heat_flux_model_map
+{
+    { "none", boundary_conditions::noHeatFluxBC }, 
+    { "constant", boundary_conditions::constantHeatFluxBC }
+};
+
 static std::map<std::string, boundary_conditions::BCStressModels> bc_stress_model_map
 {
     { "none", boundary_conditions::noStressBC },
@@ -195,6 +209,10 @@ struct BoundaryConditionEnums_t
 
     // BC model for temperature
     boundary_conditions::BCTemperatureModels BCTemperatureModel = boundary_conditions::noTemperatureBC;    ///< Type of temperature boundary condition
+
+    // BC model for heat flux
+    boundary_conditions::BCHeatFluxModels BCHeatFluxModel = boundary_conditions::noHeatFluxBC;    ///< Type of temperature boundary condition
+
     
     // BC model for stress
     boundary_conditions::BCStressModels BCStressModel = boundary_conditions::noStressBC;    ///< Type of stress boundary condition
@@ -238,9 +256,7 @@ struct BoundaryConditionFunctions_t
         const DCArrayKokkos<BoundaryConditionEnums_t>& BoundaryConditionEnums,
         const RaggedRightArrayKokkos<double>& heat_flux_bc_global_vars,
         const DCArrayKokkos<double>& bc_state_vars,
-        const MPICArrayKokkos<double>& node_temp,
-        const double time_value,
-        const size_t rk_stage,
+        const DCArrayKokkos<double>& q_transfer,
         const size_t bdy_node_gid,
         const size_t bdy_set) = NULL;
 
@@ -289,9 +305,12 @@ struct BoundaryCondition_t
     DCArrayKokkos<size_t> stress_bdy_sets_in_solver;     // (solver_id, bc_lid)
     DCArrayKokkos<size_t> num_stress_bdy_sets_in_solver; // (solver_id)
 
-    // keep adding ragged storage for the other BC models -- temp, displacement, etc.
     DCArrayKokkos<size_t> temperature_bdy_sets_in_solver;     // (solver_id, lids)
     DCArrayKokkos<size_t> num_temperature_bdy_sets_in_solver; // (solver_id)
+
+    // keep adding ragged storage for the other BC models -- temp, displacement, etc.
+    DCArrayKokkos<size_t> heat_flux_bdy_sets_in_solver;     // (solver_id, lids)
+    DCArrayKokkos<size_t> num_heat_flux_bdy_sets_in_solver; // (solver_id)
 
 
     CArrayKokkos<BoundaryConditionSetup_t> BoundaryConditionSetup;  // vars to setup the bcs, accessed using (bc_id)
@@ -316,6 +335,10 @@ struct BoundaryCondition_t
     // global variables for temperature boundary condition models
     RaggedRightArrayKokkos<double> temperature_bc_global_vars;
     CArrayKokkos<size_t> num_temperature_bc_global_vars;
+
+    // global variables for heat flux boundary condition models
+    RaggedRightArrayKokkos<double> heat_flux_bc_global_vars;
+    CArrayKokkos<size_t> num_heat_flux_bc_global_vars;
 
     // state variables for boundary conditions
     DCArrayKokkos<double> bc_state_vars;

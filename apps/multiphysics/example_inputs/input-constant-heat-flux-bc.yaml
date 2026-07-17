@@ -36,7 +36,7 @@
 # Time integration / stepping control
 # ---------------------------------------------------------------------------
 dynamic_options:
-    time_final: 0.03
+    time_final: 0.01
     dt_min: 1.e-6
     dt_max: 1.e-4
     dt_start: 1.e-4
@@ -53,7 +53,7 @@ mesh_options:
     origin: [0.0, 0.0, 0.0]
     length: [4.0, 2.0, 0.15]
     num_elems: [100, 50, 3]
-    num_layers_substrate: 1
+    num_layers_substrate: 3
     
     
 #    length: [1.0, 1.0, 0.2]
@@ -70,7 +70,7 @@ mesh_options:
 output_options:
     timer_output_level: thorough
     output_file_format: viz
-    graphics_time_step: 0.0005
+    graphics_time_step: 0.001
     #graphics_iteration_step: 5
     elem_field_outputs:
         - den
@@ -90,7 +90,7 @@ output_options:
 # Laser Path
 # ---------------------------------------------------------------------------
 laser_options:
-    path: /var/tmp/repos/Fierro/apps/multiphysics/example_inputs/Laser_paths/scaling-study
+    path: /var/tmp/repos/Fierro/apps/multiphysics/example_inputs/Laser_paths/initialization_test
     model: goldak
     absorptivity: 0.67
     major_front: 0.02
@@ -160,7 +160,7 @@ boundary_conditions:
         solver_id: 0
         surface:
             type: x_plane
-            plane_position: 8.0
+            plane_position: 4.0
         temperature_model: convection
         temperature_bc_global_vars:
             - 473.15   # reference temperature (room temp in kelvin)
@@ -170,7 +170,7 @@ boundary_conditions:
         solver_id: 0
         surface:
             type: x_plane
-            plane_position: 8.0
+            plane_position: 4.0
         temperature_model: radiation
 
     - boundary_condition:
@@ -194,7 +194,7 @@ boundary_conditions:
         solver_id: 0
         surface:
             type: y_plane
-            plane_position: 4.0
+            plane_position: 2.0
         temperature_model: convection
         temperature_bc_global_vars:
             - 473.15   # reference temperature (room temp in kelvin)
@@ -204,7 +204,7 @@ boundary_conditions:
         solver_id: 0
         surface:
             type: y_plane
-            plane_position: 4.0
+            plane_position: 2.0
         temperature_model: radiation
 
     - boundary_condition:
@@ -223,6 +223,15 @@ boundary_conditions:
             type: z_plane
             plane_position: 0.0
         temperature_model: radiation
+  
+    - boundary_condition:
+        solver_id: 0
+        surface:
+            type: z_plane
+            plane_position: 0.15
+        heat_flux_model: constant
+        heat_flux_bc_global_vars:
+            - 800.0
 
 
 # ---------------------------------------------------------------------------

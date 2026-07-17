@@ -259,8 +259,7 @@ public:
     void boundary_heat_flux(
         const swage::Mesh& mesh,
         const BoundaryCondition_t& Boundary,
-        MPICArrayKokkos<double>&     node_temp,
-        const double time_value) const;
+        const DCArrayKokkos<double>& q_transfer) const;
 
     // **** Functions defined in energy_sgtm.cpp **** //
     //void update_temperature(
@@ -290,7 +289,8 @@ public:
             const DRaggedRightArrayKokkos<double>& mat_pt_specific_heat,
             const double rk_alpha,
             const double dt,
-            DynamicArrayKokkos<size_t>& node_gid_activated) const; // Luther - passing in activation flags for nodes
+            DynamicArrayKokkos<size_t>& node_gid_activated,
+            const BoundaryCondition_t& BoundaryConditions) const; // Luther - passing in activation flags for nodes
 
     // **** Functions defined in heat_flux.cpp **** //
     void get_heat_flux(

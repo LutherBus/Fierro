@@ -74,6 +74,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // temperature bc files
 #include "constant_temp_bc.hpp"
 
+// heat flux bc files
+#include "constant_heat_flux_bc.hpp"
+
 // stress bc files
 #include "constant_stress_bc.hpp"
 #include "no_stress_bc.hpp"
@@ -136,18 +139,28 @@ void parse_bcs(Yaml::Node& root, BoundaryCondition_t& BoundaryConditions, const 
         BoundaryConditions.num_stress_bdy_sets_in_solver.host(solver_id) = 0;
     } // end for
 
+    // --- BC heat flux ---
+    // stores the heat flux bdy node lists per solver, in the future, this needs to be a DualRaggedRight
+    BoundaryConditions.heat_flux_bdy_sets_in_solver = DCArrayKokkos<size_t> (num_solvers, num_bcs, "heat_flux_bdy_sets_in_solver");
+    // this stores the number of heat flux bdy sets for a solver
+    BoundaryConditions.num_heat_flux_bdy_sets_in_solver = DCArrayKokkos<size_t> (num_solvers, "num_heat_flux_bdy_sets_in_solver");
+    // set the storage counter to zero
+    for(size_t solver_id=0; solver_id<num_solvers; solver_id++){
+        BoundaryConditions.num_heat_flux_bdy_sets_in_solver.host(solver_id) = 0;
+    } // end for
+
 
     // temporary arrays for boundary condition variables
     DCArrayKokkos<double> tempVelocityBCGlobalVars (num_bcs, 100, "temporary_velocity_bc_global_values");
 
     DCArrayKokkos<double> tempTemperatureBCGlobalVars (num_bcs, 100, "temporary_temperature_bc_global_values");
     DCArrayKokkos<double> tempStressBCGlobalVars (num_bcs, 100, "temporary_stress_bc_global_values");
-    // DCArrayKokkos<double> tempHeatFluxBCGlobalVars (num_bcs, 100, "temporary_heat_flux_bc_global_values");
+    DCArrayKokkos<double> tempHeatFluxBCGlobalVars (num_bcs, 100, "temporary_heat_flux_bc_global_values");
     
     BoundaryConditions.num_velocity_bc_global_vars = CArrayKokkos <size_t>(num_bcs, "BoundaryConditions.num_velocity_bc_global_vars"); 
     BoundaryConditions.num_temperature_bc_global_vars = CArrayKokkos <size_t>(num_bcs, "BoundaryConditions.num_temperature_bc_global_vars");
     BoundaryConditions.num_stress_bc_global_vars = CArrayKokkos <size_t>(num_bcs, "BoundaryConditions.num_stress_bc_global_vars");
-    // BoundaryConditions.num_heat_flux_bc_global_vars = CArrayKokkos <size_t>(num_bcs, "BoundaryConditions.num_heat_flux_bc_global_vars"); 
+    BoundaryConditions.num_heat_flux_bc_global_vars = CArrayKokkos <size_t>(num_bcs, "BoundaryConditions.num_heat_flux_bc_global_vars"); 
 
     
     
@@ -159,7 +172,7 @@ void parse_bcs(Yaml::Node& root, BoundaryCondition_t& BoundaryConditions, const 
 
         BoundaryConditions.num_temperature_bc_global_vars(bc_id) = 0;
         BoundaryConditions.num_stress_bc_global_vars(bc_id) = 0;
-        // BoundaryConditions.num_heat_flux_bc_global_vars(bc_id) = 0;
+        BoundaryConditions.num_heat_flux_bc_global_vars(bc_id) = 0;
     }); // end parallel for
 
 
@@ -211,7 +224,7 @@ void parse_bcs(Yaml::Node& root, BoundaryCondition_t& BoundaryConditions, const 
         for (auto& a_word : user_str_bc_inps) {
             
             Yaml::Node& inps_yaml = bc_yaml[bc_id]["boundary_condition"][a_word];
-
+            std::cout << "a_word = [" << a_word << "]" << std::endl;
             // get solver for this boundary condition
             if (a_word.compare("solver_id") == 0) {
                 // do nothing, I already have solver_id since the check above
@@ -358,9 +371,56 @@ void parse_bcs(Yaml::Node& root, BoundaryCondition_t& BoundaryConditions, const 
                             });
                             break;
 
+
                         default:
                             std::cout << "ERROR: invalid temperature boundary condition input: " << temperature_model << std::endl;
                             throw std::runtime_error("**** Temperature BC model Not Understood ****");
+                            break;
+                    }
+                }
+
+            }   
+
+            else if (a_word.compare("heat_flux_model") == 0) {
+                if (verbose) std::cout << "Inside heat_flux_model check" << std::endl;
+
+                // Note: solver_id was retrieved at the top of the bc_id loop
+
+                if (verbose) std::cout<<"Solver id = " << solver_id << std::endl;
+                if (verbose) std::cout<<"bc_id = " << bc_id << std::endl;
+
+                // find out how many heat flux bdy sets have been saved 
+                size_t num_saved = BoundaryConditions.num_heat_flux_bdy_sets_in_solver.host(solver_id);
+
+                BoundaryConditions.heat_flux_bdy_sets_in_solver.host(solver_id,num_saved) = bc_id;
+                BoundaryConditions.num_heat_flux_bdy_sets_in_solver.host(solver_id) += 1;  // increment saved counter
+
+                std::string heat_flux_model = bc_yaml[bc_id]["boundary_condition"][a_word].As<std::string>();
+
+                auto map = bc_heat_flux_model_map; 
+                // set the heat_flux_model
+
+                std::cout << "heat_flux_model = [" << heat_flux_model << "]" << std::endl;
+                for (auto& pair : map) {
+                std::cout << "  map key: [" << pair.first << "]" << std::endl;
+                }
+
+                if (map.find(heat_flux_model) != map.end()) {
+                    auto bc_heat_flux_model = map[heat_flux_model];
+                    
+                    switch(map[heat_flux_model]){
+                        case boundary_conditions::constantHeatFluxBC:
+                            if (verbose) std::cout << "Setting constant heat flux bc " << std::endl;
+                            
+                            RUN({
+                                BoundaryConditions.BoundaryConditionEnums(bc_id).BCHeatFluxModel = boundary_conditions::constantHeatFluxBC;
+                                BoundaryConditions.BoundaryConditionFunctions(bc_id).heat_flux = &ConstantHeatFluxBC::heat_flux;
+                            });
+                            break;
+
+                            default:
+                            std::cout << "ERROR: invalid heat flux boundary condition input: " << heat_flux_model << std::endl;
+                            throw std::runtime_error("**** Heat flux BC model Not Understood ****");
                             break;
                     }
                 }
@@ -644,7 +704,33 @@ void parse_bcs(Yaml::Node& root, BoundaryCondition_t& BoundaryConditions, const 
                     });
 
                 }
-            } // end else if on temperature_bc_global_vars
+            } // end else if on heat_flux_bc_global_vars
+
+            // Set the global variables for heat flux boundary condition models
+            else if (a_word.compare("heat_flux_bc_global_vars") == 0) {
+                if (verbose) std::cout << "Inside heat_flux_bc_global_vars" << std::endl;
+                Yaml::Node & heat_flux_bc_global_vars_yaml = bc_yaml[bc_id]["boundary_condition"][a_word];
+
+                size_t num_global_vars = heat_flux_bc_global_vars_yaml.Size();
+
+                if(num_global_vars > 100){
+                    throw std::runtime_error("**** Per boundary condition, the code only supports up to 100 temperature global vars in the input file ****");
+                } // end check on num_global_vars
+
+                RUN({ 
+                    BoundaryConditions.num_heat_flux_bc_global_vars(bc_id) = num_global_vars;
+                });
+
+                // Store the global heat flux boundary condition variables
+                for (int global_var_id = 0; global_var_id < num_global_vars; global_var_id++) {
+                    double heat_flux_bc_var = bc_yaml[bc_id]["boundary_condition"]["heat_flux_bc_global_vars"][global_var_id].As<double>();
+                    
+                    RUN({
+                        tempHeatFluxBCGlobalVars(bc_id, global_var_id) = heat_flux_bc_var;
+                    });
+
+                }
+            } // end else if on heat_flux_bc_global_vars
 
       
             // set the stress global values
@@ -711,6 +797,8 @@ void parse_bcs(Yaml::Node& root, BoundaryCondition_t& BoundaryConditions, const 
 
     BoundaryConditions.temperature_bc_global_vars = RaggedRightArrayKokkos <double> (BoundaryConditions.num_temperature_bc_global_vars, "BoundaryConditions.temperature_bc_global_vars");
 
+    BoundaryConditions.heat_flux_bc_global_vars = RaggedRightArrayKokkos <double> (BoundaryConditions.num_heat_flux_bc_global_vars, "BoundaryConditions.heat_flux_bc_global_vars");
+
     BoundaryConditions.stress_bc_global_vars = RaggedRightArrayKokkos <double> (BoundaryConditions.num_stress_bc_global_vars, "BoundaryConditions.stress_bc_global_vars");
    
 
@@ -725,6 +813,10 @@ void parse_bcs(Yaml::Node& root, BoundaryCondition_t& BoundaryConditions, const 
 
         for (size_t var_lid = 0; var_lid < BoundaryConditions.num_temperature_bc_global_vars(bc_id); var_lid++){
             BoundaryConditions.temperature_bc_global_vars(bc_id, var_lid) = tempTemperatureBCGlobalVars(bc_id, var_lid);
+        } // end for var_lid
+
+        for (size_t var_lid = 0; var_lid < BoundaryConditions.num_heat_flux_bc_global_vars(bc_id); var_lid++){
+            BoundaryConditions.heat_flux_bc_global_vars(bc_id, var_lid) = tempHeatFluxBCGlobalVars(bc_id, var_lid);
         } // end for var_lid
       
         for (size_t var_lid=0; var_lid<BoundaryConditions.num_stress_bc_global_vars(bc_id); var_lid++){

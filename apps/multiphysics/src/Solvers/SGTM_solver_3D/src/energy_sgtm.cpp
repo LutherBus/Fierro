@@ -67,8 +67,8 @@ void SGTM3D::update_temperature(
     const corners_in_mat_t corners_in_mat_elem,
     const DRaggedRightArrayKokkos<size_t>& elem_in_mat_elem,
     const size_t num_mat_elems,
-    const size_t mat_id
-    ) const
+    const size_t mat_id,
+    const BoundaryCondition_t& BoundaryConditions) const
 {
     // loop over all the elements in the mesh
     FOR_ALL(mat_elem_sid, 0, num_mat_elems, {
