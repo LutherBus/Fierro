@@ -202,7 +202,6 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     node_activated.update_device();
     MaterialPoints_eroded.update_device();
     node_eroded.update_device();
-    
 
     // Luther - added additional material tables for different states
     // Print the material tables
@@ -457,7 +456,6 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                                State.node.coords, 
                                time_value);
 
-
             // ---- Update nodal temperature ---- //
             update_temperature(
                 mesh,
@@ -469,8 +467,9 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                 State.MaterialPoints.specific_heat, // Note: Need to make this a node field, and calculate in the material loop
                 rk_alpha,
                 dt,
-                node_gid_activated); // Luther - passing in activated flag for nodes
-
+                node_gid_activated, // Luther - passing in activated flag for nodes
+                BoundaryConditions);
+            // std::cout << "After update temperature" << std::endl;
 
             // ---- apply temperature boundary conditions to the boundary patches----
             boundary_temperature(mesh, BoundaryConditions, State.node.temp, time_value);

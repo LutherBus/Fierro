@@ -34,6 +34,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "sgtm_solver_3D.hpp"
 #include "state.hpp"
+#include "boundary_conditions.hpp"
 
 /////////////////////////////////////////////////////////////////////////////
 ///
@@ -60,7 +61,8 @@ void SGTM3D::update_temperature(
     const DRaggedRightArrayKokkos<double>& mat_pt_specific_heat,
     const double rk_alpha,
     const double dt,
-    DynamicArrayKokkos<size_t>& node_gid_activated) const // Luther - passing in nodal activation flags
+    DynamicArrayKokkos<size_t>& node_gid_activated, // Luther - passing in nodal activation flags
+    const BoundaryCondition_t& BoundaryConditions) const 
 {
     //Luther - loop over all activated nodes in the mesh
     // ---- loop over all the nodes in the mesh ---- //
@@ -74,6 +76,12 @@ void SGTM3D::update_temperature(
             node_q_transfer(node_gid_activated(i)) += corner_q_transfer(corner_gid);
 
         } // end for corner_lid
+        
+    });
+
+    boundary_heat_flux(mesh, BoundaryConditions, node_q_transfer); // Apply boundary heat flux conditions
+
+    FOR_ALL(i, 0, node_gid_activated.dims(0), { 
 
         // ---- Calculate the average specific heat for all materials surrounding a node ---- //
         double Cp = 0.0;
