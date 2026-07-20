@@ -68,7 +68,7 @@ void SGTM3D::update_temperature(
     const DRaggedRightArrayKokkos<size_t>& elem_in_mat_elem,
     const size_t num_mat_elems,
     const size_t mat_id,
-    const BoundaryCondition_t& BoundaryConditions) const
+    const BoundaryCondition_t& BoundaryConditions) const // Luther - added boundary conditions in arguments for update_temperature
 {
     // loop over all the elements in the mesh
     FOR_ALL(mat_elem_sid, 0, num_mat_elems, {

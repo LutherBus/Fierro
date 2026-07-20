@@ -272,7 +272,7 @@ void print_inputs()
                 std::cout << " <" << pair.first << ">";
             }
             std::cout << "\n";
-        }
+        } // Luther - added parse tool for heat flux boundary condition model
                 else if(field.compare("heat_flux_model") == 0){
             std::cout << "          heat_flux_model:";
             for (const auto& pair : bc_heat_flux_model_map) {

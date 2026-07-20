@@ -256,6 +256,7 @@ public:
         const MPICArrayKokkos<double>& node_coords,
         const double time_value) const;
 
+    // Luther - added boundary_heat_flux function
     void boundary_heat_flux(
         const swage::Mesh& mesh,
         const BoundaryCondition_t& Boundary,
@@ -289,8 +290,8 @@ public:
             const DRaggedRightArrayKokkos<double>& mat_pt_specific_heat,
             const double rk_alpha,
             const double dt,
-            DynamicArrayKokkos<size_t>& node_gid_activated,
-            const BoundaryCondition_t& BoundaryConditions) const; // Luther - passing in activation flags for nodes
+            DynamicArrayKokkos<size_t>& node_gid_activated, // Luther - passing in activation flags for nodes
+            const BoundaryCondition_t& BoundaryConditions) const; // Luther - passing in boundary conditions
 
     // **** Functions defined in heat_flux.cpp **** //
     void get_heat_flux(

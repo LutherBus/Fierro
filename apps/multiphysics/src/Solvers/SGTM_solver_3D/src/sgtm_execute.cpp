@@ -468,7 +468,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                 rk_alpha,
                 dt,
                 node_gid_activated, // Luther - passing in activated flag for nodes
-                BoundaryConditions);
+                BoundaryConditions); // Luther - passing in boundary conditions
             // std::cout << "After update temperature" << std::endl;
 
             // ---- apply temperature boundary conditions to the boundary patches----

@@ -118,7 +118,7 @@ static std::vector<std::string> str_mesh_inps
     "origin",
     "length",
     "num_elems",
-    "num_layers_substrate",
+    "num_layers_substrate", // Luther - added variable for substrate initialization
     "polynomial_order",
     "inner_radius",
     "outer_radius",

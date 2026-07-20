@@ -125,13 +125,13 @@ public:
         while (std::getline(ss, field, ',')) {
             vals.push_back(std::stod(field));
         }
-        if (vals.size() != 6) {
+        if (vals.size() != 5) {
             throw std::runtime_error("Malformed line " + std::to_string(i) +
-                " in " + filename + " (expected 6 fields, got " +
+                " in " + filename + " (expected 5 fields, got " +
                 std::to_string(vals.size()) + ")");
         }
         // vals[0] is the file's own index column — ignored, same as before.
-        info.set_data_point(i, vals[1], vals[2], vals[3], vals[4], vals[5]);
+        info.set_data_point(i, vals[0], vals[1], vals[2], vals[3], vals[4]);
         i++;
     }
     std::cout << "additive_data.hpp?" << std::endl;
@@ -156,7 +156,7 @@ public:
         z = tool_path_table.linear_interpolation(t, Fields::z, Fields::time);
     } // end function
 
-    // Luther - added a funcion to get only the z coordinate of the heat source on the host
+    // Luther - added a function to get only the z coordinate of the heat source on the host
     // Compute current position of tool at time t, assuming linear motion between path points.
     // Returns a double, z, and accesses on host side
 

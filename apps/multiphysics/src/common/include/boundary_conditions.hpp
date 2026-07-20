@@ -81,7 +81,7 @@ enum BCTemperatureModels
     //userDefinedTemperatureBC = 4
 };
 
-// types of heat flux boundary conditions
+// Luther - types of heat flux boundary conditions
 enum BCHeatFluxModels
 {
     noHeatFluxBC = 0,
@@ -152,7 +152,7 @@ static std::map<std::string, boundary_conditions::BCTemperatureModels> bc_temper
     //{ "user_defined", boundary_conditions::userDefinedTemperatureBC }
 };
 
-// Heat Flux models
+// Luther - Heat Flux models
 static std::map<std::string, boundary_conditions::BCHeatFluxModels> bc_heat_flux_model_map
 {
     { "none", boundary_conditions::noHeatFluxBC }, 
@@ -210,8 +210,8 @@ struct BoundaryConditionEnums_t
     // BC model for temperature
     boundary_conditions::BCTemperatureModels BCTemperatureModel = boundary_conditions::noTemperatureBC;    ///< Type of temperature boundary condition
 
-    // BC model for heat flux
-    boundary_conditions::BCHeatFluxModels BCHeatFluxModel = boundary_conditions::noHeatFluxBC;    ///< Type of temperature boundary condition
+    // Luther - BC model for heat flux
+    boundary_conditions::BCHeatFluxModels BCHeatFluxModel = boundary_conditions::noHeatFluxBC;    ///< Luther - Type of temperature boundary condition
 
     
     // BC model for stress
@@ -256,7 +256,7 @@ struct BoundaryConditionFunctions_t
         const DCArrayKokkos<BoundaryConditionEnums_t>& BoundaryConditionEnums,
         const RaggedRightArrayKokkos<double>& heat_flux_bc_global_vars,
         const DCArrayKokkos<double>& bc_state_vars,
-        const DCArrayKokkos<double>& q_transfer,
+        const DCArrayKokkos<double>& q_transfer, // Luther - changed to q_transfer
         const size_t bdy_node_gid,
         const size_t bdy_set) = NULL;
 
@@ -308,7 +308,7 @@ struct BoundaryCondition_t
     DCArrayKokkos<size_t> temperature_bdy_sets_in_solver;     // (solver_id, lids)
     DCArrayKokkos<size_t> num_temperature_bdy_sets_in_solver; // (solver_id)
 
-    // keep adding ragged storage for the other BC models -- temp, displacement, etc.
+    // Luther - added heat flux boundary condition to solver
     DCArrayKokkos<size_t> heat_flux_bdy_sets_in_solver;     // (solver_id, lids)
     DCArrayKokkos<size_t> num_heat_flux_bdy_sets_in_solver; // (solver_id)
 
@@ -336,7 +336,7 @@ struct BoundaryCondition_t
     RaggedRightArrayKokkos<double> temperature_bc_global_vars;
     CArrayKokkos<size_t> num_temperature_bc_global_vars;
 
-    // global variables for heat flux boundary condition models
+    // Luther - global variables for heat flux boundary condition models
     RaggedRightArrayKokkos<double> heat_flux_bc_global_vars;
     CArrayKokkos<size_t> num_heat_flux_bc_global_vars;
 

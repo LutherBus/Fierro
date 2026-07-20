@@ -373,6 +373,7 @@ void SGTM3D::boundary_radiation(const swage::Mesh& mesh,
 
 
 
+// Luther - added boundary_heat_flux function
 
 /////////////////////////////////////////////////////////////////////////////
 ///

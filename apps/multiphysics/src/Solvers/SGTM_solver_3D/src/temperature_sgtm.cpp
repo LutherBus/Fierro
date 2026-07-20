@@ -34,7 +34,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "sgtm_solver_3D.hpp"
 #include "state.hpp"
-#include "boundary_conditions.hpp"
+#include "boundary_conditions.hpp" // Luther - added boundary_conditions.hpp library for constant heat flux boundary conditions
 
 /////////////////////////////////////////////////////////////////////////////
 ///
@@ -79,7 +79,7 @@ void SGTM3D::update_temperature(
         
     });
 
-    boundary_heat_flux(mesh, BoundaryConditions, node_q_transfer); // Apply boundary heat flux conditions
+    boundary_heat_flux(mesh, BoundaryConditions, node_q_transfer); // Luther - apply boundary heat flux conditions
 
     FOR_ALL(i, 0, node_gid_activated.dims(0), { 
 

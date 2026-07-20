@@ -1,3 +1,5 @@
+//Luther - added function to set nodal q_transfer values to heat flux boundary conditions on the boundary
+
 #ifndef BOUNDARY_CONSTANT_HEAT_FLUX_H
 #define BOUNDARY_CONSTANT_HEAT_FLUX_H
 

@@ -50,8 +50,8 @@ mesh_options:
     source: generate
     num_dims: 3
     type: box
-    origin: [0.0, 0.0, 0.0]
-    length: [4.0, 2.0, 0.15]
+    origin: [-5.0, -0.75, 0.0]
+    length: [10.0, 0.75, 0.03]
     num_elems: [100, 50, 3]
     num_layers_substrate: 3
     
@@ -90,7 +90,7 @@ output_options:
 # Laser Path
 # ---------------------------------------------------------------------------
 laser_options:
-    path: /var/tmp/repos/Fierro/apps/multiphysics/example_inputs/Laser_paths/initialization_test
+    path: /var/tmp/repos/Fierro/apps/multiphysics/example_inputs/Laser_paths/constant-heat-flux-bc
     model: goldak
     absorptivity: 0.67
     major_front: 0.02
@@ -231,7 +231,7 @@ boundary_conditions:
             plane_position: 0.15
         heat_flux_model: constant
         heat_flux_bc_global_vars:
-            - 800.0
+            - -10.0
 
 
 # ---------------------------------------------------------------------------
