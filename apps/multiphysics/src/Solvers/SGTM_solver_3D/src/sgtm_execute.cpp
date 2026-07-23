@@ -88,6 +88,16 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     
     boundary_temperature(mesh, BoundaryConditions, State.node.temp, time_value); // Time value = 0.0;
 
+
+    /*
+    // Luther - V&V: nonuniform temperature distribution
+    FOR_ALL(node_gid, 0, SimulationParamaters.MeshInput.num_elems[0] * SimulationParamaters.MeshInput.num_elems[1], {
+        State.node.temp(node_gid) = 1000;
+    }); // end for parallel for over nodes
+    */
+
+
+
     double cached_pregraphics_dt = fuzz;
 
     // the number of materials specified by the user input
@@ -581,6 +591,14 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         if (write == 1) {
             dt = cached_pregraphics_dt;
             if (log) log->info("Writing outputs to file at %f \n", graphics_time);
+            
+            double total_node_q_transfer = 0.0;
+            log->info("Writing nodal q_transfer: \n");
+            for(int i = 0; i < node_gid_activated.dims(0); i++) {
+                log->info("%f \n", State.node.q_transfer(node_gid_activated(i)));
+                total_node_q_transfer += State.node.q_transfer(node_gid_activated(i));
+            };
+            log->info("Total node q_transfer: %f\n", total_node_q_transfer);
             /*
             if (log) log->info("cycle = %lu, time = %f, time step = %f \n", cycle, time_value, dt);
             if (log) log->flush();

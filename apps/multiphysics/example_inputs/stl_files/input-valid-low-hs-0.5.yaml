@@ -1,0 +1,196 @@
+
+# ---------------------------------------------------------------------------
+# Example Fierro input: SGTM (staggered grid thermal) for additive simulations
+#
+# Key idea (additive manufacturing):
+# - Use solver `thrmex_FE` (SGTM3D) with `use_moving_heat_source: true` to
+#   model a moving volumetric heat source (laser / heat spot).
+# - Thermal loads are applied via:
+#   - temperature boundary conditions (constant, convection, radiation)
+#   - optional moving heat source (see `use_moving_heat_source`)
+#
+# Implementation details (from SGTM3D code)
+# - When `use_moving_heat_source: true`, SGTM3D uses a hard-coded tool path
+#   (4 time-stamped (x,y,z,power) points, linearly interpolated in time)
+#   and a fixed source sphere of radius `8.0` (in your mesh coordinate units).
+# - The heat input is applied as a *volumetric* heat flux term inside that
+#   sphere during each time step.
+# - Your YAML toggle controls only whether the moving heat source is enabled;
+#   the actual path/power definition is currently embedded in
+#   `SGTM3D::execute()` rather than read from YAML.
+#
+# Thermal units / quantities (based on this example’s inline comments)
+# - temperature: Kelvin (K)
+# - thermal_conductivity: mW/(mm.K)
+# - specific_heat: mJ/(tonne.K)
+# - density: tonne/mm^3
+#
+# Required fill inputs for `thrmex_FE` (SGTM3D)
+# - On nodes: `velocity` and `temperature`
+# - On material points (gauss points in this code’s discretization):
+#   `density`, `thermal_conductivity`, `specific_heat`, and
+#   `specific_internal_energy`
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Time integration / stepping control
+# ---------------------------------------------------------------------------
+dynamic_options:
+    time_final: 0.01
+    dt_min: 1.e-6
+    dt_max: 1.e-4
+    dt_start: 1.e-4
+    cycle_stop: 1000000
+
+
+# ---------------------------------------------------------------------------
+# Mesh options
+# ---------------------------------------------------------------------------
+mesh_options:
+    source: generate
+    num_dims: 3
+    type: box
+    origin: [0.0, 0.0, 0]
+    length: [5.0, 5.0, 2.5]
+    num_elems: [10, 10, 5]
+    num_layers_substrate: 5
+
+# ---------------------------------------------------------------------------
+# Output / visualization controls
+# ---------------------------------------------------------------------------
+output_options:
+    timer_output_level: thorough
+    output_file_format: viz
+    graphics_time_step: 0.001
+    #graphics_iteration_step: 5
+    elem_field_outputs:
+        - den
+        - mass
+    mat_pt_field_outputs:
+        - den
+        - eroded
+        - activated
+    node_field_outputs:
+        # Node temperature field (written to output).
+        - temp
+        - activated
+        - eroded
+
+
+# ---------------------------------------------------------------------------
+# Laser Path
+# ---------------------------------------------------------------------------
+laser_options:
+    path: /var/tmp/repos/Fierro/apps/multiphysics/example_inputs/Laser_paths/valid-low-heat-source
+    model: goldak
+    absorptivity: 0.67
+    major_front: 0.02
+    major_rear: 0.06
+    minor: 0.04
+    depth: 0.08
+    
+    # ---- Spherical heat source ---- #
+    # model: spherical
+    # radius: 0.035
+
+
+# ---------------------------------------------------------------------------
+# Solver configuration
+# ---------------------------------------------------------------------------
+solver_options:
+  - solver:
+        method: thrmex_FE
+        id: 0
+        # `thrmex_FE` selects the SGTM3D (staggered grid thermal) solver.
+        # `use_moving_heat_source` enables an additive-manufacturing style
+        # moving heat source (hard-coded in the SGTM3D implementation).
+        use_moving_heat_source: true
+        # solver_vars:
+        #  - blah
+        #  - blah
+        #  - blah
+
+# ---------------------------------------------------------------------------
+# Materials (thermal properties + EOS for SGTM’s thermomechanical parts)
+# ---------------------------------------------------------------------------
+materials:
+    - material:
+        id: 0
+        tabular_model:
+            type: temperature_dependent
+            file_format: Abaqus_jmatpro
+            tabular_data: /var/tmp/repos/Fierro/apps/multiphysics/example_inputs/Abaqus_inputs/1018_thermal_jmatpro.inp
+            fields:
+                - density_solid
+                - thermal_conductivity_solid
+                - specific_heat_solid
+                - density_liquid
+                - thermal_conductivity_liquid
+                - specific_heat_liquid
+                - density_powder
+                - thermal_conductivity_powder
+                - specific_heat_powder
+        # `tabular_model.fields` selects which quantities are interpolated
+        # from the temperature-dependent table. In this example it provides:
+        # - density (used for masses/thermal capacity)
+        # - thermal_conductivity (heat conduction)
+        # - specific_heat (nodal temperature update)
+        eos_model_type: decoupled
+        eos_model: gamma_law_gas
+        # strength_model: none
+        dissipation_model: MARS
+        dissipation_global_vars:
+            - 1.0   # q1
+            - 1.0   # q1ex
+            - 1.333 # q2
+            - 1.333 # q2ex
+            - 0.0   # phi_min
+            - 1.0   # phi_curl_min
+        eos_global_vars:
+            - 1.666666666666667
+            - 1.0E-14
+            - 1.0
+        
+
+# ---------------------------------------------------------------------------
+# Regions 
+# ---------------------------------------------------------------------------
+regions:
+    - region:
+        id: 0
+        volume:
+            type: global
+        solver_id: 0
+
+# ---------------------------------------------------------------------------
+# Initial Conditions
+# ---------------------------------------------------------------------------
+initial_conditions:
+    - initial_condition:
+        region_id: 0
+        material_id: 0
+        density: 
+            # Initial density (tonne/mm^3 for this example’s scaling).
+            type: uniform
+            value: 5.111790E-09 # (tonne/mm^3)
+        specific_internal_energy: 
+            # Initial specific internal energy / thermal reference energy.
+            type: uniform
+            value: 1.e-10
+        velocity: 
+            type: cartesian
+            u: 0.0
+            v: 0.0
+            w: 0.0
+        thermal_conductivity: 
+            # Initial thermal conductivity (mW/(mm.K)).
+            type: uniform
+            value: 0.362397 # mW/(mm.K)
+        specific_heat: 
+            # Initial specific heat (mJ/(tonne.K)).
+            type: uniform
+            value: 518924000 # mJ/(tonne.K)
+        temperature: 
+            # Initial nodal temperature (K).
+            type: uniform
+            value: 473.15 #K 
