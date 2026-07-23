@@ -36,7 +36,7 @@
 # Time integration / stepping control
 # ---------------------------------------------------------------------------
 dynamic_options:
-    time_final: 0.0001
+    time_final: 0.001
     dt_min: 1.e-8
     dt_max: 1.e-4
     dt_start: 1.e-4
@@ -51,9 +51,10 @@ mesh_options:
     num_dims: 3
     type: box
     origin: [0.0, 0.0, 0]
-    length: [1.0, 1.0, 0.5]
-    num_elems: [512, 512, 256]
-    num_layers_substrate: 256
+    length: [1.0, 1.0, 0.2]
+    num_elems: [200, 200, 16]
+    num_layers_substrate: 15
+
 # ---------------------------------------------------------------------------
 # Output / visualization controls
 # ---------------------------------------------------------------------------
@@ -64,10 +65,10 @@ output_options:
     #graphics_iteration_step: 5
     elem_field_outputs:
         - den
-	    - mass
+        - mass
     mat_pt_field_outputs:
         - den
-	    - eroded
+        - eroded
         - activated
     node_field_outputs:
         # Node temperature field (written to output).
@@ -80,14 +81,13 @@ output_options:
 # Laser Path
 # ---------------------------------------------------------------------------
 laser_options:
-    path: /var/tmp/repos/Fierro/apps/multiphysics/example_inputs/Laser_paths/valid-low-heat-source
+    path: /var/tmp/repos/Fierro/apps/multiphysics/example_inputs/Laser_paths/valid-high-heat-source
     model: goldak
     absorptivity: 0.67
     major_front: 0.02
     major_rear: 0.06
     minor: 0.04
     depth: 0.08
-
     
     # ---- Spherical heat source ---- #
     # model: spherical

@@ -31,7 +31,7 @@ WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **********************************************************************************************/
-
+#include <cmath>
 #include "sgtm_solver_3D.hpp"
 #include "material.hpp"
 #include "state.hpp"
@@ -39,6 +39,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "additive_data.hpp" // Luther - added additive_data.hp library for laser path
 #include "simulation_parameters.hpp" // Luther - added simulation_parameters.hpp library so laser parameters can be called using SimulationParamaters
 
+
+constexpr double pi_ = M_PI;
 
 /////////////////////////////////////////////////////////////////////////////
 ///
@@ -131,7 +133,7 @@ void SGTM3D::get_heat_flux(
         if(avg_temp >= 1600){
             MaterialPoints_eroded(mat_id, mat_elem_sid_activated(i)) = true;
             for (size_t node_lid = 0; node_lid < 8; node_lid++) {
-                node_eroded(elem_node_gids(node_lid)) = true; // Luther - setting each node in a newly eroded element to eroded 
+                node_eroded(elem_node_gids(node_lid)) = true; // Lutherpi_v - setting each node in a newly eroded element to eroded 
             } 
         }
         
@@ -203,6 +205,8 @@ void SGTM3D::goldak_flux(const Laser_t& laser,
         const double dt) const
         
         {
+        constexpr double SixSqrtThree = 6.0*sqrt(3.0);
+        constexpr double PiSqrtPi = pi_*sqrt(pi_);
         // Q(x,y,z) = 10.39230 * f_f * n * power / (a * b * c_f * 5.568328) 
         //              * exp[-3 * (d_x * d_x) / (a_f * a_f) + (d_y * d_y) / (b * b) + (dz * dz) / (c * c)] for d_x >= 0
         
@@ -271,7 +275,7 @@ void SGTM3D::goldak_flux(const Laser_t& laser,
                       + (dz * dz)  / (c * c);
 
         // Compute volumetric heat flux for elements within the heat source
-        if (ellipsoid_dist <= 9.0) { // Beyond three characteristic lengths, the heat source contribution to the element is not calculated (error of ~1.9E-12 relative to peak heat flux; could be tightened)
+        if (ellipsoid_dist <= 12.0) { // Beyond three characteristic lengths, the heat source contribution to the element is not calculated (error of ~1.9E-12 relative to peak heat flux; could be tightened)
             for (size_t node_lid = 0; node_lid < mesh.num_nodes_in_elem; node_lid++) {
 
                 // the local corner id is the local node id
@@ -283,10 +287,10 @@ void SGTM3D::goldak_flux(const Laser_t& laser,
                 // Calculate the volumetric heat flux depending on the direction in which the heat source is moving
                 double q_dot = 0.0;
                 if (xi >= 0) {
-                    q_dot = 10.39230 * f_f * n * power / (a_f * b * c * 5.568328) 
+                    q_dot = SixSqrtThree * f_f * n * power / (a_f * b * c * PiSqrtPi) 
                             * Kokkos::exp(-3 * ((xi * xi) / (a_f * a_f) + (eta * eta) / (b * b) + (dz * dz) / (c * c)));
                 } else {
-                    q_dot = 10.39230 * f_r * n * power / (a_r * b * c * 5.568328)
+                    q_dot = SixSqrtThree * f_r * n * power / (a_r * b * c * PiSqrtPi)
                             * Kokkos::exp(-3 * ((xi * xi) / (a_r * a_r) + (eta * eta) / (b * b) + (dz * dz) / (c * c)));
                 } // end if/else for computing the volumetric heat flux
 
@@ -309,9 +313,9 @@ void SGTM3D::spherical_flux(const Laser_t& laser,
         const double dt) const
         
         {
-
+        constexpr double FourThirdsPi = 4.0 * pi_ / 3.0;
         double radius_squared = laser.spherical.radius * laser.spherical.radius;
-        double volume = (4.0/3) * 3.14159 * radius_squared * laser.spherical.radius;
+        double volume = FourThirdsPi * radius_squared * laser.spherical.radius;
         double dist_squared = 0.0;
         
         double x = 0.0;

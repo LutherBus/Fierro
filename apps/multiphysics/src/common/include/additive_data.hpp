@@ -125,6 +125,7 @@ public:
         while (std::getline(ss, field, ',')) {
             vals.push_back(std::stod(field));
         }
+       
         if (vals.size() != 5) {
             throw std::runtime_error("Malformed line " + std::to_string(i) +
                 " in " + filename + " (expected 5 fields, got " +
@@ -134,6 +135,7 @@ public:
         info.set_data_point(i, vals[0], vals[1], vals[2], vals[3], vals[4]);
         i++;
     }
+    
     std::cout << "additive_data.hpp?" << std::endl;
     return info;
 }

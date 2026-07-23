@@ -391,7 +391,6 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
             // ---- Calculate the corner heat flux from conduction per material ---- //
             for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
-
                 get_heat_flux(
                     Materials,
                     mesh,
@@ -465,7 +464,6 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                                State.node.q_transfer, 
                                State.node.coords, 
                                time_value);
-
             // ---- Update nodal temperature ---- //
             update_temperature(
                 mesh,
@@ -479,7 +477,6 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                 dt,
                 node_gid_activated, // Luther - passing in activated flag for nodes
                 BoundaryConditions); // Luther - passing in boundary conditions
-            // std::cout << "After update temperature" << std::endl;
 
             // ---- apply temperature boundary conditions to the boundary patches----
             boundary_temperature(mesh, BoundaryConditions, State.node.temp, time_value);
@@ -500,13 +497,23 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         } // end of RK loop
         
         time_value += dt;
-
+        std::cout << "dt: " << dt << std::endl;
+        
         // Luther - activate new elements/nodes and add them to the activated element/node arrays
 
         // ---- Activate new elements, if needed ---- //
         
         // ---- Calculate the z-coordinate for every element, and activate any elements below the current position of the heat source ---- //
         MATAR_FENCE();
+
+        double total_node_q_transfer = 0.0;
+            //log->info("Writing nodal q_transfer: \n");
+            for(int i = 0; i < mesh.num_nodes; i++) {
+               // log->info("%f \n", State.node.q_transfer(i));
+                total_node_q_transfer += State.node.q_transfer(i);
+            };
+        log->info("Total node q_transfer: %20.16f\n", total_node_q_transfer);
+        log->flush();
 
         double z_coord = 0.0;
         path.get_position_z_host(time_value, z_coord);
@@ -555,7 +562,6 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         MaterialPoints_activated.update_device();
         node_activated.update_device();
 
-
 /*
         // ---- Move heat source ---- //
         if (SimulationParamaters.solver_inputs[this->solver_id].use_moving_heat_source) {
@@ -591,20 +597,15 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         if (write == 1) {
             dt = cached_pregraphics_dt;
             if (log) log->info("Writing outputs to file at %f \n", graphics_time);
+
+
+
+
             
-            double total_node_q_transfer = 0.0;
-            log->info("Writing nodal q_transfer: \n");
-            for(int i = 0; i < node_gid_activated.dims(0); i++) {
-                log->info("%f \n", State.node.q_transfer(node_gid_activated(i)));
-                total_node_q_transfer += State.node.q_transfer(node_gid_activated(i));
-            };
-            log->info("Total node q_transfer: %f\n", total_node_q_transfer);
-            /*
             if (log) log->info("cycle = %lu, time = %f, time step = %f \n", cycle, time_value, dt);
             if (log) log->flush();
             if (log) log->info("Writing outputs to file at %f \n", graphics_time);
             if (log) log->info("cycle = %lu, time = %f, time step = %f \n", cycle, time_value, dt);
-            */
             if (log) log->flush();
             mesh_writer.write_mesh(mesh,
                                    State,
@@ -626,6 +627,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         if (time_value >= time_final) {
             break;
         }
+        
     } // end for cycle loop
 
     auto time_2    = std::chrono::high_resolution_clock::now();

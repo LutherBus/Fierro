@@ -52,8 +52,8 @@ mesh_options:
     type: box
     origin: [0.0, 0.0, 0]
     length: [1.0, 1.0, 0.5]
-    num_elems: [512, 512, 256]
-    num_layers_substrate: 256
+    num_elems: [256, 256, 128]
+    num_layers_substrate: 128
 # ---------------------------------------------------------------------------
 # Output / visualization controls
 # ---------------------------------------------------------------------------
@@ -64,10 +64,10 @@ output_options:
     #graphics_iteration_step: 5
     elem_field_outputs:
         - den
-	    - mass
+        - mass
     mat_pt_field_outputs:
         - den
-	    - eroded
+        - eroded
         - activated
     node_field_outputs:
         # Node temperature field (written to output).
@@ -87,7 +87,6 @@ laser_options:
     major_rear: 0.06
     minor: 0.04
     depth: 0.08
-
     
     # ---- Spherical heat source ---- #
     # model: spherical
