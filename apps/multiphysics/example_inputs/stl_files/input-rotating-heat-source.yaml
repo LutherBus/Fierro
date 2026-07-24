@@ -36,9 +36,9 @@
 # Time integration / stepping control
 # ---------------------------------------------------------------------------
 dynamic_options:
-    time_final: 0.01
-    dt_min: 1.e-8
-    dt_max: 1.e-4
+    time_final: 3.e-7
+    dt_min: 1.e-12
+    dt_max: 1.e-7
     dt_start: 1.e-4
     cycle_stop: 1000000
 
@@ -50,38 +50,17 @@ mesh_options:
     source: generate
     num_dims: 3
     type: box
-    origin: [0.0, 0.0, 0.0]
-    length: [1.0, 1.0, 0.5]
-    num_elems: [1, 1, 1]
-    num_layers_substrate: 1
-
-
-
-# mesh_options:
-    # source: generate
-    # num_dims: 3
-    # type: box
-    # origin: [-5.0, -0.75, 0.0]
-    # length: [10.0, 0.75, 0.03]
-    # num_elems: [100, 50, 3]
-    # num_layers_substrate: 3
-    
-    
-#    length: [1.0, 1.0, 0.2]
-#    num_elems: [100, 100, 20]
-
-#    num_elems: [500, 200, 20]
-#    length: [5.0, 2.0, 0.2]
-    #num_elems: [305, 153, 27]
-
-
+    origin: [0.0, 0.0, 0]
+    length: [1.5, 1.5, 1.0]
+    num_elems: [8, 8, 4]
+    num_layers_substrate: 8
 # ---------------------------------------------------------------------------
 # Output / visualization controls
 # ---------------------------------------------------------------------------
 output_options:
     timer_output_level: thorough
     output_file_format: viz
-    graphics_time_step: 0.001
+    graphics_time_step: 1.e-8
     #graphics_iteration_step: 5
     elem_field_outputs:
         - den
@@ -101,7 +80,7 @@ output_options:
 # Laser Path
 # ---------------------------------------------------------------------------
 laser_options:
-    path: /var/tmp/repos/Fierro/apps/multiphysics/example_inputs/Laser_paths/constant-heat-flux-bc
+    path: /var/tmp/repos/Fierro/apps/multiphysics/example_inputs/Laser_paths/rotating-heat-source
     model: goldak
     absorptivity: 0.67
     major_front: 0.02
@@ -129,19 +108,6 @@ solver_options:
         #  - blah
         #  - blah
         #  - blah
-
-# ---------------------------------------------------------------------------
-# Boundary conditions (temperature BCs for SGTM3D)
-# ---------------------------------------------------------------------------
-boundary_conditions:  
-    - boundary_condition:
-        solver_id: 0
-        surface:
-            type: z_plane
-            plane_position: 0.5
-        heat_flux_model: constant
-        heat_flux_bc_global_vars:
-            - 800.0
 
 # ---------------------------------------------------------------------------
 # Materials (thermal properties + EOS for SGTM’s thermomechanical parts)

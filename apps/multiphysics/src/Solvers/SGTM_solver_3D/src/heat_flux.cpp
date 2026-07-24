@@ -230,12 +230,12 @@ void SGTM3D::goldak_flux(const Laser_t& laser,
         double z1 = 0.0;
         path.get_position(time_value + dt, x1, y1, z1);
 
-        // Get previous heat source position 
+        // Get current heat source position 
         double x_hs = 0.0;
         double y_hs = 0.0;
         double z_hs = 0.0;
         
-        // Get current heat source position
+        // Get previous heat source position
         double x0 = 0.0;
         double y0 = 0.0;
         double z0 = 0.0;

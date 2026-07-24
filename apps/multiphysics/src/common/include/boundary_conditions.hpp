@@ -41,6 +41,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ELEMENTS.h"
 
 #include <map>
+struct SimulationParameters_t;
 
 namespace boundary_conditions
 {
@@ -258,7 +259,8 @@ struct BoundaryConditionFunctions_t
         const DCArrayKokkos<double>& bc_state_vars,
         const DCArrayKokkos<double>& q_transfer, // Luther - changed to q_transfer
         const size_t bdy_node_gid,
-        const size_t bdy_set) = NULL;
+        const size_t bdy_set, 
+        const SimulationParameters_t& SimulationParamaters) = NULL;
 
 
     // function pointer for stress BC's

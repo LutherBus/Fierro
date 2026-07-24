@@ -35,6 +35,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "sgtm_solver_3D.hpp"
 //#include "mesh.hpp""
 #include "boundary_conditions.hpp"
+#include "simulation_parameters.hpp"
 
 /////////////////////////////////////////////////////////////////////////////
 ///
@@ -389,7 +390,8 @@ void SGTM3D::boundary_radiation(const swage::Mesh& mesh,
 /////////////////////////////////////////////////////////////////////////////
 void SGTM3D::boundary_heat_flux(const swage::Mesh& mesh,
                                   const BoundaryCondition_t& BoundaryConditions,
-                                  const DCArrayKokkos<double>& q_transfer) const
+                                  const DCArrayKokkos<double>& q_transfer, 
+                                  const SimulationParameters_t& SimulationParamaters) const
 {
     // Loop over boundary sets
     for (size_t bdy_set = 0; bdy_set < mesh.num_bdy_sets; bdy_set++) {
@@ -408,21 +410,10 @@ void SGTM3D::boundary_heat_flux(const swage::Mesh& mesh,
                                                                   BoundaryConditions.bc_state_vars,
                                                                   q_transfer,
                                                                   bdy_node_gid,
-                                                                  bdy_set);
+                                                                  bdy_set, 
+                                                                  SimulationParamaters);
         }); // end for bdy_node_lid
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
         
         
         // // ---- Skip non temperature BCs ---- //
@@ -450,4 +441,4 @@ void SGTM3D::boundary_heat_flux(const swage::Mesh& mesh,
     } // end for bdy_set
 
     return;
-} // end boundary_velocity function
+ } // end boundary_velocity function

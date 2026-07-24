@@ -78,7 +78,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     double dt = dt_start;
 
     // Create mesh writer
-    MeshWriter mesh_writer; // Note: Pull to driver after refactoring evolution
+    MeshWriter mesh_writer; // Note: Pull to driver after refactoring evolution (Luther fix this)
 
     // --- Graphics vars ----
     CArray<double> graphics_times = CArray<double>(20000);
@@ -239,6 +239,8 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     } // end for mat_id
     MATAR_FENCE();
     */
+    
+    /*
     // ---- Write initial state at t=0 ---- 
     if (log) log->info("Writing outputs to file at %f \n", graphics_time);
     mesh_writer.write_mesh(
@@ -252,7 +254,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         SGTM3D_State::required_gauss_pt_state,
         SGTM3D_State::required_material_pt_state,
         this->solver_id);
-    
+    */
     output_id++; // saved an output file
 
     graphics_time = time_value + graphics_dt_ival;
@@ -360,6 +362,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         } // end if
         */
 
+        std::cout << "dt: " << dt << std::endl;
 
         // ---- Initialize the state for the RK integration scheme ---- //
             for(size_t mat_id = 0; mat_id < num_mats; mat_id++){
@@ -476,7 +479,8 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                 rk_alpha,
                 dt,
                 node_gid_activated, // Luther - passing in activated flag for nodes
-                BoundaryConditions); // Luther - passing in boundary conditions
+                BoundaryConditions, 
+                SimulationParamaters); // Luther - passing in boundary conditions
 
             // ---- apply temperature boundary conditions to the boundary patches----
             boundary_temperature(mesh, BoundaryConditions, State.node.temp, time_value);
@@ -497,7 +501,6 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         } // end of RK loop
         
         time_value += dt;
-        std::cout << "dt: " << dt << std::endl;
         
         // Luther - activate new elements/nodes and add them to the activated element/node arrays
 
@@ -506,10 +509,11 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         // ---- Calculate the z-coordinate for every element, and activate any elements below the current position of the heat source ---- //
         MATAR_FENCE();
 
+        
         double total_node_q_transfer = 0.0;
             //log->info("Writing nodal q_transfer: \n");
             for(int i = 0; i < mesh.num_nodes; i++) {
-               // log->info("%f \n", State.node.q_transfer(i));
+                //log->info("%f \n", State.node.q_transfer(i));
                 total_node_q_transfer += State.node.q_transfer(i);
             };
         log->info("Total node q_transfer: %20.16f\n", total_node_q_transfer);
@@ -597,16 +601,10 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         if (write == 1) {
             dt = cached_pregraphics_dt;
             if (log) log->info("Writing outputs to file at %f \n", graphics_time);
-
-
-
-
-            
             if (log) log->info("cycle = %lu, time = %f, time step = %f \n", cycle, time_value, dt);
             if (log) log->flush();
-            if (log) log->info("Writing outputs to file at %f \n", graphics_time);
-            if (log) log->info("cycle = %lu, time = %f, time step = %f \n", cycle, time_value, dt);
-            if (log) log->flush();
+
+        
             mesh_writer.write_mesh(mesh,
                                    State,
                                    SimulationParamaters,
@@ -617,7 +615,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                                    SGTM3D_State::required_gauss_pt_state,
                                    SGTM3D_State::required_material_pt_state,
                                    this->solver_id);
-
+        
             output_id++;
             graphics_time = (double)(output_id) * graphics_dt_ival;
 
@@ -632,7 +630,6 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
 
     auto time_2    = std::chrono::high_resolution_clock::now();
     auto calc_time = std::chrono::duration_cast<std::chrono::nanoseconds>(time_2 - time_1).count();
-    if (log) log->info("\nCalculation time in seconds: %f \n", calc_time * 1e-9);
     if (log) log->info("\nCalculation time in seconds: %f \n", calc_time * 1e-9);
 
 } // end of SGH execute

@@ -33,12 +33,30 @@ static void heat_flux(const swage::Mesh& mesh,
         const DCArrayKokkos<double>& bc_state_vars,
         const DCArrayKokkos<double>& q_transfer,
         const size_t bdy_node_gid,
-        const size_t bdy_set)
+        const size_t bdy_set, 
+        const SimulationParameters_t& SimulationParamaters)
 {
     // Heat flux to set the boundary to = bc_global_vars(4)
     // Set velocity to zero in the specified direction
-    q_transfer(bdy_node_gid) = heat_flux_bc_global_vars(bdy_set,0); // bc_global_vars(4);
+    size_t plane = heat_flux_bc_global_vars(bdy_set, 1); // Hard coded value 1 for determining which plane (0 for x, 1 for y, 2 for z)
+    size_t i, j;
+    switch (static_cast<int>(plane)) {
+        case 0:
+            i = 1; j = 2;
+            break;
+        case 1:
+            i = 0; j = 2;
+            break;
+        case 2:
+            i = 0; j = 1;
+            break;
+        default:
+            // shouldn't happen if value was validated during YAML parsing
+            i = 0; j = 0;
+        break;
+    }
 
+    q_transfer(bdy_node_gid) = heat_flux_bc_global_vars(bdy_set, 0) * (SimulationParamaters.MeshInput.length[i] * SimulationParamaters.MeshInput.length[j]) / (4.0 * SimulationParamaters.MeshInput.num_elems[i] * SimulationParamaters.MeshInput.num_elems[j]); // bc_global_vars(4);
     return;
 } // end func
 

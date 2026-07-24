@@ -700,7 +700,7 @@ void parse_bcs(Yaml::Node& root, BoundaryCondition_t& BoundaryConditions, const 
                     });
 
                 }
-            } // end else if on heat_flux_bc_global_vars
+            } // end else if on temperature_bc_global_vars
 
 
             // Luther - set the global variables for heat flux boundary condition models
@@ -715,18 +715,35 @@ void parse_bcs(Yaml::Node& root, BoundaryCondition_t& BoundaryConditions, const 
                 } // end check on num_global_vars
 
                 RUN({ 
-                    BoundaryConditions.num_heat_flux_bc_global_vars(bc_id) = num_global_vars;
+                    BoundaryConditions.num_heat_flux_bc_global_vars(bc_id) = num_global_vars + 1;
                 });
-
+                
                 // Store the global heat flux boundary condition variables
                 for (int global_var_id = 0; global_var_id < num_global_vars; global_var_id++) {
                     double heat_flux_bc_var = bc_yaml[bc_id]["boundary_condition"]["heat_flux_bc_global_vars"][global_var_id].As<double>();
                     
                     RUN({
                         tempHeatFluxBCGlobalVars(bc_id, global_var_id) = heat_flux_bc_var;
-                    });
 
+                    });
                 }
+                std::string surface_type_str = bc_yaml[bc_id]["boundary_condition"]["surface"]["type"].As<std::string>();
+
+                double heat_flux_bc_axis_var;
+                if (surface_type_str == "x_plane") {
+                    heat_flux_bc_axis_var = 0;
+                } else if (surface_type_str == "y_plane") {
+                    heat_flux_bc_axis_var = 1;
+                } else if (surface_type_str == "z_plane") {
+                    heat_flux_bc_axis_var = 2;
+                } else {
+                    throw std::runtime_error("Invalid surface type for heat_flux boundary condition: " + surface_type_str);
+                }
+                
+                RUN({
+                        tempHeatFluxBCGlobalVars(bc_id, num_global_vars) = heat_flux_bc_axis_var;
+
+                    });
             } // end else if on heat_flux_bc_global_vars
 
       
@@ -816,6 +833,7 @@ void parse_bcs(Yaml::Node& root, BoundaryCondition_t& BoundaryConditions, const 
         // Luther - save the global variables for heat flux boundary condition
         for (size_t var_lid = 0; var_lid < BoundaryConditions.num_heat_flux_bc_global_vars(bc_id); var_lid++){
             BoundaryConditions.heat_flux_bc_global_vars(bc_id, var_lid) = tempHeatFluxBCGlobalVars(bc_id, var_lid);
+
         } // end for var_lid
       
         for (size_t var_lid=0; var_lid<BoundaryConditions.num_stress_bc_global_vars(bc_id); var_lid++){

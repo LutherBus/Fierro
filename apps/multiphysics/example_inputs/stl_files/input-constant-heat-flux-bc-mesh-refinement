@@ -37,7 +37,7 @@
 # ---------------------------------------------------------------------------
 dynamic_options:
     time_final: 0.01
-    dt_min: 1.e-8
+    dt_min: 1.e-6
     dt_max: 1.e-4
     dt_start: 1.e-4
     cycle_stop: 1000000
@@ -50,21 +50,10 @@ mesh_options:
     source: generate
     num_dims: 3
     type: box
-    origin: [0.0, 0.0, 0.0]
-    length: [1.0, 1.0, 0.5]
-    num_elems: [1, 1, 1]
-    num_layers_substrate: 1
-
-
-
-# mesh_options:
-    # source: generate
-    # num_dims: 3
-    # type: box
-    # origin: [-5.0, -0.75, 0.0]
-    # length: [10.0, 0.75, 0.03]
-    # num_elems: [100, 50, 3]
-    # num_layers_substrate: 3
+    origin: [-5.0, -0.75, 0.0]
+    length: [10.0, 0.75, 0.03]
+    num_elems: [100, 50, 3]
+    num_layers_substrate: 3
     
     
 #    length: [1.0, 1.0, 0.2]
@@ -133,15 +122,16 @@ solver_options:
 # ---------------------------------------------------------------------------
 # Boundary conditions (temperature BCs for SGTM3D)
 # ---------------------------------------------------------------------------
-boundary_conditions:  
+boundary_conditions: 
     - boundary_condition:
         solver_id: 0
         surface:
             type: z_plane
-            plane_position: 0.5
+            plane_position: 0.15
         heat_flux_model: constant
         heat_flux_bc_global_vars:
             - 800.0
+
 
 # ---------------------------------------------------------------------------
 # Materials (thermal properties + EOS for SGTM’s thermomechanical parts)
