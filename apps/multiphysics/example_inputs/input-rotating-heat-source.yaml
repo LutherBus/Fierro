@@ -52,8 +52,8 @@ mesh_options:
     type: box
     origin: [0.0, 0.0, 0]
     length: [1.5, 1.5, 1.0]
-    num_elems: [64, 64, 32]
-    num_layers_substrate: 32
+    num_elems: [128, 128, 64]
+    num_layers_substrate: 64
 # ---------------------------------------------------------------------------
 # Output / visualization controls
 # ---------------------------------------------------------------------------

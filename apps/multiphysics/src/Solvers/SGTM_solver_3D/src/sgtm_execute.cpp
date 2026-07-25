@@ -501,7 +501,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         } // end of RK loop
         
         time_value += dt;
-        
+       
         // Luther - activate new elements/nodes and add them to the activated element/node arrays
 
         // ---- Activate new elements, if needed ---- //
@@ -601,7 +601,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         if (write == 1) {
             dt = cached_pregraphics_dt;
             if (log) log->info("Writing outputs to file at %f \n", graphics_time);
-            if (log) log->info("cycle = %lu, time = %f, time step = %f \n", cycle, time_value, dt);
+            if (log) log->info("cycle = %lu, time = %20.16f, time step = %20.16f \n", cycle, time_value, dt);
             if (log) log->flush();
 
         
