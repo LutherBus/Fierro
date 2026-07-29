@@ -41,7 +41,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ELEMENTS.h"
 
 #include <map>
-struct SimulationParameters_t;
+struct SimulationParameters_t; // Luther - added SimulationParameters struct for constant heat flux bc
 
 namespace boundary_conditions
 {
@@ -260,7 +260,7 @@ struct BoundaryConditionFunctions_t
         const DCArrayKokkos<double>& q_transfer, // Luther - changed to q_transfer
         const size_t bdy_node_gid,
         const size_t bdy_set, 
-        const SimulationParameters_t& SimulationParamaters) = NULL;
+        const SimulationParameters_t& SimulationParamaters) = NULL; // Luther - passing in simulation parameters for constant heat flux bc
 
 
     // function pointer for stress BC's

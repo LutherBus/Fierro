@@ -78,7 +78,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
     double dt = dt_start;
 
     // Create mesh writer
-    MeshWriter mesh_writer; // Note: Pull to driver after refactoring evolution (Luther fix this)
+    //  MeshWriter mesh_writer; // Note: Pull to driver after refactoring evolution (Luther fix this)
 
     // --- Graphics vars ----
     CArray<double> graphics_times = CArray<double>(20000);
@@ -479,8 +479,8 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                 rk_alpha,
                 dt,
                 node_gid_activated, // Luther - passing in activated flag for nodes
-                BoundaryConditions, 
-                SimulationParamaters); // Luther - passing in boundary conditions
+                BoundaryConditions, // Luther - passing in boundary conditions for constant heat flux bc
+                SimulationParamaters); // Luther - passing in simulation parameters for constant heat flux bc
 
             // ---- apply temperature boundary conditions to the boundary patches----
             boundary_temperature(mesh, BoundaryConditions, State.node.temp, time_value);
@@ -513,7 +513,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
         double total_node_q_transfer = 0.0;
             //log->info("Writing nodal q_transfer: \n");
             for(int i = 0; i < mesh.num_nodes; i++) {
-                //log->info("%f \n", State.node.q_transfer(i));
+                log->info("%f \n", State.node.q_transfer(i));
                 total_node_q_transfer += State.node.q_transfer(i);
             };
         log->info("Total node q_transfer: %20.16f\n", total_node_q_transfer);
@@ -604,7 +604,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
             if (log) log->info("cycle = %lu, time = %20.16f, time step = %20.16f \n", cycle, time_value, dt);
             if (log) log->flush();
 
-        
+            /*
             mesh_writer.write_mesh(mesh,
                                    State,
                                    SimulationParamaters,
@@ -615,7 +615,7 @@ void SGTM3D::execute(SimulationParameters_t& SimulationParamaters,
                                    SGTM3D_State::required_gauss_pt_state,
                                    SGTM3D_State::required_material_pt_state,
                                    this->solver_id);
-        
+            */
             output_id++;
             graphics_time = (double)(output_id) * graphics_dt_ival;
 

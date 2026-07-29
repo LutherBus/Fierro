@@ -62,8 +62,8 @@ void SGTM3D::update_temperature(
     const double rk_alpha,
     const double dt,
     DynamicArrayKokkos<size_t>& node_gid_activated, // Luther - passing in nodal activation flags
-    const BoundaryCondition_t& BoundaryConditions, 
-    const SimulationParameters_t& SimulationParamaters) const 
+    const BoundaryCondition_t& BoundaryConditions, // Luther - passing in Boundary Conditions for constant heat flux bc
+    const SimulationParameters_t& SimulationParamaters) const // Luther - passing in simulation parameters for constant heat flux bc
 {
     //Luther - loop over all activated nodes in the mesh
     // ---- loop over all the nodes in the mesh ---- //

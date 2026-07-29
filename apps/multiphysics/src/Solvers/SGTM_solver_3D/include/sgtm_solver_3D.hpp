@@ -260,8 +260,8 @@ public:
     void boundary_heat_flux(
         const swage::Mesh& mesh,
         const BoundaryCondition_t& Boundary,
-        const DCArrayKokkos<double>& q_transfer, 
-        const SimulationParameters_t& SimulationParamaters) const;
+        const DCArrayKokkos<double>& q_transfer, // Luther - added q_transfer for constant heat flux bc
+        const SimulationParameters_t& SimulationParamaters) const; // Luther - added SimulationParamaters for constant heat flux bc
 
     // **** Functions defined in energy_sgtm.cpp **** //
     //void update_temperature(
@@ -292,8 +292,8 @@ public:
             const double rk_alpha,
             const double dt,
             DynamicArrayKokkos<size_t>& node_gid_activated, // Luther - passing in activation flags for nodes
-            const BoundaryCondition_t& BoundaryConditions, 
-            const SimulationParameters_t& SimulationParamaters) const; // Luther - passing in boundary conditions
+            const BoundaryCondition_t& BoundaryConditions, // Luther - passing in boundary conditions
+            const SimulationParameters_t& SimulationParamaters) const; // Luther - passing in simulation parameters for constant heat flux bc
 
     // **** Functions defined in heat_flux.cpp **** //
     void get_heat_flux(

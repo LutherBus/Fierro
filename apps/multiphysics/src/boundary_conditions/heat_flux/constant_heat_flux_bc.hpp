@@ -34,11 +34,11 @@ static void heat_flux(const swage::Mesh& mesh,
         const DCArrayKokkos<double>& q_transfer,
         const size_t bdy_node_gid,
         const size_t bdy_set, 
-        const SimulationParameters_t& SimulationParamaters)
+        const SimulationParameters_t& SimulationParamaters) // Luther - passing in simulation parameters for constant heat flux bc
 {
     // Heat flux to set the boundary to = bc_global_vars(4)
     // Set velocity to zero in the specified direction
-    size_t plane = heat_flux_bc_global_vars(bdy_set, 1); // Hard coded value 1 for determining which plane (0 for x, 1 for y, 2 for z)
+    size_t plane = heat_flux_bc_global_vars(bdy_set, 1); // Hard coded value 1 for determining which plane (the value of heat_flux_bc_global_vars(bdy_set, 1) is 0 for x, 1 for y, 2 for z)
     size_t i, j;
     switch (static_cast<int>(plane)) {
         case 0:
@@ -56,7 +56,7 @@ static void heat_flux(const swage::Mesh& mesh,
         break;
     }
 
-    q_transfer(bdy_node_gid) = heat_flux_bc_global_vars(bdy_set, 0) * (SimulationParamaters.MeshInput.length[i] * SimulationParamaters.MeshInput.length[j]) / (4.0 * SimulationParamaters.MeshInput.num_elems[i] * SimulationParamaters.MeshInput.num_elems[j]); // bc_global_vars(4);
+    q_transfer(bdy_node_gid) = heat_flux_bc_global_vars(bdy_set, 0) * (SimulationParamaters.MeshInput.length[i] * SimulationParamaters.MeshInput.length[j]) / (4.0 * SimulationParamaters.MeshInput.num_elems[i] * SimulationParamaters.MeshInput.num_elems[j]); // bc_global_vars(4), 4 nodes per elem face;
     return;
 } // end func
 

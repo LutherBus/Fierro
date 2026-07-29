@@ -35,7 +35,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "sgtm_solver_3D.hpp"
 //#include "mesh.hpp""
 #include "boundary_conditions.hpp"
-#include "simulation_parameters.hpp"
+#include "simulation_parameters.hpp" // Luther - added for constant heat flux bc
 
 /////////////////////////////////////////////////////////////////////////////
 ///
@@ -390,8 +390,8 @@ void SGTM3D::boundary_radiation(const swage::Mesh& mesh,
 /////////////////////////////////////////////////////////////////////////////
 void SGTM3D::boundary_heat_flux(const swage::Mesh& mesh,
                                   const BoundaryCondition_t& BoundaryConditions,
-                                  const DCArrayKokkos<double>& q_transfer, 
-                                  const SimulationParameters_t& SimulationParamaters) const
+                                  const DCArrayKokkos<double>& q_transfer, // Luther - added for constant heat flux bc
+                                  const SimulationParameters_t& SimulationParamaters) const // Luther - added for constant heat flux bc
 {
     // Loop over boundary sets
     for (size_t bdy_set = 0; bdy_set < mesh.num_bdy_sets; bdy_set++) {
@@ -411,7 +411,7 @@ void SGTM3D::boundary_heat_flux(const swage::Mesh& mesh,
                                                                   q_transfer,
                                                                   bdy_node_gid,
                                                                   bdy_set, 
-                                                                  SimulationParamaters);
+                                                                  SimulationParamaters); // Luther - added for constant heat flux bc
         }); // end for bdy_node_lid
 
         
